@@ -6,6 +6,11 @@ export const API_ROUTES = {
     login: '/auth/login',
     register: '/auth/register',
     logout: '/auth/logout',
+    me: '/auth/me',
+  },
+  users: {
+    index: '/users',
+    show: (id: number | string) => `/users/${id}`,
   },
 }
 
