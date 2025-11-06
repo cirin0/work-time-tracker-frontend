@@ -37,6 +37,7 @@ const buttonClass = (isLoginButton: boolean) => {
   background-color: #f3f4f6;
   color: #4b5563;
   border: 1px solid;
+  cursor: pointer;
 }
 
 button:hover {
