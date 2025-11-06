@@ -5,19 +5,21 @@
 </template>
 <style scoped>
 .button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #4caf50;
-  cursor: pointer;
-  border-radius: 50px;
-  border: none;
-  padding: 12px 24px;
-  font-size: 18px;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
   color: white;
+  font-weight: 500;
+  font-size: 1rem;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
 .button:hover {
-  background-color: #45a049;
+  transform: scale(1.02);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 </style>

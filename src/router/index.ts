@@ -10,13 +10,26 @@ export const router = createRouter({
     },
     {
       path: '/',
-      name: 'auth',
-      component: () => import('../views/AuthView.vue'),
+      name: 'main',
+      component: () => import('../views/IndexView.vue'),
+      meta: { layout: 'main' },
     },
     {
-      path: '/main',
-      component: () => import('../views/MainView.vue'),
-      children: [{ path: '', component: () => import('../views/IndexView.vue'), name: 'main' }],
+      path: '/chat',
+      name: 'chat',
+      component: () => import('../views/ChatView.vue'),
+      meta: { layout: 'main' },
+    },
+    {
+      path: '/profile/:id',
+      name: 'profile',
+      component: () => import('../views/ProfileView.vue'),
+      meta: { layout: 'main' },
+    },
+    {
+      path: '/auth',
+      name: 'auth',
+      component: () => import('../views/AuthView.vue'),
     },
   ],
   history: createWebHistory(),
@@ -24,7 +37,12 @@ export const router = createRouter({
 
 router.beforeEach((to) => {
   const authStore = useAuthStore()
-  if ((!authStore.getToken && to.name !== 'auth') || to.name == 'auth/logout') {
+
+  if (authStore.getToken && to.name === 'auth') {
+    return { name: 'main' }
+  }
+
+  if (!authStore.getToken && to.name !== 'auth') {
     return { name: 'auth' }
   }
 })

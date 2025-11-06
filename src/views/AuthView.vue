@@ -6,12 +6,12 @@ import { ref } from 'vue'
 
 const isLogin = ref(true)
 
-const handleToggle = () => {
-  isLogin.value = !isLogin.value
+const handleToggle = (newValue: boolean) => {
+  isLogin.value = newValue
 }
 
-const handleFormSubmit = (data: object) => {
-  console.log(isLogin.value ? 'Login data:' : 'Register data:', data)
+const handleRegisterSuccess = () => {
+  isLogin.value = true
 }
 </script>
 <template>
@@ -20,7 +20,7 @@ const handleFormSubmit = (data: object) => {
       <AuthHeader subtitle="Track your productivity, boost your success" />
       <div class="form-card">
         <FormToggle :is-login="isLogin" @toggle="handleToggle" />
-        <AuthForm :is-login="isLogin" @submit="handleFormSubmit" />
+        <AuthForm :is-login="isLogin" @register-success="handleRegisterSuccess" />
       </div>
     </div>
   </div>

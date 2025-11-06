@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import InputField from '../ui/InputField.vue'
-import type { LoginRequest } from '@/types/requests/login.interface'
+import type { AuthRequestData } from '@/types/requests/authRequest.interface'
 import { useAuthStore } from '@/stores/auth.store'
 import { useRouter } from 'vue-router'
 
@@ -9,7 +9,12 @@ const props = defineProps<{
   isLogin: boolean
 }>()
 
-const formLogin = ref<LoginRequest>({
+const emit = defineEmits<{
+  registerSuccess: []
+}>()
+
+const formLogin = ref<AuthRequestData>({
+  name: '',
   email: '',
   password: '',
 })
@@ -25,29 +30,38 @@ watch(
   },
 )
 
+async function handleLogin() {
+  await authStore.login(formLogin.value.email, formLogin.value.password)
+  router.push({ name: 'main' })
+}
+
+async function handleRegister() {
+  await authStore.register(formLogin.value.name, formLogin.value.email, formLogin.value.password)
+  formLogin.value.password = ''
+  emit('registerSuccess')
+}
+
 function handleFormSubmit(event: Event) {
   event.preventDefault()
   if (props.isLogin) {
-    authStore.login(formLogin.value.email, formLogin.value.password)
-    formLogin.value = { email: '', password: '' }
+    handleLogin()
   } else {
-    console.log('Register data:', formLogin.value)
+    handleRegister()
   }
 }
 </script>
 <template>
   <div>
-    {{ authStore.getToken }}
     <form @submit="handleFormSubmit">
-      <!-- <InputField
-      v-if="!isLogin"
-      name="user-full-name"
-      label="Full Name"
-      type="text"
-      v-model="formLogin.fullName"
-      icon="user"
-      placeholder="Enter your full name"
-    /> -->
+      <InputField
+        v-if="!isLogin"
+        name="user-full-name"
+        label="Name"
+        type="text"
+        v-model="formLogin.name"
+        icon="user"
+        placeholder="Enter your full name"
+      />
       <InputField
         name="user-email"
         label="Email"
