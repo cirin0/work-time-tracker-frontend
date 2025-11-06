@@ -1,13 +1,14 @@
 import { API_ROUTES, client } from '@/config/api'
 import type { User } from '@/types/interfaces/user.interface'
 import type { LoginResponse } from '@/types/responses/auth.interface'
+import { useLocalStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 
 const TOKEN_STORE_KEY = 'token-store'
 
 export const useAuthStore = defineStore('auth', () => {
-  const token = ref<string>()
+  const token = useLocalStorage<string | undefined>(TOKEN_STORE_KEY, undefined)
 
   const initialValue = localStorage.getItem(TOKEN_STORE_KEY)
   if (initialValue) {

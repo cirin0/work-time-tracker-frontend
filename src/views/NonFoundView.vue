@@ -1,16 +1,18 @@
 <script setup lang="ts">
+import ButtonMain from '@/components/ui/ButtonMain.vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
 function redirectToMain() {
-  router.push('/')
+  router.push({ name: 'main' })
 }
 </script>
 <template>
   <div class="not-found">
     <div class="not-found__form">
       <h1 class="not-found__header">404</h1>
+      <p>Сторінку не знайдено</p>
       <ButtonMain @click="redirectToMain()">На головну</ButtonMain>
     </div>
   </div>
