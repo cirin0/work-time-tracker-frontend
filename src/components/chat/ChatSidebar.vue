@@ -6,6 +6,7 @@ import { useChatStore } from '@/stores/chat.store'
 defineProps<{
   users: User[]
   selectedUserId: number | null
+  isLoadingUsers: boolean
 }>()
 
 const emit = defineEmits<{
@@ -21,7 +22,9 @@ const chatStore = useChatStore()
       <h2>Користувачі</h2>
     </div>
     <div class="users-list">
+      <div v-if="isLoadingUsers" class="loading-state">Завантаження...</div>
       <UserListItem
+        v-else
         v-for="user in users"
         :key="user.id"
         :user="user"
@@ -58,5 +61,12 @@ const chatStore = useChatStore()
 .users-list {
   flex: 1;
   overflow-y: auto;
+}
+
+.loading-state {
+  padding: 2rem 1.5rem;
+  text-align: center;
+  color: #6b7280;
+  font-size: 1.3rem;
 }
 </style>

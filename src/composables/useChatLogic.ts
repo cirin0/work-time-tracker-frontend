@@ -14,6 +14,7 @@ export function useChatLogic() {
   const selectedUser = ref<User | null>(null)
   const currentUser = ref<User | null>(null)
   const isLoading = ref(false)
+  const isLoadingUsers = ref(false)
 
   const sortedUsers = computed(() => {
     return [...users.value].sort((a, b) => {
@@ -41,6 +42,7 @@ export function useChatLogic() {
   }
 
   async function loadUsers() {
+    isLoadingUsers.value = true
     try {
       const { data } = await apiClient.get<PaginatedResponse<UserApiResponse>>(
         API_ROUTES.users.index,
@@ -50,6 +52,8 @@ export function useChatLogic() {
         .filter((u) => u.id !== currentUser.value?.id)
     } catch (error) {
       console.error('Failed to load users:', error)
+    } finally {
+      isLoadingUsers.value = false
     }
   }
 
@@ -120,6 +124,7 @@ export function useChatLogic() {
     selectedUser,
     currentUser,
     isLoading,
+    isLoadingUsers,
     sortedUsers,
     loadCurrentUser,
     loadUsers,

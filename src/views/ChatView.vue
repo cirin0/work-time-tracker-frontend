@@ -12,6 +12,7 @@ const {
   selectedUser,
   messages,
   isLoading,
+  isLoadingUsers,
   loadCurrentUser,
   loadUsers,
   selectUser,
@@ -57,6 +58,7 @@ async function handleSendMessage(messageText: string) {
       <ChatSidebar
         :users="sortedUsers"
         :selected-user-id="selectedUser?.id ?? null"
+        :is-loading-users="isLoadingUsers"
         @select-user="handleSelectUser"
       />
 
@@ -75,7 +77,7 @@ async function handleSendMessage(messageText: string) {
 <style scoped>
 .chat-container {
   display: flex;
-  height: calc(100vh - 80px);
+  height: calc(100vh - 8rem);
   background: white;
   border-radius: 1rem;
   overflow: hidden;

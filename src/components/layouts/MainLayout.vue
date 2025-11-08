@@ -58,8 +58,7 @@ onMounted(async () => {
           <LogoProfile :user="profileStore.profile" />
         </router-link>
 
-        <div v-else-if="profileStore.isLoading" class="profile-loading">Завантаження...</div>
-
+        <div v-else class="profile-loading">Завантаження...</div>
         <button @click="handleLogout" class="logout-button">Вихід</button>
       </div>
     </header>
@@ -179,7 +178,7 @@ onMounted(async () => {
 .profile-loading {
   color: rgba(255, 255, 255, 0.7);
   font-size: 0.875rem;
-  padding: 0.5rem;
+  padding: 1.22rem 0.5rem;
 }
 
 .logout-button {
