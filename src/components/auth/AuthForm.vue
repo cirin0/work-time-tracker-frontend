@@ -16,7 +16,7 @@ const emit = defineEmits<{
 const formLogin = ref<AuthRequestData>({
   name: '',
   email: '',
-  password: '',
+  password: 'vasiu@test.com',
 })
 const authStore = useAuthStore()
 const router = useRouter()
@@ -52,6 +52,8 @@ function handleFormSubmit(event: Event) {
 </script>
 <template>
   <div>
+    1. main@test.com / vasiu@test.com <br />
+    2. muko@test.com / visiu2@test.com
     <form @submit="handleFormSubmit">
       <InputField
         v-if="!isLogin"
