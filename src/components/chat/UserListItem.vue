@@ -17,7 +17,11 @@ const avatarUrl = computed(() => getAvatarUrl(props.user.avatar))
 </script>
 
 <template>
-  <div class="user-item" :class="{ active: isActive }" @click="$emit('select')">
+  <div
+    class="user-item"
+    :class="{ active: isActive, 'has-unread': unreadCount && unreadCount > 0 }"
+    @click="$emit('select')"
+  >
     <div class="user-avatar">
       <img :src="avatarUrl!" alt="User Avatar" v-if="avatarUrl" />
       <div v-else>{{ user.name.charAt(0).toUpperCase() }}</div>
@@ -40,10 +44,24 @@ const avatarUrl = computed(() => getAvatarUrl(props.user.avatar))
   cursor: pointer;
   transition: all 0.2s ease;
   border-bottom: 1px solid #e5e7eb;
+  position: relative;
+}
+
+.user-item.has-unread {
+  background-color: #fef3c7;
+  border-left: 3px solid #f59e0b;
+}
+
+.user-item.has-unread .user-name {
+  font-weight: 600;
 }
 
 .user-item:hover {
   background-color: #f3f4f6;
+}
+
+.user-item.has-unread:hover {
+  background-color: #fde68a;
 }
 
 .user-item.active {
