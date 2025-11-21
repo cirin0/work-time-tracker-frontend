@@ -2,6 +2,7 @@
 import { useAuthStore } from '@/stores/auth.store'
 import { useProfileStore } from '@/stores/profile.store'
 import { useChatStore } from '@/stores/chat.store'
+import { useRoleGuard } from '@/composables/useRoleGuard'
 import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import LogoProfile from '../profile/LogoProfile.vue'
@@ -10,13 +11,13 @@ const authStore = useAuthStore()
 const profileStore = useProfileStore()
 const chatStore = useChatStore()
 const router = useRouter()
+const { isAdmin, isManager } = useRoleGuard()
 
 const profileRoute = computed(() => {
   const user = profileStore.profile
   if (!user?.id) return null
   return {
     name: 'profile',
-    params: { id: user.id },
   }
 })
 
@@ -46,6 +47,12 @@ onMounted(async () => {
             <span v-if="chatStore.totalUnread > 0" class="unread-indicator">
               {{ chatStore.totalUnread > 99 ? '99+' : chatStore.totalUnread }}
             </span>
+          </router-link>
+          <router-link v-if="isManager" :to="{ name: 'manager' }" class="nav-link">
+            Панель менеджера
+          </router-link>
+          <router-link v-if="isAdmin" :to="{ name: 'admin' }" class="nav-link">
+            Адмін панель
           </router-link>
         </nav>
       </div>
