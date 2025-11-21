@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { watch } from 'vue'
 import InputField from '../ui/InputField.vue'
-import type { AuthRequestData } from '@/types/requests/authRequest.interface'
-import { useAuthStore } from '@/stores/auth.store'
-import { useRouter } from 'vue-router'
+import { useAuthForm } from '@/composables/useAuthForm'
 
 const props = defineProps<{
   isLogin: boolean
@@ -13,72 +11,72 @@ const emit = defineEmits<{
   registerSuccess: []
 }>()
 
-const formLogin = ref<AuthRequestData>({
-  name: '',
-  email: '',
-  password: 'vasiu@test.com',
-})
-const authStore = useAuthStore()
-const router = useRouter()
+const { generalError, successMessage, onSubmit, resetFormState, clearErrors } = useAuthForm(
+  () => props.isLogin,
+)
+
+const handleSubmit = async (event: Event) => {
+  event.preventDefault()
+  await onSubmit(event)
+
+  if (!props.isLogin && !generalError.value && successMessage.value) {
+    emit('registerSuccess')
+  }
+}
+
+const handleInputStart = () => {
+  if (successMessage.value) {
+    successMessage.value = ''
+  }
+}
 
 watch(
-  () => authStore.getToken,
-  () => {
-    if (authStore.getToken) {
-      router.push({ name: 'main' })
+  () => props.isLogin,
+  (newValue, oldValue) => {
+    if (oldValue === false && newValue === true) {
+      resetFormState()
+    } else {
+      clearErrors()
+      resetFormState()
     }
   },
 )
-
-async function handleLogin() {
-  await authStore.login(formLogin.value.email, formLogin.value.password)
-  router.push({ name: 'main' })
-}
-
-async function handleRegister() {
-  await authStore.register(formLogin.value.name, formLogin.value.email, formLogin.value.password)
-  formLogin.value.password = ''
-  emit('registerSuccess')
-}
-
-function handleFormSubmit(event: Event) {
-  event.preventDefault()
-  if (props.isLogin) {
-    handleLogin()
-  } else {
-    handleRegister()
-  }
-}
 </script>
 <template>
   <div>
+    <div v-if="successMessage" class="success-alert">
+      {{ successMessage }}
+    </div>
+    <div v-if="generalError" class="error-alert">
+      {{ generalError }}
+    </div>
     1. main@test.com / vasiu@test.com <br />
     2. muko@test.com / visiu2@test.com
-    <form @submit="handleFormSubmit">
+    <form @submit="handleSubmit">
       <InputField
         v-if="!isLogin"
-        name="user-full-name"
+        name="name"
         label="Name"
         type="text"
-        v-model="formLogin.name"
         icon="user"
         placeholder="Enter your full name"
+        @focus="handleInputStart"
       />
       <InputField
-        name="user-email"
+        name="email"
         label="Email"
         type="email"
-        v-model="formLogin.email"
         icon="email"
         placeholder="Enter your email"
+        @focus="handleInputStart"
       />
       <InputField
-        name="user-password"
+        name="password"
         label="Password"
         type="password"
-        v-model="formLogin.password"
         icon="lock"
         placeholder="Enter your password"
+        @focus="handleInputStart"
       />
       <div v-if="isLogin" class="forgot-password">
         <a href="#" class="forgot-link">Forgot password?</a>
@@ -93,6 +91,28 @@ function handleFormSubmit(event: Event) {
   </div>
 </template>
 <style scoped>
+.success-alert {
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  background-color: #d1fae5;
+  border: 1px solid #a7f3d0;
+  border-radius: 0.5rem;
+  color: #065f46;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.error-alert {
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  background-color: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+  color: #dc2626;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
 .forgot-password {
   text-align: right;
   margin-bottom: 1.5rem;
