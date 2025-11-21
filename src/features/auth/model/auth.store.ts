@@ -1,11 +1,9 @@
-import { API_ROUTES, apiClient } from '@/config/api'
-import type { User } from '@/types/interfaces/user.interface'
-import type { LoginResponse, RefreshResponse } from '@/types/responses/auth.interface'
 import { useLocalStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-
-const TOKEN_STORE_KEY = 'token-store'
+import { fetchCurrentUser, loginRequest, logoutRequest, refreshRequest, registerRequest } from '../api/auth.api'
+import { TOKEN_STORE_KEY } from '../api/auth.routes'
+import type { User } from '@/features/profile/lib/user.interface'
 
 export const useAuthStore = defineStore('auth', () => {
   const token = useLocalStorage<string | undefined>(TOKEN_STORE_KEY, undefined)
@@ -32,26 +30,18 @@ export const useAuthStore = defineStore('auth', () => {
   const currentUser = computed(() => user.value)
 
   async function login(email: string, password: string) {
-    const { data } = await apiClient.post<LoginResponse>(API_ROUTES.auth.login, {
-      email,
-      password,
-    })
+    const data = await loginRequest(email, password)
     setToken(data.access_token)
     user.value = data.user
     return data
   }
 
   async function register(name: string, email: string, password: string) {
-    const { data } = await apiClient.post<User>(API_ROUTES.auth.register, {
-      name,
-      email,
-      password,
-    })
-    return data
+    return registerRequest(name, email, password)
   }
 
   async function refreshToken(): Promise<string> {
-    const { data } = await apiClient.post<RefreshResponse>(API_ROUTES.auth.refresh)
+    const data = await refreshRequest()
     setToken(data.access_token)
     user.value = data.user
     return data.access_token
@@ -59,7 +49,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function logout() {
     try {
-      await apiClient.post(API_ROUTES.auth.logout)
+      await logoutRequest()
     } catch (error) {
       console.error('Logout error:', error)
     } finally {
@@ -71,7 +61,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (!token.value) return null
 
     try {
-      const { data } = await apiClient.get<User>(API_ROUTES.me)
+      const data = await fetchCurrentUser()
       user.value = data
       return data
     } catch (error) {

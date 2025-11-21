@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { User } from '@/types/interfaces/user.interface'
+import type { User } from '@/features/profile/lib/user.interface'
 import UserListItem from './UserListItem.vue'
-import { useChatStore } from '@/stores/chat.store'
+import { useChatStore } from '@/features/chat/model/chat.store'
 
 defineProps<{
   users: User[]

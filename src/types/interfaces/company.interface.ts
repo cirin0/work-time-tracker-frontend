@@ -1,5 +1,5 @@
 import type { BaseModel } from './base.model'
-import type { User } from './user.interface'
+import type { User } from '@/features/profile/lib/user.interface'
 import type { WorkSchedule } from './workSchedule.interface'
 
 export interface Company extends BaseModel {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import MainLayout from '@/components/layouts/MainLayout.vue'
-import MainProfile from '@/components/profile/MainProfile.vue'
+import MainProfile from './MainProfile.vue'
 </script>
 <template>
   <MainLayout>

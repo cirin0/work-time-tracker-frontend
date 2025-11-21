@@ -1,11 +1,10 @@
-import { ref, computed } from 'vue'
-import { apiClient, API_ROUTES } from '@/config/api'
-import type { User } from '@/types/interfaces/user.interface'
-import type { Message, SendMessageRequest } from '@/types/interfaces/message.interface'
-import type { PaginatedResponse } from '@/types/responses/pagination.interface'
-import type { UserApiResponse } from '@/types/responses/user.api'
-import { transformUserFromApi } from '@/types/responses/user.api'
-import { useChatStore } from '@/stores/chat.store'
+import { computed, ref } from 'vue'
+import { fetchCurrentUser } from '@/features/auth/api/auth.api'
+import { fetchMessages, sendMessageRequest } from '../api/chat.api'
+import { useChatStore } from '@/features/chat/model/chat.store'
+import type { Message, SendMessageRequest } from './message.interface'
+import type { User } from '@/features/profile/lib/user.interface'
+import { fetchUsers } from '@/features/profile/api/profile.api'
 
 export function useChatLogic() {
   const chatStore = useChatStore()
@@ -32,7 +31,7 @@ export function useChatLogic() {
 
   async function loadCurrentUser() {
     try {
-      const { data } = await apiClient.get<User>(API_ROUTES.me)
+      const data = await fetchCurrentUser()
       currentUser.value = data
       return data
     } catch (error) {
@@ -44,12 +43,8 @@ export function useChatLogic() {
   async function loadUsers() {
     isLoadingUsers.value = true
     try {
-      const { data } = await apiClient.get<PaginatedResponse<UserApiResponse>>(
-        API_ROUTES.users.index,
-      )
-      users.value = data.data
-        .map(transformUserFromApi)
-        .filter((u) => u.id !== currentUser.value?.id)
+      const fetchedUsers = await fetchUsers()
+      users.value = fetchedUsers.filter((u) => u.id !== currentUser.value?.id)
     } catch (error) {
       console.error('Failed to load users:', error)
     } finally {
@@ -61,7 +56,7 @@ export function useChatLogic() {
     isLoading.value = true
 
     try {
-      const { data } = await apiClient.get<Message[]>(API_ROUTES.messages.index(receiverId))
+      const data = await fetchMessages(receiverId)
       messages.value = data
     } catch (error) {
       console.error('Failed to load messages:', error)
@@ -87,7 +82,7 @@ export function useChatLogic() {
         message: messageText,
       }
 
-      const { data } = await apiClient.post<Message>(API_ROUTES.messages.store, payload)
+      const data = await sendMessageRequest(payload)
       messages.value.push(data)
       chatStore.updateLastActivity(selectedUser.value.id)
     } catch (error) {

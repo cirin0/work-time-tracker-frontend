@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, watch, nextTick } from 'vue'
-import type { Message } from '@/types/interfaces/message.interface'
+import { nextTick, ref, watch } from 'vue'
+import type { Message } from '../../lib/message.interface'
 import MessageItem from './MessageItem.vue'
 
 const props = defineProps<{

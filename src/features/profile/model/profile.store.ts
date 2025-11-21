@@ -1,7 +1,7 @@
-import { API_ROUTES, apiClient } from '@/config/api'
-import type { User } from '@/types/interfaces/user.interface'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { fetchProfile as fetchProfileRequest } from '../api/profile.api'
+import type { User } from '@/features/profile/lib/user.interface'
 
 export const useProfileStore = defineStore('profile', () => {
   const profile = ref<User | null>(null)
@@ -29,7 +29,7 @@ export const useProfileStore = defineStore('profile', () => {
     error.value = null
 
     try {
-      const { data } = await apiClient.get<User>(API_ROUTES.me)
+      const data = await fetchProfileRequest()
       profile.value = data
       lastFetchTime.value = Date.now()
       return data

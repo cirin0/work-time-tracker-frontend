@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
+import { nextTick, onMounted, ref } from 'vue'
 import MainLayout from '@/components/layouts/MainLayout.vue'
-import ChatSidebar from '@/components/chat/ChatSidebar.vue'
-import ChatArea from '@/components/chat/ChatArea.vue'
-import { useChatLogic } from '@/composables/useChatLogic'
-import { useChatWebSocket } from '@/composables/useChatWebSocket'
+import ChatSidebar from './components/ChatSidebar.vue'
+import ChatArea from './components/ChatArea.vue'
+import { useChatLogic } from '../lib/useChatLogic'
+import { useChatWebSocket } from '../lib/useChatWebSocket'
 
 const {
   currentUser,

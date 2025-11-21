@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { User } from '@/types/interfaces/user.interface'
-import type { Message } from '@/types/interfaces/message.interface'
+import type { User } from '@/features/profile/lib/user.interface'
+import type { Message } from '../../lib/message.interface'
 import ChatHeader from './ChatHeader.vue'
 import MessagesList from './MessagesList.vue'
 import MessageInput from './MessageInput.vue'
@@ -27,7 +27,6 @@ defineExpose({
   scrollToBottom: () => messagesListRef.value?.scrollToBottom(),
 })
 </script>
-
 <template>
   <div class="chat-area">
     <ChatHeader :selected-user="selectedUser" />
@@ -48,7 +47,6 @@ defineExpose({
     <MessageInput v-if="selectedUser" @send="handleSendMessage" />
   </div>
 </template>
-
 <style scoped>
 .chat-area {
   flex: 1;

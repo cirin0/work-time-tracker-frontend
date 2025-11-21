@@ -1,24 +1,7 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
+import { AUTH_ROUTES, TOKEN_STORE_KEY } from '@/features/auth/api/auth.routes'
 
 export const API_BASE_URL = 'http://localhost:8000'
-
-export const API_ROUTES = {
-  auth: {
-    login: '/auth/login',
-    register: '/auth/register',
-    logout: '/auth/logout',
-    refresh: '/auth/refresh',
-  },
-  me: '/me',
-  users: {
-    index: '/users',
-    show: (id: number | string) => `/users/${id}`,
-  },
-  messages: {
-    index: (receiverId: number | string) => `/messages/${receiverId}`,
-    store: '/messages',
-  },
-}
 
 export const apiClient = axios.create({
   baseURL: `${API_BASE_URL}/api`,
@@ -37,7 +20,7 @@ let failedRequestsQueue: Array<{
 
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem('token-store')
+    const token = localStorage.getItem(TOKEN_STORE_KEY)
 
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`
@@ -58,15 +41,12 @@ apiClient.interceptors.response.use(
     if (
       error.response?.status !== 401 ||
       originalRequest._retry ||
-      originalRequest.url === API_ROUTES.auth.refresh
+      originalRequest.url === AUTH_ROUTES.refresh
     ) {
       return Promise.reject(error)
     }
 
-    if (
-      originalRequest.url === API_ROUTES.auth.login ||
-      originalRequest.url === API_ROUTES.auth.register
-    ) {
+    if (originalRequest.url === AUTH_ROUTES.login || originalRequest.url === AUTH_ROUTES.register) {
       return Promise.reject(error)
     }
 
@@ -90,10 +70,10 @@ apiClient.interceptors.response.use(
     isRefreshing = true
 
     try {
-      const { data } = await apiClient.post(API_ROUTES.auth.refresh)
+      const { data } = await apiClient.post(AUTH_ROUTES.refresh)
       const newToken = data.access_token
 
-      localStorage.setItem('token-store', newToken)
+      localStorage.setItem(TOKEN_STORE_KEY, newToken)
 
       failedRequestsQueue.forEach((request) => {
         request.resolve(newToken)
@@ -111,7 +91,7 @@ apiClient.interceptors.response.use(
       })
       failedRequestsQueue = []
 
-      localStorage.removeItem('token-store')
+      localStorage.removeItem(TOKEN_STORE_KEY)
 
       if (window.location.pathname !== '/auth') {
         window.location.href = '/auth'

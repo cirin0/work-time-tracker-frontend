@@ -1,7 +1,7 @@
 import { onUnmounted } from 'vue'
 import echo from '@/config/echo'
-import type { User } from '@/types/interfaces/user.interface'
-import type { Message } from '@/types/interfaces/message.interface'
+import type { User } from '@/features/profile/lib/user.interface'
+import type { Message } from './message.interface'
 
 export function useChatWebSocket(
   currentUser: { value: User | null },

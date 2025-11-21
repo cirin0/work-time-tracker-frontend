@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { useAuthStore } from '@/stores/auth.store'
-import { useProfileStore } from '@/stores/profile.store'
-import { useChatStore } from '@/stores/chat.store'
+import { useAuthStore } from '@/features/auth/model/auth.store'
+import { useProfileStore } from '@/features/profile/model/profile.store'
+import { useChatStore } from '@/features/chat/model/chat.store'
 import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import LogoProfile from '../profile/LogoProfile.vue'
+import LogoProfile from '@/features/profile/ui/LogoProfile.vue'
 
 const authStore = useAuthStore()
 const profileStore = useProfileStore()
@@ -199,6 +199,7 @@ onMounted(async () => {
 
 .content {
   flex: 1;
-  padding: 1rem;
+  padding: 1.5rem;
+  background-color: #f3f4f6;
 }
 </style>

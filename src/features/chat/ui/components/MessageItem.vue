@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Message } from '@/types/interfaces/message.interface'
+import type { Message } from '../../lib/message.interface'
 import { useDateFormat } from '@vueuse/core'
 import { computed } from 'vue'
 

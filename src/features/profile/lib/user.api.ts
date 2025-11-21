@@ -1,4 +1,5 @@
-import type { UserRole } from '../enums/enums.types'
+import type { UserRole } from '@/types/enums/enums.types'
+import type { User } from './user.interface'
 
 export interface UserApiResponse {
   id: number
@@ -12,7 +13,7 @@ export interface UserApiResponse {
   updated_at: string
 }
 
-export function transformUserFromApi(apiUser: UserApiResponse) {
+export function transformUserFromApi(apiUser: UserApiResponse): User {
   return {
     id: apiUser.id,
     name: apiUser.name,

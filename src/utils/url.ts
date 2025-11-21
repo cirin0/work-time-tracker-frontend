@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '@/config/api'
+import { API_BASE_URL } from '@/shared/api/client'
 
 export function getAvatarUrl(avatarPath: string | null | undefined): string | null {
   if (!avatarPath) return null

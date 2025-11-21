@@ -1,19 +1,17 @@
-import type { LeaveRequestStatus, LeaveRequestType } from '../enums/enums.types'
 import type { BaseModel } from './base.model'
-import type { User } from './user.interface'
+import type { User } from '@/features/profile/lib/user.interface'
 
 export interface LeaveRequest extends BaseModel {
   user_id: number
-  type: LeaveRequestType
+  type: string
   start_date: string
   end_date: string
   reason: string | null
-  status: LeaveRequestStatus
-  processed_by_manager_id: number | null
-  manager_comment: string | null
+  status: 'pending' | 'approved' | 'rejected'
+  approver_id: number | null
 
   // relationships
 
   user?: User
-  manager?: User
+  approver?: User
 }

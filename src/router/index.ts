@@ -1,4 +1,4 @@
-import { useAuthStore } from '@/stores/auth.store'
+import { useAuthStore } from '@/features/auth/model/auth.store'
 import { createRouter, createWebHistory } from 'vue-router'
 
 export const router = createRouter({
@@ -11,25 +11,25 @@ export const router = createRouter({
     {
       path: '/',
       name: 'main',
-      component: () => import('../views/IndexView.vue'),
+      component: () => import('../features/home/ui/IndexPage.vue'),
       meta: { layout: 'main', requiresAuth: true },
     },
     {
       path: '/chat',
       name: 'chat',
-      component: () => import('../views/ChatView.vue'),
+      component: () => import('../features/chat/ui/ChatPage.vue'),
       meta: { layout: 'main', requiresAuth: true },
     },
     {
       path: '/profile/:id',
       name: 'profile',
-      component: () => import('../views/ProfileView.vue'),
+      component: () => import('../features/profile/ui/ProfilePage.vue'),
       meta: { layout: 'main', requiresAuth: true },
     },
     {
       path: '/auth',
       name: 'auth',
-      component: () => import('../views/AuthView.vue'),
+      component: () => import('../features/auth/ui/AuthPage.vue'),
       meta: { requiresAuth: false },
     },
   ],

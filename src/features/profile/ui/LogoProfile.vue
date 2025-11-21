@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { User } from '@/types/interfaces/user.interface'
+import type { User } from '@/features/profile/lib/user.interface'
 import { getAvatarUrl } from '@/utils/url'
 import { computed } from 'vue'
 

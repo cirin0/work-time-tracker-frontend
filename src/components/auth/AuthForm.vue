@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue'
 import InputField from '../ui/InputField.vue'
 import type { AuthRequestData } from '@/types/requests/authRequest.interface'
-import { useAuthStore } from '@/stores/auth.store'
+import { useAuthStore } from '@/features/auth/model/auth.store'
 import { useRouter } from 'vue-router'
 
 const props = defineProps<{
