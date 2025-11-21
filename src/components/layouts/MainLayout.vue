@@ -2,6 +2,7 @@
 import { useAuthStore } from '@/stores/auth.store'
 import { useProfileStore } from '@/stores/profile.store'
 import { useChatStore } from '@/stores/chat.store'
+import { useRoleGuard } from '@/composables/useRoleGuard'
 import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import LogoProfile from '../profile/LogoProfile.vue'
@@ -10,13 +11,13 @@ const authStore = useAuthStore()
 const profileStore = useProfileStore()
 const chatStore = useChatStore()
 const router = useRouter()
+const { isAdmin, isManager } = useRoleGuard()
 
 const profileRoute = computed(() => {
   const user = profileStore.profile
   if (!user?.id) return null
   return {
     name: 'profile',
-    params: { id: user.id },
   }
 })
 
@@ -47,6 +48,12 @@ onMounted(async () => {
               {{ chatStore.totalUnread > 99 ? '99+' : chatStore.totalUnread }}
             </span>
           </router-link>
+          <router-link v-if="isManager" :to="{ name: 'manager' }" class="nav-link">
+            Панель менеджера
+          </router-link>
+          <router-link v-if="isAdmin" :to="{ name: 'admin' }" class="nav-link">
+            Адмін панель
+          </router-link>
         </nav>
       </div>
       <div class="header-right">
@@ -58,8 +65,7 @@ onMounted(async () => {
           <LogoProfile :user="profileStore.profile" />
         </router-link>
 
-        <div v-else-if="profileStore.isLoading" class="profile-loading">Завантаження...</div>
-
+        <div v-else class="profile-loading">Завантаження...</div>
         <button @click="handleLogout" class="logout-button">Вихід</button>
       </div>
     </header>
@@ -97,6 +103,8 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .header h1 {
@@ -177,7 +185,7 @@ onMounted(async () => {
 .profile-loading {
   color: rgba(255, 255, 255, 0.7);
   font-size: 0.875rem;
-  padding: 0.5rem;
+  padding: 1.22rem 0.5rem;
 }
 
 .logout-button {

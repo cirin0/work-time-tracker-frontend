@@ -1,4 +1,4 @@
-import { API_ROUTES, client } from '@/config/api'
+import { API_ROUTES, apiClient } from '@/config/api'
 import type { User } from '@/types/interfaces/user.interface'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
@@ -29,13 +29,12 @@ export const useProfileStore = defineStore('profile', () => {
     error.value = null
 
     try {
-      const { data } = await client().get<User>(API_ROUTES.me)
+      const { data } = await apiClient.get<User>(API_ROUTES.me)
       profile.value = data
       lastFetchTime.value = Date.now()
       return data
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to fetch profile'
-      console.error('Failed to fetch profile:', err)
       throw err
     } finally {
       isLoading.value = false

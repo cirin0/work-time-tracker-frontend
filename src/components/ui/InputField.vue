@@ -3,18 +3,20 @@ import EmailIcon from '@/icons/EmailIcon.vue'
 import LockIcon from '@/icons/LockIcon.vue'
 import UserIcon from '@/icons/UserIcon.vue'
 import { computed } from 'vue'
+import { useField } from 'vee-validate'
 
 const props = defineProps<{
   name: string
   label: string
   type: string
-  modelValue: string
+  modelValue?: string
   placeholder?: string
   icon?: string
 }>()
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
+  (e: 'focus', event: FocusEvent): void
 }>()
 
 const icons = {
@@ -24,6 +26,18 @@ const icons = {
 }
 
 const iconComponent = computed(() => icons[props.icon as keyof typeof icons] || UserIcon)
+
+const { value: inputValue, errorMessage } = useField<string>(() => props.name)
+
+function handleInput(event: Event) {
+  const value = (event.target as HTMLInputElement)?.value ?? ''
+  inputValue.value = value
+  emit('update:modelValue', value)
+}
+
+function handleFocus(event: FocusEvent) {
+  emit('focus', event)
+}
 </script>
 <template>
   <div class="input-wrapper">
@@ -32,13 +46,16 @@ const iconComponent = computed(() => icons[props.icon as keyof typeof icons] || 
       <component :is="iconComponent" class="input-icon" v-if="icon" />
       <input
         :id="name"
+        :name="name"
         :type="type"
         :placeholder="placeholder"
-        :value="modelValue"
-        @input="emit('update:modelValue', ($event.target as HTMLInputElement)?.value ?? '')"
-        class="input-field"
+        :value="inputValue"
+        @input="handleInput"
+        @focus="handleFocus"
+        :class="['input-field', { 'input-error': errorMessage }]"
       />
     </div>
+    <span v-if="errorMessage" class="error-message">{{ errorMessage }}</span>
   </div>
 </template>
 <style scoped>
@@ -86,5 +103,22 @@ const iconComponent = computed(() => icons[props.icon as keyof typeof icons] || 
 
 .input-field::placeholder {
   color: #9ca3af;
+}
+
+.input-error {
+  border-color: #ef4444 !important;
+}
+
+.input-error:focus {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+.error-message {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: #ef4444;
+  font-weight: 500;
 }
 </style>
