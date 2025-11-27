@@ -15,6 +15,8 @@ export function useChatLogic() {
   const currentUser = ref<User | null>(null)
   const isLoading = ref(false)
   const isLoadingUsers = ref(false)
+  const currentPage = ref(1)
+  const hasMoreUsers = ref(true)
 
   const sortedUsers = computed(() => {
     return [...users.value].sort((a, b) => {
@@ -46,15 +48,40 @@ export function useChatLogic() {
     try {
       const { data } = await apiClient.get<PaginatedResponse<UserApiResponse>>(
         API_ROUTES.users.index,
+        {
+          params: {
+            page: currentPage.value,
+            per_page: 10,
+          },
+        },
       )
-      users.value = data.data
+
+      const newUsers = data.data
         .map(transformUserFromApi)
         .filter((u) => u.id !== currentUser.value?.id)
+
+      users.value = [...users.value, ...newUsers]
+      hasMoreUsers.value = data.meta.current_page < data.meta.last_page
     } catch (error) {
       console.error('Failed to load users:', error)
     } finally {
       isLoadingUsers.value = false
     }
+  }
+
+  async function loadMoreUsers() {
+    if (isLoadingUsers.value || !hasMoreUsers.value) {
+      return
+    }
+
+    currentPage.value++
+    await loadUsers()
+  }
+
+  function resetUsers() {
+    users.value = []
+    currentPage.value = 1
+    hasMoreUsers.value = true
   }
 
   async function loadMessages(receiverId: number) {
@@ -126,8 +153,11 @@ export function useChatLogic() {
     isLoading,
     isLoadingUsers,
     sortedUsers,
+    hasMoreUsers,
     loadCurrentUser,
     loadUsers,
+    loadMoreUsers,
+    resetUsers,
     loadMessages,
     selectUser,
     sendMessage,

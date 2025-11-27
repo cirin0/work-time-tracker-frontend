@@ -13,8 +13,10 @@ const {
   messages,
   isLoading,
   isLoadingUsers,
+  hasMoreUsers,
   loadCurrentUser,
   loadUsers,
+  loadMoreUsers,
   selectUser,
   sendMessage,
   handleIncomingMessage,
@@ -59,7 +61,9 @@ async function handleSendMessage(messageText: string) {
         :users="sortedUsers"
         :selected-user-id="selectedUser?.id ?? null"
         :is-loading-users="isLoadingUsers"
+        :has-more-users="hasMoreUsers"
         @select-user="handleSelectUser"
+        @load-more="loadMoreUsers"
       />
 
       <ChatArea
