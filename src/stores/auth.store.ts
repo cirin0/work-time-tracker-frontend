@@ -1,4 +1,4 @@
-import { API_ROUTES, apiClient } from '@/config/api'
+import { API_ROUTES, apiClient } from '@/core/api'
 import type { User } from '@/types/interfaces/user.interface'
 import type { LoginResponse, RefreshResponse } from '@/types/responses/auth.interface'
 import { useLocalStorage } from '@vueuse/core'

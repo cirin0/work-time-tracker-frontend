@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import { apiClient, API_ROUTES } from '@/config/api'
+import { apiClient, API_ROUTES } from '@/core/api'
 import type { User } from '@/types/interfaces/user.interface'
 import type { Message, SendMessageRequest } from '@/types/interfaces/message.interface'
 import type { PaginatedResponse } from '@/types/responses/pagination.interface'

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useProfileStore } from '@/stores/profile.store'
 import { onMounted, computed } from 'vue'
-import { getAvatarUrl } from '@/utils/url'
+import { getAvatarUrl } from '@/core/utils/url'
 
 const store = useProfileStore()
 

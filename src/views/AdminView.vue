@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import MainLayout from '@/components/layouts/MainLayout.vue'
 import { useRoleGuard } from '@/composables/useRoleGuard'
-import { apiClient, API_ROUTES } from '@/config/api'
+import { apiClient, API_ROUTES } from '@/core/api'
 import type { User } from '@/types/interfaces/user.interface'
 import type { PaginatedResponse } from '@/types/responses/pagination.interface'
 import type { UserApiResponse } from '@/types/responses/user.api'
