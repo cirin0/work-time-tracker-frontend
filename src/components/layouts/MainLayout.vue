@@ -75,6 +75,17 @@ onMounted(async () => {
   </div>
 </template>
 
+<!-- <template>
+  <div>
+    <AppHeader />
+    <main>
+      <div>
+        <slot />
+      </div>
+    </main>
+  </div>
+</template> -->
+
 <style scoped>
 .main-layout {
   min-height: 100vh;

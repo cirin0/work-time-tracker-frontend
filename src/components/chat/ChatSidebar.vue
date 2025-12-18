@@ -53,17 +53,20 @@ useInfiniteScroll(
     </div>
     <div ref="usersListRef" class="users-list">
       <div v-if="isLoadingUsers && users.length === 0" class="loading-state">Завантаження...</div>
-      <UserListItem
-        v-for="user in users"
-        :key="user.id"
-        :user="user"
-        :is-active="selectedUserId === user.id"
-        :unread-count="chatStore.getUnreadCount(user.id)"
-        @select="emit('selectUser', user)"
-      />
-      <div v-if="isLoadingUsers && users.length > 0" class="loading-more">
-        Завантаження більше...
-      </div>
+      <template v-else-if="users.length > 0">
+        <UserListItem
+          v-for="user in users"
+          :key="user.id"
+          :user="user"
+          :is-active="selectedUserId === user.id"
+          :unread-count="chatStore.getUnreadCount(user.id)"
+          @select="emit('selectUser', user)"
+        />
+        <div v-if="isLoadingUsers && users.length > 0" class="loading-more">
+          Завантаження більше...
+        </div>
+      </template>
+      <div v-else class="loading-state">Завантаження...</div>
     </div>
   </div>
 </template>
