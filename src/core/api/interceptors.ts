@@ -1,33 +1,8 @@
-import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
+import type { AxiosError, InternalAxiosRequestConfig } from 'axios'
+import { apiClient } from './client'
+import { API_ROUTES } from '../config/api.config'
 
-export const API_BASE_URL = 'http://localhost:8000'
-
-export const API_ROUTES = {
-  auth: {
-    login: '/auth/login',
-    register: '/auth/register',
-    logout: '/auth/logout',
-    refresh: '/auth/refresh',
-  },
-  me: '/me',
-  users: {
-    index: '/users',
-    show: (id: number | string) => `/users/${id}`,
-  },
-  messages: {
-    index: (receiverId: number | string) => `/messages/${receiverId}`,
-    store: '/messages',
-  },
-}
-
-export const apiClient = axios.create({
-  baseURL: `${API_BASE_URL}/api`,
-  timeout: 10000,
-  withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-})
+const TOKEN_KEY = 'token-store'
 
 let isRefreshing = false
 let failedRequestsQueue: Array<{
@@ -37,12 +12,10 @@ let failedRequestsQueue: Array<{
 
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem('token-store')
-
+    const token = localStorage.getItem(TOKEN_KEY)
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`
     }
-
     return config
   },
   (error) => {
@@ -93,7 +66,7 @@ apiClient.interceptors.response.use(
       const { data } = await apiClient.post(API_ROUTES.auth.refresh)
       const newToken = data.access_token
 
-      localStorage.setItem('token-store', newToken)
+      localStorage.setItem(TOKEN_KEY, newToken)
 
       failedRequestsQueue.forEach((request) => {
         request.resolve(newToken)
@@ -111,7 +84,7 @@ apiClient.interceptors.response.use(
       })
       failedRequestsQueue = []
 
-      localStorage.removeItem('token-store')
+      localStorage.removeItem(TOKEN_KEY)
 
       if (window.location.pathname !== '/auth') {
         window.location.href = '/auth'

@@ -75,6 +75,17 @@ onMounted(async () => {
   </div>
 </template>
 
+<!-- <template>
+  <div>
+    <AppHeader />
+    <main>
+      <div>
+        <slot />
+      </div>
+    </main>
+  </div>
+</template> -->
+
 <style scoped>
 .main-layout {
   min-height: 100vh;
@@ -206,6 +217,6 @@ onMounted(async () => {
 
 .content {
   flex: 1;
-  padding: 1rem;
+  /* padding: 1rem; */
 }
 </style>

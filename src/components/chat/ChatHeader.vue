@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { User } from '@/types/interfaces/user.interface'
 import { computed } from 'vue'
-import { getAvatarUrl } from '@/utils/url'
+import { getAvatarUrl } from '@/core/utils/url'
 
 const props = defineProps<{
   selectedUser: User | null

@@ -1,5 +1,5 @@
 import { onUnmounted } from 'vue'
-import echo from '@/config/echo'
+import { echoClient } from '@/core/websocket'
 import type { User } from '@/types/interfaces/user.interface'
 import type { Message } from '@/types/interfaces/message.interface'
 
@@ -10,7 +10,7 @@ export function useChatWebSocket(
   function setupWebSocket() {
     if (!currentUser.value) return
 
-    const channel = echo.private(`chat.${currentUser.value.id}`)
+    const channel = echoClient.private(`chat.${currentUser.value.id}`)
 
     channel
       .listen(
@@ -35,7 +35,7 @@ export function useChatWebSocket(
 
   function cleanup() {
     if (currentUser.value) {
-      echo.leave(`chat.${currentUser.value.id}`)
+      echoClient.leave(`chat.${currentUser.value.id}`)
     }
   }
 

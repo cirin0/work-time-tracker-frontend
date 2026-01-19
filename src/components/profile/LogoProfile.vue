@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { User } from '@/types/interfaces/user.interface'
-import { getAvatarUrl } from '@/utils/url'
+import { getAvatarUrl } from '@/core/utils/url'
 import { computed } from 'vue'
 
 const props = defineProps<{
