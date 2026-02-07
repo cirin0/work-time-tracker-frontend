@@ -1,6 +1,8 @@
 import { API_ROUTES, apiClient } from '@/core/api'
 import type { User } from '@/types/interfaces/user.interface'
 import type { LoginResponse, RefreshResponse } from '@/types/responses/auth.interface'
+import type { UserApiResponse } from '@/types/responses/user.api'
+import { transformUserFromApi } from '@/types/responses/user.api'
 import { useLocalStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
@@ -37,23 +39,23 @@ export const useAuthStore = defineStore('auth', () => {
       password,
     })
     setToken(data.access_token)
-    user.value = data.user
+    user.value = transformUserFromApi(data.user)
     return data
   }
 
   async function register(name: string, email: string, password: string) {
-    const { data } = await apiClient.post<User>(API_ROUTES.auth.register, {
+    const { data } = await apiClient.post<UserApiResponse>(API_ROUTES.auth.register, {
       name,
       email,
       password,
     })
-    return data
+    return transformUserFromApi(data)
   }
 
   async function refreshToken(): Promise<string> {
     const { data } = await apiClient.post<RefreshResponse>(API_ROUTES.auth.refresh)
     setToken(data.access_token)
-    user.value = data.user
+    user.value = transformUserFromApi(data.user)
     return data.access_token
   }
 
@@ -71,9 +73,9 @@ export const useAuthStore = defineStore('auth', () => {
     if (!token.value) return null
 
     try {
-      const { data } = await apiClient.get<User>(API_ROUTES.me)
-      user.value = data
-      return data
+      const { data } = await apiClient.get<UserApiResponse>(API_ROUTES.me.show)
+      user.value = transformUserFromApi(data)
+      return user.value
     } catch (error) {
       console.error('Failed to get current user:', error)
       return null

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import MainLayout from '@/components/layouts/MainLayout.vue'
 import { useRoleGuard } from '@/composables/useRoleGuard'
 import { apiClient, API_ROUTES } from '@/core/api'
 import type { User } from '@/types/interfaces/user.interface'
@@ -46,66 +45,64 @@ onMounted(() => {
 </script>
 
 <template>
-  <MainLayout>
-    <div class="admin-panel">
-      <div class="panel-header">
-        <h1>Панель адміністратора</h1>
-        <p class="subtitle">Управління користувачами системи</p>
+  <div class="admin-panel">
+    <div class="panel-header">
+      <h1>Панель адміністратора</h1>
+      <p class="subtitle">Управління користувачами системи</p>
+    </div>
+
+    <div v-if="!isAdmin" class="access-denied">
+      <h2>Доступ заборонено</h2>
+      <p>У вас немає прав для перегляду цієї сторінки</p>
+    </div>
+
+    <div v-else class="content-section">
+      <div class="section-header">
+        <h2>Користувачі</h2>
+        <button class="btn-primary">+ Додати користувача</button>
       </div>
 
-      <div v-if="!isAdmin" class="access-denied">
-        <h2>Доступ заборонено</h2>
-        <p>У вас немає прав для перегляду цієї сторінки</p>
-      </div>
+      <div v-if="isLoading" class="loading">Завантаження...</div>
 
-      <div v-else class="content-section">
-        <div class="section-header">
-          <h2>Користувачі</h2>
-          <button class="btn-primary">+ Додати користувача</button>
-        </div>
+      <div v-else class="users-table">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Ім'я</th>
+              <th>Email</th>
+              <th>Роль</th>
+              <th>Менеджер</th>
+              <th>Компанія</th>
+              <th>Дії</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="user in users" :key="user.id">
+              <td>{{ user.id }}</td>
+              <td>{{ user.name }}</td>
+              <td>{{ user.email }}</td>
+              <td>
+                <span class="role-badge" :class="`role-${user.role}`">
+                  {{ user.role }}
+                </span>
+              </td>
+              <td>{{ user.manager?.name ?? 'Не вказано' }}</td>
+              <td>{{ user.company?.name ?? 'Не вказано' }}</td>
+              <td class="actions">
+                <button class="btn-edit">Редагувати</button>
+                <button class="btn-delete" @click="deleteUser(user.id)">Видалити</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
-        <div v-if="isLoading" class="loading">Завантаження...</div>
-
-        <div v-else class="users-table">
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Ім'я</th>
-                <th>Email</th>
-                <th>Роль</th>
-                <th>Менеджер</th>
-                <th>Компанія</th>
-                <th>Дії</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="user in users" :key="user.id">
-                <td>{{ user.id }}</td>
-                <td>{{ user.name }}</td>
-                <td>{{ user.email }}</td>
-                <td>
-                  <span class="role-badge" :class="`role-${user.role}`">
-                    {{ user.role }}
-                  </span>
-                </td>
-                <td>{{ user.manager?.name ?? 'Не вказано' }}</td>
-                <td>{{ user.company?.name ?? 'Не вказано' }}</td>
-                <td class="actions">
-                  <button class="btn-edit">Редагувати</button>
-                  <button class="btn-delete" @click="deleteUser(user.id)">Видалити</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-
-          <div v-if="users.length === 0" class="empty-state">
-            <p>Користувачів не знайдено</p>
-          </div>
+        <div v-if="users.length === 0" class="empty-state">
+          <p>Користувачів не знайдено</p>
         </div>
       </div>
     </div>
-  </MainLayout>
+  </div>
 </template>
 
 <style scoped>

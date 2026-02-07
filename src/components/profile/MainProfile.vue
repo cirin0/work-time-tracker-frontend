@@ -5,7 +5,7 @@ import { getAvatarUrl } from '@/core/utils/url'
 
 const store = useProfileStore()
 
-const avatarUrl = computed(() => getAvatarUrl(store.profile?.avatar))
+const avatarUrl = computed(() => getAvatarUrl(store.profile?.avatar, store.avatarTimestamp))
 
 onMounted(() => {
   store.fetchProfile()
@@ -18,7 +18,7 @@ onMounted(() => {
       <strong>Email:</strong> {{ store.profile.email }} <br />
       <strong>Role:</strong> {{ store.profile.role }} <br />
       <div v-if="avatarUrl">
-        <img :src="avatarUrl" alt="User Avatar" />
+        <img :key="store.avatarTimestamp" :src="avatarUrl" alt="User Avatar" />
       </div>
     </div>
   </div>
