@@ -63,6 +63,11 @@
 - Routes specify layout via `meta.layout: 'main'`
 - `MainLayout.vue` wraps authenticated views
 - Auth routes have no layout (handled in view directly)
+- **Navigation**: Do NOT add new links to `AppHeader.vue` navigation. Instead, add navigation buttons/links within role-specific views:
+  - `EmployeeView.vue` - for employee-specific features
+  - `ManagerView.vue` - for manager-specific features
+  - `AdminView.vue` - for admin-specific features
+- **View Structure**: All views (except AuthView) must be styled to work within `MainLayout.vue` wrapper. Use consistent padding and max-width patterns across views.
 
 ## Development Workflow
 
@@ -83,6 +88,18 @@ npm run format      # Prettier formatting
 3. **Store** (if stateful): Create Pinia store with setup syntax in `src/stores/`
 4. **Composable** (if reusable logic): Place in `src/composables/`
 5. **Component**: Organize by feature (`auth/`, `chat/`, `profile/`) or type (`ui/`, `layout/`)
+6. **Navigation**: Add feature access via quick actions or buttons in role-specific dashboard views, NOT in the header
+7. **View Design**: Follow existing view patterns - max-width container, consistent padding, card-based layouts
+
+### UI/UX Guidelines
+
+- **Header Navigation**: Keep minimal - only core features (Home, Chat). Role-specific features go in dashboard views.
+- **Dashboard Pattern**: Each role has a dedicated dashboard view with:
+  - Welcome card with user name
+  - Statistics cards for key metrics
+  - Quick actions section with feature navigation
+  - Role-specific content sections
+- **Styling Consistency**: Use existing color palette (gradient: #2563eb → #9333ea), spacing scale, and shadow patterns
 
 ### Type Conventions
 
@@ -100,6 +117,8 @@ npm run format      # Prettier formatting
 - **Token refresh** happens silently via interceptor - queues failed requests during refresh
 - **Pusher setup**: Required global `window.Pusher` assignment for Echo (see websocket/client.ts)
 - **Ukrainian locale**: All user-facing validation messages and errors in Ukrainian
+- **Layout Wrapping**: All views must work within `MainLayout.vue` (header + main content area). Only `AuthView.vue` has no layout wrapper.
+- **Feature Navigation**: New features are accessed through dashboard quick actions, not header links. This keeps navigation clean and role-appropriate.
 
 ## Integration Points
 

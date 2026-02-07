@@ -1,7 +1,6 @@
 import type { LeaveRequestStatus, LeaveRequestType } from '../enums/enums.types'
 
 export interface CreateLeaveRequestRequest {
-  user_id: number
   type: LeaveRequestType
   start_date: string
   end_date: string
