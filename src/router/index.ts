@@ -28,6 +28,12 @@ export const router = createRouter({
       meta: { layout: 'main', requiresAuth: true },
     },
     {
+      path: '/leave-requests',
+      name: 'leave-requests',
+      component: () => import('../views/LeaveRequestsView.vue'),
+      meta: { layout: 'main', requiresAuth: true },
+    },
+    {
       path: '/admin',
       name: 'admin',
       component: () => import('../views/AdminView.vue'),
