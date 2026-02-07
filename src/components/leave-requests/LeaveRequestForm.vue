@@ -1,92 +1,3 @@
-<template>
-  <div class="leave-request-form-wrapper">
-    <div v-if="showForm" class="form-overlay" @click="handleClose">
-      <div class="form-container" @click.stop>
-        <div class="form-header">
-          <h2>Новий запит на відпустку</h2>
-          <button @click="handleClose" class="close-button">&times;</button>
-        </div>
-
-        <form @submit.prevent="handleSubmit" class="leave-request-form">
-          <div v-if="generalError" class="error-alert">
-            {{ generalError }}
-          </div>
-
-          <div class="form-group">
-            <label for="type" class="form-label"
-              >Тип відпустки<span class="required">*</span></label
-            >
-            <select
-              id="type"
-              v-model="formData.type"
-              class="form-input"
-              :class="{ 'input-error': errors.type }"
-            >
-              <option value="" disabled>Оберіть тип відпустки</option>
-              <option value="vacation">Відпустка</option>
-              <option value="sick">Лікарняний</option>
-              <option value="personal">Особисті причини</option>
-            </select>
-            <span v-if="errors.type" class="field-error">{{ errors.type }}</span>
-          </div>
-
-          <div class="form-group">
-            <label for="start_date" class="form-label"
-              >Дата початку<span class="required">*</span></label
-            >
-            <input
-              id="start_date"
-              v-model="formData.start_date"
-              type="date"
-              class="form-input"
-              :class="{ 'input-error': errors.start_date }"
-              :min="minDate"
-            />
-            <span v-if="errors.start_date" class="field-error">{{ errors.start_date }}</span>
-          </div>
-
-          <div class="form-group">
-            <label for="end_date" class="form-label"
-              >Дата кінця<span class="required">*</span></label
-            >
-            <input
-              id="end_date"
-              v-model="formData.end_date"
-              type="date"
-              class="form-input"
-              :class="{ 'input-error': errors.end_date }"
-              :min="formData.start_date || minDate"
-            />
-            <span v-if="errors.end_date" class="field-error">{{ errors.end_date }}</span>
-          </div>
-
-          <div class="form-group">
-            <label for="reason" class="form-label">Причина</label>
-            <textarea
-              id="reason"
-              v-model="formData.reason"
-              class="form-textarea"
-              :class="{ 'input-error': errors.reason }"
-              rows="4"
-              placeholder="Опишіть причину запиту на відпустку..."
-            />
-            <span v-if="errors.reason" class="field-error">{{ errors.reason }}</span>
-          </div>
-
-          <div class="form-actions">
-            <button type="button" @click="handleClose" class="button button-secondary">
-              Скасувати
-            </button>
-            <button type="submit" class="button button-primary" :disabled="isSubmitting">
-              {{ isSubmitting ? 'Створення...' : 'Створити запит' }}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { LeaveRequestType } from '@/types/enums/enums.types'
@@ -191,6 +102,95 @@ defineExpose({
   },
 })
 </script>
+
+<template>
+  <div class="leave-request-form-wrapper">
+    <div v-if="showForm" class="form-overlay" @click="handleClose">
+      <div class="form-container" @click.stop>
+        <div class="form-header">
+          <h2>Новий запит на відпустку</h2>
+          <button @click="handleClose" class="close-button">&times;</button>
+        </div>
+
+        <form @submit.prevent="handleSubmit" class="leave-request-form">
+          <div v-if="generalError" class="error-alert">
+            {{ generalError }}
+          </div>
+
+          <div class="form-group">
+            <label for="type" class="form-label"
+              >Тип відпустки<span class="required">*</span></label
+            >
+            <select
+              id="type"
+              v-model="formData.type"
+              class="form-input"
+              :class="{ 'input-error': errors.type }"
+            >
+              <option value="" disabled>Оберіть тип відпустки</option>
+              <option value="vacation">Відпустка</option>
+              <option value="sick">Лікарняний</option>
+              <option value="personal">Особисті причини</option>
+            </select>
+            <span v-if="errors.type" class="field-error">{{ errors.type }}</span>
+          </div>
+
+          <div class="form-group">
+            <label for="start_date" class="form-label"
+              >Дата початку<span class="required">*</span></label
+            >
+            <input
+              id="start_date"
+              v-model="formData.start_date"
+              type="date"
+              class="form-input"
+              :class="{ 'input-error': errors.start_date }"
+              :min="minDate"
+            />
+            <span v-if="errors.start_date" class="field-error">{{ errors.start_date }}</span>
+          </div>
+
+          <div class="form-group">
+            <label for="end_date" class="form-label"
+              >Дата кінця<span class="required">*</span></label
+            >
+            <input
+              id="end_date"
+              v-model="formData.end_date"
+              type="date"
+              class="form-input"
+              :class="{ 'input-error': errors.end_date }"
+              :min="formData.start_date || minDate"
+            />
+            <span v-if="errors.end_date" class="field-error">{{ errors.end_date }}</span>
+          </div>
+
+          <div class="form-group">
+            <label for="reason" class="form-label">Причина</label>
+            <textarea
+              id="reason"
+              v-model="formData.reason"
+              class="form-textarea"
+              :class="{ 'input-error': errors.reason }"
+              rows="4"
+              placeholder="Опишіть причину запиту на відпустку..."
+            />
+            <span v-if="errors.reason" class="field-error">{{ errors.reason }}</span>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" @click="handleClose" class="button button-secondary">
+              Скасувати
+            </button>
+            <button type="submit" class="button button-primary" :disabled="isSubmitting">
+              {{ isSubmitting ? 'Створення...' : 'Створити запит' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</template>
 
 <style scoped>
 .form-overlay {

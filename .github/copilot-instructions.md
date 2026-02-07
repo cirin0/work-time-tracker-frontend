@@ -109,6 +109,15 @@ npm run format      # Prettier formatting
 - **Enums**: `src/types/enums/enums.types.ts`
 - Request/response types named with suffix: `LoginRequest`, `ApiResponse<T>`
 
+### Vue Component Structure
+
+- **Always** follow this order in `.vue` files:
+  1. `<script setup lang="ts">` - first
+  2. `<template>` - second
+  3. `<style scoped>` - third
+- Never place `<template>` before `<script setup>`
+- This convention ensures consistency across the entire codebase
+
 ## Known Patterns & Quirks
 
 - **@ alias** resolves to `src/` (configured in vite.config.ts)

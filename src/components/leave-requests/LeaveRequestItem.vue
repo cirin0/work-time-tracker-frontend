@@ -1,3 +1,41 @@
+<script setup lang="ts">
+import type { LeaveRequest } from '@/types/interfaces/leaveRequest.interface'
+import { LeaveRequestStatus, LeaveRequestType } from '@/types/enums/enums.types'
+
+interface Props {
+  leaveRequest: LeaveRequest
+}
+
+defineProps<Props>()
+
+function formatDate(dateString: string): string {
+  const date = new Date(dateString)
+  return date.toLocaleDateString('uk-UA', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  })
+}
+
+function getTypeLabel(type: LeaveRequestType): string {
+  const labels: Record<LeaveRequestType, string> = {
+    [LeaveRequestType.VACATION]: 'Відпустка',
+    [LeaveRequestType.SICK]: 'Лікарняний',
+    [LeaveRequestType.PERSONAL]: 'Особисті причини',
+  }
+  return labels[type] || type
+}
+
+function getStatusLabel(status: LeaveRequestStatus): string {
+  const labels: Record<LeaveRequestStatus, string> = {
+    [LeaveRequestStatus.PENDING]: 'Очікує розгляду',
+    [LeaveRequestStatus.APPROVED]: 'Схвалено',
+    [LeaveRequestStatus.REJECTED]: 'Відхилено',
+  }
+  return labels[status] || status
+}
+</script>
+
 <template>
   <div class="leave-request-item">
     <div class="leave-request-header">
@@ -39,44 +77,6 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import type { LeaveRequest } from '@/types/interfaces/leaveRequest.interface'
-import { LeaveRequestStatus, LeaveRequestType } from '@/types/enums/enums.types'
-
-interface Props {
-  leaveRequest: LeaveRequest
-}
-
-defineProps<Props>()
-
-function formatDate(dateString: string): string {
-  const date = new Date(dateString)
-  return date.toLocaleDateString('uk-UA', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  })
-}
-
-function getTypeLabel(type: LeaveRequestType): string {
-  const labels: Record<LeaveRequestType, string> = {
-    [LeaveRequestType.VACATION]: 'Відпустка',
-    [LeaveRequestType.SICK]: 'Лікарняний',
-    [LeaveRequestType.PERSONAL]: 'Особисті причини',
-  }
-  return labels[type] || type
-}
-
-function getStatusLabel(status: LeaveRequestStatus): string {
-  const labels: Record<LeaveRequestStatus, string> = {
-    [LeaveRequestStatus.PENDING]: 'Очікує розгляду',
-    [LeaveRequestStatus.APPROVED]: 'Схвалено',
-    [LeaveRequestStatus.REJECTED]: 'Відхилено',
-  }
-  return labels[status] || status
-}
-</script>
 
 <style scoped>
 .leave-request-item {
