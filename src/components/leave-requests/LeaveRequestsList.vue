@@ -1,3 +1,24 @@
+<script setup lang="ts">
+import type { LeaveRequest } from '@/types/interfaces/leaveRequest.interface'
+import type { PaginatedResponse } from '@/types/responses/pagination.interface'
+import LeaveRequestItem from './LeaveRequestItem.vue'
+
+interface Props {
+  leaveRequests: LeaveRequest[]
+  isLoading: boolean
+  error: string | null
+  pagination: PaginatedResponse<LeaveRequest>['meta'] | null
+}
+
+defineProps<Props>()
+
+defineEmits<{
+  retry: []
+  create: []
+  'page-change': [page: number]
+}>()
+</script>
+
 <template>
   <div class="leave-requests-list">
     <div v-if="isLoading" class="loading-state">
@@ -43,27 +64,6 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import type { LeaveRequest } from '@/types/interfaces/leaveRequest.interface'
-import type { PaginatedResponse } from '@/types/responses/pagination.interface'
-import LeaveRequestItem from './LeaveRequestItem.vue'
-
-interface Props {
-  leaveRequests: LeaveRequest[]
-  isLoading: boolean
-  error: string | null
-  pagination: PaginatedResponse<LeaveRequest>['meta'] | null
-}
-
-defineProps<Props>()
-
-defineEmits<{
-  retry: []
-  create: []
-  'page-change': [page: number]
-}>()
-</script>
 
 <style scoped>
 .leave-requests-list {

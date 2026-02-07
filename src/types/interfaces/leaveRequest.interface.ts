@@ -1,9 +1,12 @@
 import type { LeaveRequestStatus, LeaveRequestType } from '../enums/enums.types'
-import type { User } from './user.interface'
 
 export interface LeaveRequest {
   id: number
-  user_id: number
+  user: {
+    id: number
+    name: string
+    email: string
+  }
   type: LeaveRequestType
   start_date: string
   end_date: string
@@ -13,9 +16,4 @@ export interface LeaveRequest {
   manager_comments: string | null
   created_at: string
   updated_at: string
-
-  // relationships
-
-  user?: User
-  manager?: User
 }

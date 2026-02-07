@@ -1,38 +1,3 @@
-<template>
-  <MainLayout>
-    <div class="leave-requests-view">
-      <div class="page-header">
-        <h1>Запити на відпустку</h1>
-        <p class="subtitle">Керування вашими запитами на відпустку</p>
-      </div>
-
-      <div class="content-section">
-        <div class="section-header">
-          <h2>Мої запити</h2>
-          <button @click="showFormModal = true" class="btn-primary">+ Створити запит</button>
-        </div>
-
-        <LeaveRequestsList
-          :leave-requests="leaveRequestStore.leaveRequests"
-          :is-loading="leaveRequestStore.isLoading"
-          :error="leaveRequestStore.error"
-          :pagination="leaveRequestStore.pagination"
-          @retry="loadLeaveRequests"
-          @create="showFormModal = true"
-          @page-change="handlePageChange"
-        />
-      </div>
-
-      <LeaveRequestForm
-        :show-form="showFormModal"
-        :is-submitting="isSubmittingForm"
-        @close="showFormModal = false"
-        @submit="handleCreateRequest"
-      />
-    </div>
-  </MainLayout>
-</template>
-
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import MainLayout from '@/components/layouts/MainLayout.vue'
@@ -73,6 +38,41 @@ function handlePageChange(page: number) {
   loadLeaveRequests(page)
 }
 </script>
+
+<template>
+  <MainLayout>
+    <div class="leave-requests-view">
+      <div class="page-header">
+        <h1>Запити на відпустку</h1>
+        <p class="subtitle">Керування вашими запитами на відпустку</p>
+      </div>
+
+      <div class="content-section">
+        <div class="section-header">
+          <h2>Мої запити</h2>
+          <button @click="showFormModal = true" class="btn-primary">+ Створити запит</button>
+        </div>
+
+        <LeaveRequestsList
+          :leave-requests="leaveRequestStore.leaveRequests"
+          :is-loading="leaveRequestStore.isLoading"
+          :error="leaveRequestStore.error"
+          :pagination="leaveRequestStore.pagination"
+          @retry="loadLeaveRequests"
+          @create="showFormModal = true"
+          @page-change="handlePageChange"
+        />
+      </div>
+
+      <LeaveRequestForm
+        :show-form="showFormModal"
+        :is-submitting="isSubmittingForm"
+        @close="showFormModal = false"
+        @submit="handleCreateRequest"
+      />
+    </div>
+  </MainLayout>
+</template>
 
 <style scoped>
 .leave-requests-view {

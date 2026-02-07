@@ -2,19 +2,30 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoleGuard } from '@/composables/useRoleGuard'
 import { apiClient, API_ROUTES } from '@/core/api'
+import { useManagerLeaveRequestStore } from '@/stores/managerLeaveRequest.store'
+import ManagerLeaveRequestsList from '@/components/leave-requests/ManagerLeaveRequestsList.vue'
+import RejectModal from '@/components/leave-requests/RejectModal.vue'
 import type { User } from '@/types/interfaces/user.interface'
 import type { PaginatedResponse } from '@/types/responses/pagination.interface'
 import type { UserApiResponse } from '@/types/responses/user.api'
 import { transformUserFromApi } from '@/types/responses/user.api'
 
 const { isManager, currentUser } = useRoleGuard()
+const managerLeaveRequestStore = useManagerLeaveRequestStore()
 
 const allUsers = ref<User[]>([])
 const isLoading = ref(false)
+const showRejectModal = ref(false)
+const rejectingRequestId = ref<number | null>(null)
+const processingRequestId = ref<number | null>(null)
 
 const employees = computed(() => {
   if (!currentUser.value) return []
   return allUsers.value.filter((user) => user.manager?.id === currentUser.value!.id)
+})
+
+const pendingRequestsCount = computed(() => {
+  return managerLeaveRequestStore.leaveRequests.filter((req) => req.status === 'pending').length
 })
 
 async function loadUsers() {
@@ -31,7 +42,55 @@ async function loadUsers() {
 
 onMounted(() => {
   loadUsers()
+  loadLeaveRequests()
 })
+
+async function loadLeaveRequests() {
+  try {
+    await managerLeaveRequestStore.fetchLeaveRequests()
+  } catch (error) {
+    console.error('Failed to load leave requests:', error)
+  }
+}
+
+async function handleApprove(id: number) {
+  if (!confirm('Ви впевнені, що хочете схвалити цей запит?')) {
+    return
+  }
+
+  processingRequestId.value = id
+  try {
+    await managerLeaveRequestStore.approveLeaveRequest(id)
+  } catch (error) {
+    console.error('Failed to approve leave request:', error)
+    alert('Помилка при схваленні запиту')
+  } finally {
+    processingRequestId.value = null
+  }
+}
+
+function handleRejectClick(id: number) {
+  rejectingRequestId.value = id
+  showRejectModal.value = true
+}
+
+async function handleRejectSubmit(comments: string) {
+  if (!rejectingRequestId.value) return
+
+  processingRequestId.value = rejectingRequestId.value
+  try {
+    await managerLeaveRequestStore.rejectLeaveRequest(rejectingRequestId.value, {
+      manager_comments: comments,
+    })
+    showRejectModal.value = false
+    rejectingRequestId.value = null
+  } catch (error) {
+    console.error('Failed to reject leave request:', error)
+    alert('Помилка при відхиленні запиту')
+  } finally {
+    processingRequestId.value = null
+  }
+}
 </script>
 
 <template>
@@ -119,13 +178,28 @@ onMounted(() => {
       <div class="content-section">
         <div class="section-header">
           <h2>Запити на відпустку</h2>
-          <span class="badge">0 нових</span>
+          <span v-if="pendingRequestsCount > 0" class="badge"
+            >{{ pendingRequestsCount }} нових</span
+          >
         </div>
 
-        <div class="empty-state">
-          <p>Немає нових запитів на відпустку</p>
-        </div>
+        <ManagerLeaveRequestsList
+          :leave-requests="managerLeaveRequestStore.leaveRequests"
+          :is-loading="managerLeaveRequestStore.isLoading"
+          :error="managerLeaveRequestStore.error"
+          :processing-id="processingRequestId"
+          @retry="loadLeaveRequests"
+          @approve="handleApprove"
+          @reject="handleRejectClick"
+        />
       </div>
+
+      <RejectModal
+        :show-modal="showRejectModal"
+        :is-submitting="processingRequestId !== null"
+        @close="showRejectModal = false"
+        @submit="handleRejectSubmit"
+      />
     </div>
   </div>
 </template>
