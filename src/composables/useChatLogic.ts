@@ -34,9 +34,9 @@ export function useChatLogic() {
 
   async function loadCurrentUser() {
     try {
-      const { data } = await apiClient.get<User>(API_ROUTES.me)
-      currentUser.value = data
-      return data
+      const { data } = await apiClient.get<UserApiResponse>(API_ROUTES.me.show)
+      currentUser.value = transformUserFromApi(data)
+      return currentUser.value
     } catch (error) {
       console.error('Failed to load current user:', error)
       throw error

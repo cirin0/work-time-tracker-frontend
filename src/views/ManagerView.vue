@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import MainLayout from '@/components/layouts/MainLayout.vue'
 import { useRoleGuard } from '@/composables/useRoleGuard'
 import { apiClient, API_ROUTES } from '@/core/api'
 import type { User } from '@/types/interfaces/user.interface'
@@ -36,101 +35,99 @@ onMounted(() => {
 </script>
 
 <template>
-  <MainLayout>
-    <div class="manager-panel">
-      <div class="panel-header">
-        <h1>Панель менеджера</h1>
-        <p class="subtitle">Управління командою</p>
-      </div>
+  <div class="manager-panel">
+    <div class="panel-header">
+      <h1>Панель менеджера</h1>
+      <p class="subtitle">Управління командою</p>
+    </div>
 
-      <div v-if="!isManager" class="access-denied">
-        <h2>Доступ заборонено</h2>
-        <p>У вас немає прав для перегляду цієї сторінки</p>
-      </div>
+    <div v-if="!isManager" class="access-denied">
+      <h2>Доступ заборонено</h2>
+      <p>У вас немає прав для перегляду цієї сторінки</p>
+    </div>
 
-      <div v-else class="content-wrapper">
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon">👥</div>
-            <div class="stat-content">
-              <div class="stat-value">{{ employees.length }}</div>
-              <div class="stat-label">Співробітників</div>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon">⏰</div>
-            <div class="stat-content">
-              <div class="stat-value">0</div>
-              <div class="stat-label">Запитів на відпустку</div>
-            </div>
+    <div v-else class="content-wrapper">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">👥</div>
+          <div class="stat-content">
+            <div class="stat-value">{{ employees.length }}</div>
+            <div class="stat-label">Співробітників</div>
           </div>
         </div>
 
-        <div class="content-section">
-          <div class="section-header">
-            <h2>Підлеглі</h2>
+        <div class="stat-card">
+          <div class="stat-icon">⏰</div>
+          <div class="stat-content">
+            <div class="stat-value">0</div>
+            <div class="stat-label">Запитів на відпустку</div>
           </div>
+        </div>
+      </div>
 
-          <div v-if="isLoading" class="loading">Завантаження...</div>
+      <div class="content-section">
+        <div class="section-header">
+          <h2>Підлеглі</h2>
+        </div>
 
-          <div v-else-if="employees.length === 0" class="empty-state">
-            <p>У вас ще немає підлеглих співробітників</p>
-          </div>
+        <div v-if="isLoading" class="loading">Завантаження...</div>
 
-          <div v-else class="employees-grid">
-            <div v-for="employee in employees" :key="employee.id" class="employee-card">
-              <div class="employee-header">
-                <div class="employee-avatar">
-                  <img
-                    v-if="employee.avatar"
-                    :src="employee.avatar"
-                    :alt="employee.name"
-                    class="avatar-img"
-                  />
-                  <div v-else class="avatar-placeholder">
-                    {{ employee.name.charAt(0).toUpperCase() }}
-                  </div>
-                </div>
-                <div class="employee-info">
-                  <h3>{{ employee.name }}</h3>
-                  <p class="employee-email">{{ employee.email }}</p>
-                  <span class="role-badge">{{ employee.role }}</span>
-                </div>
-              </div>
+        <div v-else-if="employees.length === 0" class="empty-state">
+          <p>У вас ще немає підлеглих співробітників</p>
+        </div>
 
-              <div class="employee-stats">
-                <div class="stat-item">
-                  <span class="stat-label">Годин цього місяця:</span>
-                  <span class="stat-value">0</span>
-                </div>
-                <div class="stat-item">
-                  <span class="stat-label">Запитів на відпустку:</span>
-                  <span class="stat-value">0</span>
+        <div v-else class="employees-grid">
+          <div v-for="employee in employees" :key="employee.id" class="employee-card">
+            <div class="employee-header">
+              <div class="employee-avatar">
+                <img
+                  v-if="employee.avatar"
+                  :src="employee.avatar"
+                  :alt="employee.name"
+                  class="avatar-img"
+                />
+                <div v-else class="avatar-placeholder">
+                  {{ employee.name.charAt(0).toUpperCase() }}
                 </div>
               </div>
-
-              <div class="employee-actions">
-                <button class="btn-secondary">Переглянути профіль</button>
-                <button class="btn-primary">Звіти</button>
+              <div class="employee-info">
+                <h3>{{ employee.name }}</h3>
+                <p class="employee-email">{{ employee.email }}</p>
+                <span class="role-badge">{{ employee.role }}</span>
               </div>
+            </div>
+
+            <div class="employee-stats">
+              <div class="stat-item">
+                <span class="stat-label">Годин цього місяця:</span>
+                <span class="stat-value">0</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Запитів на відпустку:</span>
+                <span class="stat-value">0</span>
+              </div>
+            </div>
+
+            <div class="employee-actions">
+              <button class="btn-secondary">Переглянути профіль</button>
+              <button class="btn-primary">Звіти</button>
             </div>
           </div>
         </div>
+      </div>
 
-        <div class="content-section">
-          <div class="section-header">
-            <h2>Запити на відпустку</h2>
-            <span class="badge">0 нових</span>
-          </div>
+      <div class="content-section">
+        <div class="section-header">
+          <h2>Запити на відпустку</h2>
+          <span class="badge">0 нових</span>
+        </div>
 
-          <div class="empty-state">
-            <p>Немає нових запитів на відпустку</p>
-          </div>
+        <div class="empty-state">
+          <p>Немає нових запитів на відпустку</p>
         </div>
       </div>
     </div>
-  </MainLayout>
+  </div>
 </template>
 
 <style scoped>
