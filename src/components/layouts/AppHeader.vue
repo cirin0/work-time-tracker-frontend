@@ -27,7 +27,7 @@ function handleLogout() {
 }
 
 onMounted(async () => {
-  if (authStore.getToken) {
+  if (authStore.getToken && !profileStore.profile && !profileStore.isLoading) {
     await profileStore.fetchProfile()
   }
 })
