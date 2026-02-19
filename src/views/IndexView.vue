@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import MainLayout from '@/components/layouts/MainLayout.vue'
 import { useRoleGuard } from '@/composables/useRoleGuard'
 import { UserRole } from '@/types/enums/enums.types'
 import AdminView from './AdminView.vue'
@@ -25,17 +24,15 @@ const currentView = computed(() => {
 </script>
 
 <template>
-  <MainLayout>
-    <div v-if="!currentUser" class="loading-state">
-      <p>Завантаження...</p>
-    </div>
+  <div v-if="!currentUser" class="loading-state">
+    <p>Завантаження...</p>
+  </div>
 
-    <AdminView v-else-if="currentView === 'admin'" />
+  <AdminView v-else-if="currentView === 'admin'" />
 
-    <ManagerView v-else-if="currentView === 'manager'" />
+  <ManagerView v-else-if="currentView === 'manager'" />
 
-    <EmployeeView v-else />
-  </MainLayout>
+  <EmployeeView v-else />
 </template>
 
 <style scoped>

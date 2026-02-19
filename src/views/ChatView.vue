@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, onMounted, nextTick, computed } from 'vue'
-import MainLayout from '@/components/layouts/MainLayout.vue'
 import ChatSidebar from '@/components/chat/ChatSidebar.vue'
 import ChatArea from '@/components/chat/ChatArea.vue'
 import { useChatLogic } from '@/composables/useChatLogic'
@@ -61,27 +60,25 @@ async function handleSendMessage(messageText: string) {
 </script>
 
 <template>
-  <MainLayout>
-    <div class="chat-container">
-      <ChatSidebar
-        :users="sortedUsers"
-        :selected-user-id="selectedUser?.id ?? null"
-        :is-loading-users="isLoadingUsers"
-        :has-more-users="hasMoreUsers"
-        @select-user="handleSelectUser"
-        @load-more="loadMoreUsers"
-      />
+  <div class="chat-container">
+    <ChatSidebar
+      :users="sortedUsers"
+      :selected-user-id="selectedUser?.id ?? null"
+      :is-loading-users="isLoadingUsers"
+      :has-more-users="hasMoreUsers"
+      @select-user="handleSelectUser"
+      @load-more="loadMoreUsers"
+    />
 
-      <ChatArea
-        ref="chatAreaRef"
-        :selected-user="selectedUser"
-        :messages="messages"
-        :current-user-id="currentUser?.id ?? 0"
-        :is-loading="isLoading"
-        @send-message="handleSendMessage"
-      />
-    </div>
-  </MainLayout>
+    <ChatArea
+      ref="chatAreaRef"
+      :selected-user="selectedUser"
+      :messages="messages"
+      :current-user-id="currentUser?.id ?? 0"
+      :is-loading="isLoading"
+      @send-message="handleSendMessage"
+    />
+  </div>
 </template>
 
 <style scoped>
