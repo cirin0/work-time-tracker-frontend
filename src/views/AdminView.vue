@@ -6,6 +6,7 @@ import type { User } from '@/types/interfaces/user.interface'
 import type { PaginatedResponse } from '@/types/responses/pagination.interface'
 import type { UserApiResponse } from '@/types/responses/user.api'
 import { transformUserFromApi } from '@/types/responses/user.api'
+import QRCodeDisplay from '@/components/qr-code/QRCodeDisplay.vue'
 
 const { isAdmin } = useRoleGuard()
 
@@ -56,49 +57,57 @@ onMounted(() => {
       <p>У вас немає прав для перегляду цієї сторінки</p>
     </div>
 
-    <div v-else class="content-section">
-      <div class="section-header">
-        <h2>Користувачі</h2>
-        <button class="btn-primary">+ Додати користувача</button>
+    <div v-else>
+      <!-- QR Code Section -->
+      <div class="qr-section">
+        <QRCodeDisplay />
       </div>
 
-      <div v-if="isLoading" class="loading">Завантаження...</div>
+      <!-- Users Management Section -->
+      <div class="content-section">
+        <div class="section-header">
+          <h2>Користувачі</h2>
+          <button class="btn-primary">+ Додати користувача</button>
+        </div>
 
-      <div v-else class="users-table">
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Ім'я</th>
-              <th>Email</th>
-              <th>Роль</th>
-              <th>Менеджер</th>
-              <th>Компанія</th>
-              <th>Дії</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="user in users" :key="user.id">
-              <td>{{ user.id }}</td>
-              <td>{{ user.name }}</td>
-              <td>{{ user.email }}</td>
-              <td>
-                <span class="role-badge" :class="`role-${user.role}`">
-                  {{ user.role }}
-                </span>
-              </td>
-              <td>{{ user.manager?.name ?? 'Не вказано' }}</td>
-              <td>{{ user.company?.name ?? 'Не вказано' }}</td>
-              <td class="actions">
-                <button class="btn-edit">Редагувати</button>
-                <button class="btn-delete" @click="deleteUser(user.id)">Видалити</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div v-if="isLoading" class="loading">Завантаження...</div>
 
-        <div v-if="users.length === 0" class="empty-state">
-          <p>Користувачів не знайдено</p>
+        <div v-else class="users-table">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Ім'я</th>
+                <th>Email</th>
+                <th>Роль</th>
+                <th>Менеджер</th>
+                <th>Компанія</th>
+                <th>Дії</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="user in users" :key="user.id">
+                <td>{{ user.id }}</td>
+                <td>{{ user.name }}</td>
+                <td>{{ user.email }}</td>
+                <td>
+                  <span class="role-badge" :class="`role-${user.role}`">
+                    {{ user.role }}
+                  </span>
+                </td>
+                <td>{{ user.manager?.name ?? 'Не вказано' }}</td>
+                <td>{{ user.company?.name ?? 'Не вказано' }}</td>
+                <td class="actions">
+                  <button class="btn-edit">Редагувати</button>
+                  <button class="btn-delete" @click="deleteUser(user.id)">Видалити</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div v-if="users.length === 0" class="empty-state">
+            <p>Користувачів не знайдено</p>
+          </div>
         </div>
       </div>
     </div>
@@ -139,6 +148,10 @@ onMounted(() => {
 .access-denied h2 {
   color: #dc2626;
   margin-bottom: 0.5rem;
+}
+
+.qr-section {
+  margin-bottom: 2rem;
 }
 
 .content-section {

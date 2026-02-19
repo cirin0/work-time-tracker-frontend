@@ -9,6 +9,10 @@ export const API_ROUTES = {
     show: '/me',
     update: '/me',
     updateAvatar: '/me/avatar',
+    changePassword: '/me/change-password',
+    setupPinCode: '/me/pin-code',
+    changePinCode: '/me/pin-code',
+    getWorkSchedule: '/me/work-schedule',
   },
   users: {
     index: '/users',
@@ -38,6 +42,15 @@ export const API_ROUTES = {
     show: (id: number | string) => `/leave-requests/${id}`,
   },
   manager: {
+    statistics: '/manager/statistics',
+    users: {
+      index: '/manager/users',
+      show: (userId: number | string) => `/manager/users/${userId}`,
+      timeEntries: (userId: number | string) => `/manager/users/${userId}/time-entries`,
+      timeSummary: (userId: number | string) => `/manager/users/${userId}/time-summary`,
+      workSchedule: (userId: number | string) => `/manager/users/${userId}/work-schedule`,
+      updateWorkSchedule: (userId: number | string) => `/manager/users/${userId}/work-schedule`,
+    },
     companies: {
       addEmployee: (companyId: number) => `/manager/companies/${companyId}/add-employee`,
       removeEmployee: (companyId: number) => `/manager/companies/${companyId}/remove-employee`,
@@ -46,6 +59,7 @@ export const API_ROUTES = {
     },
     leaveRequests: {
       index: '/manager/leave-requests',
+      pending: '/manager/leave-requests/pending',
       approve: (leaveRequestId: number) => `/manager/leave-requests/${leaveRequestId}/approve`,
       reject: (leaveRequestId: number) => `/manager/leave-requests/${leaveRequestId}/reject`,
     },
@@ -65,5 +79,8 @@ export const API_ROUTES = {
     active: '/time-entries/active',
     stopActive: '/time-entries/active/stop',
     summaryByCurrentUser: '/time-entries/summary/me',
+  },
+  qrCode: {
+    daily: '/qr-code/daily',
   },
 } as const

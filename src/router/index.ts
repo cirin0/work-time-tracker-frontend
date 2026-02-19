@@ -54,6 +54,26 @@ export const router = createRouter({
       },
     },
     {
+      path: '/manager/leave-requests',
+      name: 'manager-leave-requests',
+      component: () => import('../views/ManagerLeaveRequestsView.vue'),
+      meta: {
+        layout: 'main',
+        requiresAuth: true,
+        roles: [UserRole.ADMIN, UserRole.MANAGER],
+      },
+    },
+    {
+      path: '/manager/employee/:id',
+      name: 'employee-details',
+      component: () => import('../views/EmployeeDetailsView.vue'),
+      meta: {
+        layout: 'main',
+        requiresAuth: true,
+        roles: [UserRole.ADMIN, UserRole.MANAGER],
+      },
+    },
+    {
       path: '/role-examples',
       name: 'role-examples',
       component: () => import('../views/RoleExampleView.vue'),

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import MainLayout from '@/components/layouts/MainLayout.vue'
 import { useLeaveRequestStore } from '@/stores/leaveRequest.store'
 import LeaveRequestsList from '@/components/leave-requests/LeaveRequestsList.vue'
 import LeaveRequestForm from '@/components/leave-requests/LeaveRequestForm.vue'
@@ -40,12 +39,11 @@ function handlePageChange(page: number) {
 </script>
 
 <template>
-  <MainLayout>
-    <div class="leave-requests-view">
-      <div class="page-header">
-        <h1>Запити на відпустку</h1>
-        <p class="subtitle">Керування вашими запитами на відпустку</p>
-      </div>
+  <div class="leave-requests-view">
+    <div class="page-header">
+      <h1>Запити на відпустку</h1>
+      <p class="subtitle">Керування вашими запитами на відпустку</p>
+    </div>
 
       <div class="content-section">
         <div class="section-header">
