@@ -1,19 +1,19 @@
 import type { BaseModel } from './base.model'
-import type { User } from './user.interface'
+import type { UserBasic } from './userBasic.interface'
 import type { WorkSchedule } from './workSchedule.interface'
 
 export interface Company extends BaseModel {
   name: string
+  manager: UserBasic
   email: string | null
   phone: string | null
-  logo: string | null
-  description: string | null
   address: string | null
-  manager_id: number | null
-
-  employee_count?: number
-
-  manager?: User
-  employees?: User[]
+  description: string | null
+  logo: string | null
+  latitude: string | null
+  longitude: string | null
+  radius_meters: number | null
+  employees: Record<string, UserBasic> | UserBasic[]
+  employee_count: number
   work_schedules?: WorkSchedule[]
 }

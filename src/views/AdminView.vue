@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import MainLayout from '@/components/layouts/MainLayout.vue'
 import { useRoleGuard } from '@/composables/useRoleGuard'
 import { apiClient, API_ROUTES } from '@/core/api'
 import type { User } from '@/types/interfaces/user.interface'
 import type { PaginatedResponse } from '@/types/responses/pagination.interface'
 import type { UserApiResponse } from '@/types/responses/user.api'
 import { transformUserFromApi } from '@/types/responses/user.api'
+import QRCodeDisplay from '@/components/qr-code/QRCodeDisplay.vue'
 
 const { isAdmin } = useRoleGuard()
 
@@ -46,19 +46,25 @@ onMounted(() => {
 </script>
 
 <template>
-  <MainLayout>
-    <div class="admin-panel">
-      <div class="panel-header">
-        <h1>Панель адміністратора</h1>
-        <p class="subtitle">Управління користувачами системи</p>
+  <div class="admin-panel">
+    <div class="panel-header">
+      <h1>Панель адміністратора</h1>
+      <p class="subtitle">Управління користувачами системи</p>
+    </div>
+
+    <div v-if="!isAdmin" class="access-denied">
+      <h2>Доступ заборонено</h2>
+      <p>У вас немає прав для перегляду цієї сторінки</p>
+    </div>
+
+    <div v-else>
+      <!-- QR Code Section -->
+      <div class="qr-section">
+        <QRCodeDisplay />
       </div>
 
-      <div v-if="!isAdmin" class="access-denied">
-        <h2>Доступ заборонено</h2>
-        <p>У вас немає прав для перегляду цієї сторінки</p>
-      </div>
-
-      <div v-else class="content-section">
+      <!-- Users Management Section -->
+      <div class="content-section">
         <div class="section-header">
           <h2>Користувачі</h2>
           <button class="btn-primary">+ Додати користувача</button>
@@ -105,7 +111,7 @@ onMounted(() => {
         </div>
       </div>
     </div>
-  </MainLayout>
+  </div>
 </template>
 
 <style scoped>
@@ -142,6 +148,10 @@ onMounted(() => {
 .access-denied h2 {
   color: #dc2626;
   margin-bottom: 0.5rem;
+}
+
+.qr-section {
+  margin-bottom: 2rem;
 }
 
 .content-section {

@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue'
+import { ref, computed, type ComputedRef } from 'vue'
 import { apiClient, API_ROUTES } from '@/core/api'
 import type { User } from '@/types/interfaces/user.interface'
 import type { Message, SendMessageRequest } from '@/types/interfaces/message.interface'
@@ -7,12 +7,11 @@ import type { UserApiResponse } from '@/types/responses/user.api'
 import { transformUserFromApi } from '@/types/responses/user.api'
 import { useChatStore } from '@/stores/chat.store'
 
-export function useChatLogic() {
+export function useChatLogic(currentUser: ComputedRef<User | null>) {
   const chatStore = useChatStore()
   const users = ref<User[]>([])
   const messages = ref<Message[]>([])
   const selectedUser = ref<User | null>(null)
-  const currentUser = ref<User | null>(null)
   const isLoading = ref(false)
   const isLoadingUsers = ref(false)
   const currentPage = ref(1)
@@ -31,17 +30,6 @@ export function useChatLogic() {
       return activityB - activityA
     })
   })
-
-  async function loadCurrentUser() {
-    try {
-      const { data } = await apiClient.get<User>(API_ROUTES.me)
-      currentUser.value = data
-      return data
-    } catch (error) {
-      console.error('Failed to load current user:', error)
-      throw error
-    }
-  }
 
   async function loadUsers() {
     isLoadingUsers.value = true
@@ -149,12 +137,10 @@ export function useChatLogic() {
     users,
     messages,
     selectedUser,
-    currentUser,
     isLoading,
     isLoadingUsers,
     sortedUsers,
     hasMoreUsers,
-    loadCurrentUser,
     loadUsers,
     loadMoreUsers,
     resetUsers,

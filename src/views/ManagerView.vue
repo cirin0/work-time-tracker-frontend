@@ -1,86 +1,161 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import MainLayout from '@/components/layouts/MainLayout.vue'
+import { useRouter } from 'vue-router'
 import { useRoleGuard } from '@/composables/useRoleGuard'
-import { apiClient, API_ROUTES } from '@/core/api'
-import type { User } from '@/types/interfaces/user.interface'
-import type { PaginatedResponse } from '@/types/responses/pagination.interface'
-import type { UserApiResponse } from '@/types/responses/user.api'
-import { transformUserFromApi } from '@/types/responses/user.api'
+import { useManagerStore } from '@/stores/manager.store'
+import ManagerLeaveRequestsList from '@/components/leave-requests/ManagerLeaveRequestsList.vue'
+import RejectModal from '@/components/leave-requests/RejectModal.vue'
+import QRCodeDisplay from '@/components/qr-code/QRCodeDisplay.vue'
 
-const { isManager, currentUser } = useRoleGuard()
+const router = useRouter()
+const { isManager } = useRoleGuard()
+const managerStore = useManagerStore()
 
-const allUsers = ref<User[]>([])
-const isLoading = ref(false)
+const showRejectModal = ref(false)
+const rejectingRequestId = ref<number | null>(null)
+const processingRequestId = ref<number | null>(null)
 
-const employees = computed(() => {
-  if (!currentUser.value) return []
-  return allUsers.value.filter((user) => user.manager?.id === currentUser.value!.id)
+const pendingRequestsCount = computed(() => {
+  return managerStore.leaveRequests.length
 })
 
-async function loadUsers() {
-  isLoading.value = true
+const totalTeamHours = computed(() => {
+  return managerStore.companyStats ? parseFloat(managerStore.companyStats.summary.month.hours) : 0
+})
+
+const activeEmployees = computed(() => {
+  return managerStore.companyStats ? parseInt(managerStore.companyStats.active_employees) : 0
+})
+
+onMounted(() => {
+  managerStore.fetchEmployees()
+  managerStore.fetchCompanyStatistics()
+  managerStore.fetchPendingLeaveRequests()
+})
+
+async function handleApprove(id: number) {
+  if (!confirm('Ви впевнені, що хочете схвалити цей запит?')) {
+    return
+  }
+
+  processingRequestId.value = id
   try {
-    const { data } = await apiClient.get<PaginatedResponse<UserApiResponse>>(API_ROUTES.users.index)
-    allUsers.value = data.data.map(transformUserFromApi)
+    await managerStore.approveLeaveRequest(id)
   } catch (error) {
-    console.error('Failed to load users:', error)
+    console.error('Failed to approve leave request:', error)
+    alert('Помилка при схваленні запиту')
   } finally {
-    isLoading.value = false
+    processingRequestId.value = null
   }
 }
 
-onMounted(() => {
-  loadUsers()
-})
+function handleRejectClick(id: number) {
+  rejectingRequestId.value = id
+  showRejectModal.value = true
+}
+
+async function handleRejectSubmit(comments: string) {
+  if (!rejectingRequestId.value) return
+
+  processingRequestId.value = rejectingRequestId.value
+  try {
+    await managerStore.rejectLeaveRequest(rejectingRequestId.value, {
+      manager_comment: comments,
+    })
+    showRejectModal.value = false
+    rejectingRequestId.value = null
+  } catch (error) {
+    console.error('Failed to reject leave request:', error)
+    alert('Помилка при відхиленні запиту')
+  } finally {
+    processingRequestId.value = null
+  }
+}
+
+function viewAllLeaveRequests() {
+  router.push({ name: 'manager-leave-requests' })
+}
+
+function viewEmployeeDetails(employeeId: number) {
+  router.push({ name: 'employee-details', params: { id: employeeId } })
+}
 </script>
 
 <template>
-  <MainLayout>
-    <div class="manager-panel">
-      <div class="panel-header">
-        <h1>Панель менеджера</h1>
-        <p class="subtitle">Управління командою</p>
-      </div>
+  <div class="manager-panel">
+    <div class="panel-header">
+      <h1>Панель менеджера</h1>
+      <p class="subtitle">Управління командою</p>
+    </div>
 
-      <div v-if="!isManager" class="access-denied">
-        <h2>Доступ заборонено</h2>
-        <p>У вас немає прав для перегляду цієї сторінки</p>
-      </div>
+    <div v-if="!isManager" class="access-denied">
+      <h2>Доступ заборонено</h2>
+      <p>У вас немає прав для перегляду цієї сторінки</p>
+    </div>
 
-      <div v-else class="content-wrapper">
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon">👥</div>
-            <div class="stat-content">
-              <div class="stat-value">{{ employees.length }}</div>
-              <div class="stat-label">Співробітників</div>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon">⏰</div>
-            <div class="stat-content">
-              <div class="stat-value">0</div>
-              <div class="stat-label">Запитів на відпустку</div>
-            </div>
+    <div v-else class="content-wrapper">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">👥</div>
+          <div class="stat-content">
+            <div class="stat-value">{{ managerStore.employees.length }}</div>
+            <div class="stat-label">Співробітників</div>
           </div>
         </div>
 
-        <div class="content-section">
-          <div class="section-header">
-            <h2>Підлеглі</h2>
+        <div class="stat-card">
+          <div class="stat-icon">⚡</div>
+          <div class="stat-content">
+            <div class="stat-value">{{ activeEmployees }}</div>
+            <div class="stat-label">Активних зараз</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">⏱️</div>
+          <div class="stat-content">
+            <div class="stat-value">{{ totalTeamHours.toFixed(1) }}</div>
+            <div class="stat-label">Годин команди (місяць)</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">⏰</div>
+          <div class="stat-content">
+            <div class="stat-value">{{ pendingRequestsCount }}</div>
+            <div class="stat-label">Запитів на відпустку</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Two Column Layout: QR Code + Employees on left (60%), Leave Requests on right (40%) -->
+      <div class="two-column-layout">
+        <!-- Left Column: QR Code + Employees -->
+        <div class="left-column">
+          <!-- QR Code Section -->
+          <div class="qr-section">
+            <QRCodeDisplay />
           </div>
 
-          <div v-if="isLoading" class="loading">Завантаження...</div>
+          <!-- Employees Section -->
+          <div class="content-section">
+            <div class="section-header">
+              <h2>Підлеглі</h2>
+            </div>
 
-          <div v-else-if="employees.length === 0" class="empty-state">
-            <p>У вас ще немає підлеглих співробітників</p>
-          </div>
+            <div v-if="managerStore.isLoadingEmployees" class="loading">Завантаження...</div>
 
-          <div v-else class="employees-grid">
-            <div v-for="employee in employees" :key="employee.id" class="employee-card">
-              <div class="employee-header">
+            <div v-else-if="managerStore.employees.length === 0" class="empty-state">
+              <p>У вас ще немає підлеглих співробітників</p>
+            </div>
+
+            <div v-else class="employees-list">
+              <div
+                v-for="employee in managerStore.employees"
+                :key="employee.id"
+                class="employee-card"
+                @click="viewEmployeeDetails(employee.id)"
+              >
                 <div class="employee-avatar">
                   <img
                     v-if="employee.avatar"
@@ -92,50 +167,59 @@ onMounted(() => {
                     {{ employee.name.charAt(0).toUpperCase() }}
                   </div>
                 </div>
+
                 <div class="employee-info">
                   <h3>{{ employee.name }}</h3>
                   <p class="employee-email">{{ employee.email }}</p>
-                  <span class="role-badge">{{ employee.role }}</span>
                 </div>
-              </div>
 
-              <div class="employee-stats">
-                <div class="stat-item">
-                  <span class="stat-label">Годин цього місяця:</span>
-                  <span class="stat-value">0</span>
-                </div>
-                <div class="stat-item">
-                  <span class="stat-label">Запитів на відпустку:</span>
-                  <span class="stat-value">0</span>
-                </div>
-              </div>
-
-              <div class="employee-actions">
-                <button class="btn-secondary">Переглянути профіль</button>
-                <button class="btn-primary">Звіти</button>
+                <div class="employee-indicator">→</div>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="content-section">
-          <div class="section-header">
-            <h2>Запити на відпустку</h2>
-            <span class="badge">0 нових</span>
-          </div>
+        <!-- Right Column: Leave Requests -->
+        <div class="right-column">
+          <div class="content-section sticky-section">
+            <div class="section-header">
+              <h2>Нові запити на відпустку</h2>
+              <div class="header-actions">
+                <span v-if="pendingRequestsCount > 0" class="badge"
+                  >{{ pendingRequestsCount }} нових</span
+                >
+                <button @click="viewAllLeaveRequests" class="btn-view-all">
+                  Переглянути всі →
+                </button>
+              </div>
+            </div>
 
-          <div class="empty-state">
-            <p>Немає нових запитів на відпустку</p>
+            <ManagerLeaveRequestsList
+              :leave-requests="managerStore.leaveRequests"
+              :is-loading="managerStore.isLoadingLeaveRequests"
+              :error="managerStore.error"
+              :processing-id="processingRequestId"
+              @retry="managerStore.fetchPendingLeaveRequests"
+              @approve="handleApprove"
+              @reject="handleRejectClick"
+            />
           </div>
         </div>
       </div>
+
+      <RejectModal
+        :show-modal="showRejectModal"
+        :is-submitting="processingRequestId !== null"
+        @close="showRejectModal = false"
+        @submit="handleRejectSubmit"
+      />
     </div>
-  </MainLayout>
+  </div>
 </template>
 
 <style scoped>
 .manager-panel {
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
   padding: 2rem;
 }
@@ -218,6 +302,37 @@ onMounted(() => {
   margin-top: 0.25rem;
 }
 
+/* Two Column Layout: 60% left (QR + Employees), 40% right (Leave Requests) */
+.two-column-layout {
+  display: grid;
+  grid-template-columns: 4fr 2fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .two-column-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.left-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.right-column {
+  min-width: 0;
+}
+
+.sticky-section {
+  position: sticky;
+  top: 1rem;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+}
+
 .content-section {
   background: white;
   border-radius: 0.75rem;
@@ -230,12 +345,20 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .section-header h2 {
   font-size: 1.5rem;
   font-weight: 600;
   color: #1f2937;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .badge {
@@ -245,6 +368,23 @@ onMounted(() => {
   border-radius: 9999px;
   font-size: 0.875rem;
   font-weight: 600;
+}
+
+.btn-view-all {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
+  color: white;
+}
+
+.btn-view-all:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(147, 51, 234, 0.3);
 }
 
 .loading {
@@ -259,28 +399,28 @@ onMounted(() => {
   color: #6b7280;
 }
 
-.employees-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.5rem;
+.employees-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .employee-card {
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
-  padding: 1.5rem;
+  padding: 1rem 1.5rem;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  background: white;
+  cursor: pointer;
 }
 
 .employee-card:hover {
   border-color: #9333ea;
   box-shadow: 0 4px 6px rgba(147, 51, 234, 0.1);
-}
-
-.employee-header {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  transform: translateX(4px);
 }
 
 .employee-avatar {
@@ -288,97 +428,69 @@ onMounted(() => {
 }
 
 .avatar-img {
-  width: 60px;
-  height: 60px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   object-fit: cover;
 }
 
 .avatar-placeholder {
-  width: 60px;
-  height: 60px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 600;
 }
 
 .employee-info {
   flex: 1;
-  min-width: 0;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .employee-info h3 {
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #1f2937;
-  margin-bottom: 0.25rem;
+  margin: 0;
 }
 
 .employee-email {
   color: #6b7280;
-  font-size: 0.875rem;
-  margin-bottom: 0.5rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: 0.813rem;
+  margin: 0;
 }
 
-.role-badge {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
+.employee-indicator {
+  color: #9333ea;
+  font-size: 1.5rem;
   font-weight: 600;
-  text-transform: uppercase;
-  background: #d1fae5;
-  color: #065f46;
-}
-
-.employee-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  padding: 1rem;
-  background: #f9fafb;
-  border-radius: 0.375rem;
-}
-
-.stat-item {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.875rem;
-}
-
-.stat-item .stat-label {
-  color: #6b7280;
-}
-
-.stat-item .stat-value {
-  font-weight: 600;
-  color: #1f2937;
+  flex-shrink: 0;
 }
 
 .employee-actions {
   display: flex;
   gap: 0.5rem;
+  flex-shrink: 0;
 }
 
 .btn-primary,
 .btn-secondary {
-  flex: 1;
   padding: 0.5rem 1rem;
   border-radius: 0.375rem;
-  font-size: 0.875rem;
+  font-size: 0.813rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
   border: none;
+  white-space: nowrap;
 }
 
 .btn-primary {

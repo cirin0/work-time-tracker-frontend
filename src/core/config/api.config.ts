@@ -5,22 +5,32 @@ export const API_ROUTES = {
     logout: '/auth/logout',
     refresh: '/auth/refresh',
   },
-  me: '/me',
+  me: {
+    show: '/me',
+    update: '/me',
+    updateAvatar: '/me/avatar',
+    changePassword: '/me/change-password',
+    setupPinCode: '/me/pin-code',
+    changePinCode: '/me/pin-code',
+    getWorkSchedule: '/me/work-schedule',
+  },
   users: {
     index: '/users',
     show: (id: number | string) => `/users/${id}`,
     update: (id: number | string) => `/users/${id}`,
     delete: (id: number | string) => `/users/${id}`,
-    updateAvatar: (id: number | string) => `/users/avatar/${id}`,
-    updateRole: (id: number | string) => `/users/role/${id}`,
-    getWorkSchedule: (id: number | string) => `/users/work-schedule/${id}`,
-    updateWorkSchedule: (id: number | string) => `/users/work-schedule/${id}`,
+    updateAvatar: (id: number | string) => `/users/${id}/avatar`,
+    updateRole: (id: number | string) => `/users/${id}/role`,
+    getWorkSchedule: (id: number | string) => `/users/${id}/work-schedule`,
+    updateWorkSchedule: (id: number | string) => `/users/${id}/work-schedule`,
   },
   messages: {
     index: (receiverId: number | string) => `/messages/${receiverId}`,
     store: '/messages',
   },
   companies: {
+    index: '/companies',
+    store: '/companies',
     showById: (id: number) => `/companies/${id}`,
     showByName: (name: string) => `/companies/name/${name}`,
     update: (id: number) => `/companies/${id}`,
@@ -29,24 +39,48 @@ export const API_ROUTES = {
   leaveRequests: {
     index: '/leave-requests',
     store: '/leave-requests',
-    manager: {
-      addEmployeeToCompany: (id: number) => `/companies/${id}/add-employee`,
-      deleteEmployeeFromCompany: (id: number) => `/companies/${id}/remove-employee`,
-      deleteEmployeeFromCompanyById: (id: number, employee_id: number) =>
-        `/companies/${id}/remove-employee/${employee_id}`,
+    show: (id: number | string) => `/leave-requests/${id}`,
+  },
+  manager: {
+    statistics: '/manager/statistics',
+    users: {
+      index: '/manager/users',
+      show: (userId: number | string) => `/manager/users/${userId}`,
+      timeEntries: (userId: number | string) => `/manager/users/${userId}/time-entries`,
+      timeSummary: (userId: number | string) => `/manager/users/${userId}/time-summary`,
+      workSchedule: (userId: number | string) => `/manager/users/${userId}/work-schedule`,
+      updateWorkSchedule: (userId: number | string) => `/manager/users/${userId}/work-schedule`,
+    },
+    companies: {
+      addEmployee: (companyId: number) => `/manager/companies/${companyId}/add-employee`,
+      removeEmployee: (companyId: number) => `/manager/companies/${companyId}/remove-employee`,
+      removeEmployeeById: (companyId: number, employeeId: number) =>
+        `/manager/companies/${companyId}/remove-employee/${employeeId}`,
+    },
+    leaveRequests: {
+      index: '/manager/leave-requests',
+      pending: '/manager/leave-requests/pending',
+      approve: (leaveRequestId: number) => `/manager/leave-requests/${leaveRequestId}/approve`,
+      reject: (leaveRequestId: number) => `/manager/leave-requests/${leaveRequestId}/reject`,
     },
   },
-  workSchedule: {
+  workSchedules: {
     index: '/work-schedules',
     store: '/work-schedules',
-    show: (id: number) => `/work-schedules/${id}`,
-    update: (id: number) => `/work-schedules/${id}`,
-    delete: (id: number) => `/work-schedules/${id}`,
+    show: (id: number | string) => `/work-schedules/${id}`,
+    update: (id: number | string) => `/work-schedules/${id}`,
+    delete: (id: number | string) => `/work-schedules/${id}`,
   },
   timeEntries: {
-    start: '/clock-in',
-    stop: '/clock-out',
     index: '/time-entries',
-    summaryByCurrentUser: '/me/time-summary',
+    store: '/time-entries',
+    show: (id: number | string) => `/time-entries/${id}`,
+    delete: (id: number | string) => `/time-entries/${id}`,
+    active: '/time-entries/active',
+    stopActive: '/time-entries/active/stop',
+    summaryByCurrentUser: '/time-entries/summary/me',
+  },
+  qrCode: {
+    daily: '/qr-code/daily',
   },
 } as const
