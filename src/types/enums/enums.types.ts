@@ -25,3 +25,7 @@ export enum DayOfWeek {
   SATURDAY = 'saturday',
   SUNDAY = 'sunday',
 }
+
+export type WorkMode = 'remote' | 'office' | 'hybrid'
+
+export type EntryType = 'gps' | 'qr' | 'gps_qr' | 'remote' | 'manual'

@@ -17,7 +17,23 @@ defineEmits<{
 }>()
 
 function formatDate(dateString: string): string {
-  const date = new Date(dateString)
+  const parts = dateString.split(' ')
+  const datePart = parts[0]
+  const timePart = parts[1]
+
+  if (!datePart) {
+    return 'Невідома дата'
+  }
+
+  const [day, month, year] = datePart.split('-')
+
+  if (!day || !month || !year) {
+    return 'Невідома дата'
+  }
+
+  const isoDate = `${year}-${month}-${day}T${timePart || '00:00:00'}`
+  const date = new Date(isoDate)
+
   return date.toLocaleDateString('uk-UA', {
     day: '2-digit',
     month: '2-digit',
@@ -76,9 +92,9 @@ function getStatusLabel(status: LeaveRequestStatus): string {
         <p class="reason-text">{{ leaveRequest.reason }}</p>
       </div>
 
-      <div v-if="leaveRequest.manager_comments" class="manager-comments">
+      <div v-if="leaveRequest.manager_comment" class="manager-comments">
         <span class="comments-label">Коментар менеджера:</span>
-        <p class="comments-text">{{ leaveRequest.manager_comments }}</p>
+        <p class="comments-text">{{ leaveRequest.manager_comment }}</p>
       </div>
     </div>
 

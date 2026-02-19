@@ -1,3 +1,3 @@
 export interface RejectLeaveRequestRequest {
-  manager_comments: string
+  manager_comment: string
 }
