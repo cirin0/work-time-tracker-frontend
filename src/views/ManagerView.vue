@@ -3,7 +3,6 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useRoleGuard } from '@/composables/useRoleGuard'
 import { useManagerStore } from '@/stores/manager.store'
-import { getAvatarUrl } from '@/core/utils/url'
 import ManagerLeaveRequestsList from '@/components/leave-requests/ManagerLeaveRequestsList.vue'
 import RejectModal from '@/components/leave-requests/RejectModal.vue'
 import QRCodeDisplay from '@/components/qr-code/QRCodeDisplay.vue'
@@ -29,7 +28,6 @@ const activeEmployees = computed(() => {
 })
 
 onMounted(() => {
-  managerStore.fetchEmployees()
   managerStore.fetchCompanyStatistics()
   managerStore.fetchPendingLeaveRequests()
 })
@@ -77,8 +75,12 @@ function viewAllLeaveRequests() {
   router.push({ name: 'manager-leave-requests' })
 }
 
-function viewEmployeeDetails(employeeId: number) {
-  router.push({ name: 'employee-details', params: { id: employeeId } })
+function viewWorkSchedules() {
+  router.push({ name: 'work-schedules' })
+}
+
+function viewEmployees() {
+  router.push({ name: 'manager-employees' })
 }
 </script>
 
@@ -129,58 +131,29 @@ function viewEmployeeDetails(employeeId: number) {
         </div>
       </div>
 
-      <!-- Two Column Layout: QR Code + Employees on left (60%), Leave Requests on right (40%) -->
+      <!-- Quick Actions -->
+      <div class="quick-actions">
+        <button class="quick-action-btn" @click="viewEmployees">
+          <span class="qa-icon">👥</span>
+          <span class="qa-label">Підлеглі</span>
+        </button>
+        <button class="quick-action-btn" @click="viewAllLeaveRequests">
+          <span class="qa-icon">📋</span>
+          <span class="qa-label">Запити на відпустку</span>
+        </button>
+        <button class="quick-action-btn" @click="viewWorkSchedules">
+          <span class="qa-icon">📅</span>
+          <span class="qa-label">Робочі розклади</span>
+        </button>
+      </div>
+
       <div class="two-column-layout">
-        <!-- Left Column: QR Code + Employees -->
         <div class="left-column">
-          <!-- QR Code Section -->
           <div class="qr-section">
             <QRCodeDisplay />
           </div>
-
-          <!-- Employees Section -->
-          <div class="content-section">
-            <div class="section-header">
-              <h2>Підлеглі</h2>
-            </div>
-
-            <div v-if="managerStore.isLoadingEmployees" class="loading">Завантаження...</div>
-
-            <div v-else-if="managerStore.employees.length === 0" class="empty-state">
-              <p>У вас ще немає підлеглих співробітників</p>
-            </div>
-
-            <div v-else class="employees-list">
-              <div
-                v-for="employee in managerStore.employees"
-                :key="employee.id"
-                class="employee-card"
-                @click="viewEmployeeDetails(employee.id)"
-              >
-                <div class="employee-avatar">
-                  <img
-                    v-if="getAvatarUrl(employee.avatar)"
-                    :src="getAvatarUrl(employee.avatar)!"
-                    :alt="employee.name"
-                    class="avatar-img"
-                  />
-                  <div v-else class="avatar-placeholder">
-                    {{ employee.name.charAt(0).toUpperCase() }}
-                  </div>
-                </div>
-
-                <div class="employee-info">
-                  <h3>{{ employee.name }}</h3>
-                  <p class="employee-email">{{ employee.email }}</p>
-                </div>
-
-                <div class="employee-indicator">→</div>
-              </div>
-            </div>
-          </div>
         </div>
 
-        <!-- Right Column: Leave Requests -->
         <div class="right-column">
           <div class="content-section sticky-section">
             <div class="section-header">
@@ -189,9 +162,6 @@ function viewEmployeeDetails(employeeId: number) {
                 <span v-if="pendingRequestsCount > 0" class="badge"
                   >{{ pendingRequestsCount }} нових</span
                 >
-                <button @click="viewAllLeaveRequests" class="btn-view-all">
-                  Переглянути всі →
-                </button>
               </div>
             </div>
 
@@ -400,116 +370,41 @@ function viewEmployeeDetails(employeeId: number) {
   color: #6b7280;
 }
 
-.employees-list {
+/* Quick Actions */
+.quick-actions {
   display: flex;
-  flex-direction: column;
   gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
-.employee-card {
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  padding: 1rem 1.5rem;
-  transition: all 0.2s;
+.quick-action-btn {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-  background: white;
-  cursor: pointer;
-}
-
-.employee-card:hover {
-  border-color: #9333ea;
-  box-shadow: 0 4px 6px rgba(147, 51, 234, 0.1);
-  transform: translateX(4px);
-}
-
-.employee-avatar {
-  flex-shrink: 0;
-}
-
-.avatar-img {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.avatar-placeholder {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-  font-weight: 600;
-}
-
-.employee-info {
-  flex: 1;
-  min-width: 200px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.employee-info h3 {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0;
-}
-
-.employee-email {
-  color: #6b7280;
-  font-size: 0.813rem;
-  margin: 0;
-}
-
-.employee-indicator {
-  color: #9333ea;
-  font-size: 1.5rem;
-  font-weight: 600;
-  flex-shrink: 0;
-}
-
-.employee-actions {
-  display: flex;
   gap: 0.5rem;
-  flex-shrink: 0;
-}
-
-.btn-primary,
-.btn-secondary {
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  font-size: 0.813rem;
+  padding: 0.65rem 1.25rem;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 0.9rem;
   font-weight: 500;
+  color: #374151;
   cursor: pointer;
   transition: all 0.2s;
-  border: none;
-  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
-.btn-primary {
-  background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
-  color: white;
-}
-
-.btn-primary:hover {
+.quick-action-btn:hover {
+  border-color: #2563eb;
+  color: #2563eb;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12);
   transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(147, 51, 234, 0.3);
 }
 
-.btn-secondary {
-  background: #f3f4f6;
-  color: #374151;
+.qa-icon {
+  font-size: 1.1rem;
 }
 
-.btn-secondary:hover {
-  background: #e5e7eb;
+.qa-label {
+  white-space: nowrap;
 }
 </style>

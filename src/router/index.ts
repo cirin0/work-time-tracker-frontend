@@ -74,6 +74,26 @@ export const router = createRouter({
       },
     },
     {
+      path: '/manager/work-schedules',
+      name: 'work-schedules',
+      component: () => import('../views/WorkSchedulesView.vue'),
+      meta: {
+        layout: 'main',
+        requiresAuth: true,
+        roles: [UserRole.ADMIN, UserRole.MANAGER],
+      },
+    },
+    {
+      path: '/manager/employees',
+      name: 'manager-employees',
+      component: () => import('../views/EmployeesView.vue'),
+      meta: {
+        layout: 'main',
+        requiresAuth: true,
+        roles: [UserRole.ADMIN, UserRole.MANAGER],
+      },
+    },
+    {
       path: '/role-examples',
       name: 'role-examples',
       component: () => import('../views/RoleExampleView.vue'),
