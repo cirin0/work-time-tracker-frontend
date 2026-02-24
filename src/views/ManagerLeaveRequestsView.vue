@@ -36,7 +36,6 @@ async function handleApprove(id: number) {
   processingRequestId.value = id
   try {
     await managerStore.approveLeaveRequest(id)
-    // Reload current page to reflect changes
     await loadLeaveRequests(currentPage.value)
   } catch (error) {
     console.error('Failed to approve leave request:', error)
@@ -61,7 +60,6 @@ async function handleRejectSubmit(comments: string) {
     })
     showRejectModal.value = false
     rejectingRequestId.value = null
-    // Reload current page to reflect changes
     await loadLeaveRequests(currentPage.value)
   } catch (error) {
     console.error('Failed to reject leave request:', error)

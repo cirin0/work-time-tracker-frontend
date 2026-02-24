@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useManagerStore } from '@/stores/manager.store'
+import { useWorkScheduleStore } from '@/stores/workSchedule.store'
 import type { User } from '@/types/interfaces/user.interface'
 import type { TimeEntry } from '@/types/interfaces/timeEntry.interface'
 import type { TimeEntrySummary } from '@/types/interfaces/timeEntrySummary.interface'
@@ -12,6 +13,7 @@ import { getAvatarUrl } from '@/core/utils/url'
 const route = useRoute()
 const router = useRouter()
 const managerStore = useManagerStore()
+const workScheduleStore = useWorkScheduleStore()
 
 const employeeId = computed(() => Number(route.params.id))
 const employee = ref<User | null>(null)
@@ -21,6 +23,12 @@ const employeeWorkSchedule = ref<WorkSchedule | null>(null)
 const isLoading = ref(false)
 const loadError = ref<string | null>(null)
 const activeTab = ref<'overview' | 'timeEntries' | 'schedule'>('overview')
+
+// Schedule editing
+const isEditingSchedule = ref(false)
+const selectedScheduleId = ref<number | null>(null)
+const scheduleAssignSuccess = ref<string | null>(null)
+const scheduleAssignError = ref<string | null>(null)
 
 const avatarUrl = ref<string | null>(null)
 watch(
@@ -33,6 +41,7 @@ watch(
 
 onMounted(() => {
   loadEmployeeDetails()
+  workScheduleStore.fetchWorkSchedules()
 })
 
 async function loadEmployeeDetails() {
@@ -72,6 +81,29 @@ async function loadTimeEntries() {
     employeeTimeEntries.value = managerStore.selectedEmployeeTimeEntries
   } catch (error) {
     console.error('Failed to load time entries:', error)
+  }
+}
+
+async function assignSchedule() {
+  if (!selectedScheduleId.value) return
+  scheduleAssignError.value = null
+  scheduleAssignSuccess.value = null
+  try {
+    await workScheduleStore.assignScheduleToEmployee(employeeId.value, {
+      work_schedule_id: selectedScheduleId.value,
+    })
+    // Refresh employee work schedule
+    await managerStore.fetchEmployeeWorkSchedule(employeeId.value)
+    employeeWorkSchedule.value = managerStore.selectedEmployeeWorkSchedule
+    // Also refresh employee info to update work_schedule name in the card
+    await managerStore.fetchEmployeeById(employeeId.value)
+    employee.value = managerStore.selectedEmployee
+    scheduleAssignSuccess.value = 'Графік роботи успішно змінено'
+    isEditingSchedule.value = false
+    selectedScheduleId.value = null
+    setTimeout(() => (scheduleAssignSuccess.value = null), 4000)
+  } catch {
+    scheduleAssignError.value = workScheduleStore.error ?? 'Помилка призначення графіку'
   }
 }
 
@@ -267,6 +299,18 @@ const daysOfWeekLabels: Record<string, string> = {
 
           <!-- Schedule Tab -->
           <div v-if="activeTab === 'schedule'" class="schedule">
+            <!-- Success / error notifications -->
+            <Transition name="fade">
+              <div v-if="scheduleAssignSuccess" class="schedule-notify success">
+                ✓ {{ scheduleAssignSuccess }}
+              </div>
+            </Transition>
+            <Transition name="fade">
+              <div v-if="scheduleAssignError" class="schedule-notify error">
+                {{ scheduleAssignError }}
+              </div>
+            </Transition>
+
             <div
               v-if="!employeeWorkSchedule || !employeeWorkSchedule.daily_schedules?.length"
               class="empty-state"
@@ -274,7 +318,16 @@ const daysOfWeekLabels: Record<string, string> = {
               <p>Графік роботи не призначений</p>
             </div>
             <div v-else>
-              <h4>{{ employeeWorkSchedule.name }}</h4>
+              <div class="schedule-header">
+                <h4>{{ employeeWorkSchedule.name }}</h4>
+                <button
+                  v-if="!isEditingSchedule"
+                  class="btn-change-schedule"
+                  @click="isEditingSchedule = true"
+                >
+                  ✏️ Змінити графік
+                </button>
+              </div>
               <div class="schedule-list">
                 <div
                   v-for="day in employeeWorkSchedule.daily_schedules"
@@ -292,6 +345,40 @@ const daysOfWeekLabels: Record<string, string> = {
                   <div v-else class="day-off">Вихідний</div>
                 </div>
               </div>
+            </div>
+
+            <!-- Assign schedule form -->
+            <div v-if="isEditingSchedule" class="assign-schedule-form">
+              <h5>Призначити інший графік</h5>
+              <div class="assign-row">
+                <select v-model.number="selectedScheduleId" class="schedule-select">
+                  <option :value="null" disabled>Оберіть графік...</option>
+                  <option v-for="s in workScheduleStore.workSchedules" :key="s.id" :value="s.id">
+                    {{ s.name }}{{ s.is_default ? ' (за замовчуванням)' : '' }}
+                  </option>
+                </select>
+                <button
+                  class="btn-assign"
+                  :disabled="!selectedScheduleId || workScheduleStore.isSaving"
+                  @click="assignSchedule"
+                >
+                  {{ workScheduleStore.isSaving ? 'Збереження...' : 'Призначити' }}
+                </button>
+                <button
+                  class="btn-cancel-assign"
+                  @click="((isEditingSchedule = false), (selectedScheduleId = null))"
+                >
+                  Скасувати
+                </button>
+              </div>
+              <div v-if="scheduleAssignError" class="assign-error">{{ scheduleAssignError }}</div>
+            </div>
+
+            <!-- No schedule assigned yet but can still assign -->
+            <div v-if="!employeeWorkSchedule && !isEditingSchedule" class="assign-prompt">
+              <button class="btn-change-schedule" @click="isEditingSchedule = true">
+                + Призначити графік
+              </button>
             </div>
           </div>
         </div>
@@ -687,5 +774,154 @@ const daysOfWeekLabels: Record<string, string> = {
 .btn-primary:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 6px rgba(147, 51, 234, 0.3);
+}
+
+/* Schedule editing */
+.schedule-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.schedule-header h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.btn-change-schedule {
+  padding: 0.4rem 1rem;
+  background: linear-gradient(135deg, #2563eb, #9333ea);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-change-schedule:hover {
+  opacity: 0.88;
+}
+
+.assign-schedule-form {
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  background: #f8faff;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+}
+
+.assign-schedule-form h5 {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #1d4ed8;
+  margin: 0 0 0.85rem 0;
+}
+
+.assign-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.schedule-select {
+  flex: 1;
+  min-width: 180px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.88rem;
+  color: #1f2937;
+  outline: none;
+  background: white;
+}
+
+.schedule-select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.btn-assign {
+  padding: 0.5rem 1.1rem;
+  background: linear-gradient(135deg, #2563eb, #9333ea);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+}
+
+.btn-assign:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-assign:not(:disabled):hover {
+  opacity: 0.88;
+}
+
+.btn-cancel-assign {
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+  color: #374151;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.btn-cancel-assign:hover {
+  background: #f9fafb;
+}
+
+.assign-error {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: #dc2626;
+}
+
+.assign-prompt {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.schedule-notify {
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.schedule-notify.success {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  color: #15803d;
+}
+
+.schedule-notify.error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
