@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useManagerStore } from '@/stores/manager.store'
 import type { User } from '@/types/interfaces/user.interface'
 import type { TimeEntry } from '@/types/interfaces/timeEntry.interface'
 import type { TimeEntrySummary } from '@/types/interfaces/timeEntrySummary.interface'
 import type { WorkSchedule } from '@/types/interfaces/workSchedule.interface'
+import { formatDate, formatTime } from '@/core/utils/date'
+import { getAvatarUrl } from '@/core/utils/url'
 
 const route = useRoute()
 const router = useRouter()
@@ -19,6 +21,15 @@ const employeeWorkSchedule = ref<WorkSchedule | null>(null)
 const isLoading = ref(false)
 const loadError = ref<string | null>(null)
 const activeTab = ref<'overview' | 'timeEntries' | 'schedule'>('overview')
+
+const avatarUrl = ref<string | null>(null)
+watch(
+  () => employee.value?.avatar,
+  () => {
+    avatarUrl.value = getAvatarUrl(employee.value?.avatar)
+  },
+  { immediate: true },
+)
 
 onMounted(() => {
   loadEmployeeDetails()
@@ -68,14 +79,7 @@ function goBack() {
   router.push({ name: 'main' })
 }
 
-function formatDate(date: Date | string) {
-  if (date instanceof Date) {
-    return date.toLocaleDateString('uk-UA')
-  }
-  return new Date(date).toLocaleDateString('uk-UA')
-}
-
-function formatTime(minutes: number) {
+function formatDuration(minutes: number) {
   const hours = Math.floor(minutes / 60)
   const mins = minutes % 60
   return `${hours}г ${mins}хв`
@@ -118,7 +122,7 @@ const daysOfWeekLabels: Record<string, string> = {
       <div class="employee-card">
         <div class="employee-header">
           <div class="employee-avatar">
-            <img v-if="employee.avatar" :src="employee.avatar" :alt="employee.name" />
+            <img v-if="avatarUrl" :src="avatarUrl" :alt="employee.name" />
             <div v-else class="avatar-placeholder">
               {{ employee.name.charAt(0).toUpperCase() }}
             </div>
@@ -147,7 +151,7 @@ const daysOfWeekLabels: Record<string, string> = {
           </div>
           <div class="detail-item">
             <span class="label">Дата реєстрації:</span>
-            <span class="value">{{ formatDate(employee.createdAt) }}</span>
+            <span class="value">{{ formatDate(employee.created_at) }}</span>
           </div>
         </div>
       </div>
@@ -159,21 +163,30 @@ const daysOfWeekLabels: Record<string, string> = {
           <div class="stat-card">
             <div class="stat-icon">📅</div>
             <div class="stat-content">
-              <div class="stat-value">{{ formatTime(employeeSummary.summary.today) }}</div>
+              <div class="stat-value">
+                {{ employeeSummary.summary.today.hours }}г
+                {{ employeeSummary.summary.today.minutes }}хв
+              </div>
               <div class="stat-label">Сьогодні</div>
             </div>
           </div>
           <div class="stat-card">
             <div class="stat-icon">📊</div>
             <div class="stat-content">
-              <div class="stat-value">{{ formatTime(employeeSummary.summary.week) }}</div>
+              <div class="stat-value">
+                {{ employeeSummary.summary.week.hours }}г
+                {{ employeeSummary.summary.week.minutes }}хв
+              </div>
               <div class="stat-label">Цього тижня</div>
             </div>
           </div>
           <div class="stat-card">
             <div class="stat-icon">📈</div>
             <div class="stat-content">
-              <div class="stat-value">{{ formatTime(employeeSummary.summary.month) }}</div>
+              <div class="stat-value">
+                {{ employeeSummary.summary.month.hours }}г
+                {{ employeeSummary.summary.month.minutes }}хв
+              </div>
               <div class="stat-label">Цього місяця</div>
             </div>
           </div>
@@ -198,10 +211,7 @@ const daysOfWeekLabels: Record<string, string> = {
             Огляд
           </button>
           <button
-            @click="
-              activeTab = 'timeEntries'
-              loadTimeEntries()
-            "
+            @click="((activeTab = 'timeEntries'), loadTimeEntries())"
             :class="{ active: activeTab === 'timeEntries' }"
             class="tab"
           >
@@ -223,12 +233,12 @@ const daysOfWeekLabels: Record<string, string> = {
               <h4>Загальна інформація</h4>
               <p v-if="employeeSummary">
                 Середній робочий час:
-                <strong>{{ formatTime(employeeSummary.average_work_time) }}</strong>
+                <strong>{{ formatDuration(employeeSummary.average_work_time) }}</strong>
               </p>
               <p>
                 Всього годин:
                 <strong>{{
-                  employeeSummary ? formatTime(employeeSummary.total_minutes) : '-'
+                  employeeSummary ? formatDuration(employeeSummary.total_minutes) : '-'
                 }}</strong>
               </p>
             </div>
@@ -241,14 +251,14 @@ const daysOfWeekLabels: Record<string, string> = {
             </div>
             <div v-else class="entries-list">
               <div v-for="entry in employeeTimeEntries" :key="entry.id" class="entry-item">
-                <div class="entry-date">{{ formatDate(entry.createdAt) }}</div>
+                <div class="entry-date">{{ formatDate(entry.created_at) }}</div>
                 <div class="entry-details">
                   <div class="entry-time">
-                    <span>{{ entry.start_time || '-' }}</span>
+                    <span>{{ formatTime(entry.start_time) }}</span>
                     <span>→</span>
-                    <span>{{ entry.stop_time || '-' }}</span>
+                    <span>{{ formatTime(entry.stop_time) }}</span>
                   </div>
-                  <div class="entry-duration">Тривалість: {{ formatTime(entry.duration) }}</div>
+                  <div class="entry-duration">Тривалість: {{ formatDuration(entry.duration) }}</div>
                   <div class="entry-type">Тип: {{ entry.entry_type }}</div>
                 </div>
               </div>

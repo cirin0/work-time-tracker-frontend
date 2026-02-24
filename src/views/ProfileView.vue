@@ -2,6 +2,7 @@
 import { onMounted, ref, watch } from 'vue'
 import { useProfileStore } from '@/stores/profile.store'
 import { getAvatarUrl } from '@/core/utils/url'
+import { formatDate } from '@/core/utils/date'
 import InputField from '@/components/ui/InputField.vue'
 import type {
   UpdateProfileRequest,
@@ -548,9 +549,7 @@ function getWorkModeLabel(mode?: string): string {
 
           <div class="detail-row">
             <span class="detail-label">Дата реєстрації</span>
-            <span class="detail-value">{{
-              new Date(store.profile.created_at).toLocaleDateString('uk-UA')
-            }}</span>
+            <span class="detail-value"> {{ formatDate(store.profile.created_at) }}</span>
           </div>
         </div>
 

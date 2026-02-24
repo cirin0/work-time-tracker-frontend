@@ -67,10 +67,7 @@ export const useProfileStore = defineStore('profile', () => {
     error.value = null
 
     try {
-      const { data } = await apiClient.patch<UserProfileResponse>(
-        API_ROUTES.me.update,
-        updates,
-      )
+      const { data } = await apiClient.patch<UserProfileResponse>(API_ROUTES.me.update, updates)
       profile.value = data.user
       lastFetchTime.value = Date.now()
       return profile.value

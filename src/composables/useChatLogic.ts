@@ -3,8 +3,6 @@ import { apiClient, API_ROUTES } from '@/core/api'
 import type { User } from '@/types/interfaces/user.interface'
 import type { Message, SendMessageRequest } from '@/types/interfaces/message.interface'
 import type { PaginatedResponse } from '@/types/responses/pagination.interface'
-import type { UserApiResponse } from '@/types/responses/user.api'
-import { transformUserFromApi } from '@/types/responses/user.api'
 import { useChatStore } from '@/stores/chat.store'
 
 export function useChatLogic(currentUser: ComputedRef<User | null>) {
@@ -34,19 +32,14 @@ export function useChatLogic(currentUser: ComputedRef<User | null>) {
   async function loadUsers() {
     isLoadingUsers.value = true
     try {
-      const { data } = await apiClient.get<PaginatedResponse<UserApiResponse>>(
-        API_ROUTES.users.index,
-        {
-          params: {
-            page: currentPage.value,
-            per_page: 10,
-          },
+      const { data } = await apiClient.get<PaginatedResponse<User>>(API_ROUTES.users.index, {
+        params: {
+          page: currentPage.value,
+          per_page: 10,
         },
-      )
+      })
 
-      const newUsers = data.data
-        .map(transformUserFromApi)
-        .filter((u) => u.id !== currentUser.value?.id)
+      const newUsers = data.data.filter((u) => u.id !== currentUser.value?.id)
 
       users.value = [...users.value, ...newUsers]
       hasMoreUsers.value = data.meta.current_page < data.meta.last_page

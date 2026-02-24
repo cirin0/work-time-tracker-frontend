@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useRoleGuard } from '@/composables/useRoleGuard'
 import { useManagerStore } from '@/stores/manager.store'
+import { getAvatarUrl } from '@/core/utils/url'
 import ManagerLeaveRequestsList from '@/components/leave-requests/ManagerLeaveRequestsList.vue'
 import RejectModal from '@/components/leave-requests/RejectModal.vue'
 import QRCodeDisplay from '@/components/qr-code/QRCodeDisplay.vue'
@@ -20,11 +21,11 @@ const pendingRequestsCount = computed(() => {
 })
 
 const totalTeamHours = computed(() => {
-  return managerStore.companyStats ? parseFloat(managerStore.companyStats.summary.month.hours) : 0
+  return managerStore.companyStats ? managerStore.companyStats.summary.month.hours : 0
 })
 
 const activeEmployees = computed(() => {
-  return managerStore.companyStats ? parseInt(managerStore.companyStats.active_employees) : 0
+  return managerStore.companyStats ? managerStore.companyStats.active_employees : 0
 })
 
 onMounted(() => {
@@ -158,8 +159,8 @@ function viewEmployeeDetails(employeeId: number) {
               >
                 <div class="employee-avatar">
                   <img
-                    v-if="employee.avatar"
-                    :src="employee.avatar"
+                    v-if="getAvatarUrl(employee.avatar)"
+                    :src="getAvatarUrl(employee.avatar)!"
                     :alt="employee.name"
                     class="avatar-img"
                   />

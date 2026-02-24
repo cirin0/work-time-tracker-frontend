@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { LeaveRequestType } from '@/types/enums/enums.types'
+import { todayAsInputDate } from '@/core/utils/date'
 
 interface Props {
   showForm: boolean
@@ -33,10 +34,7 @@ const formData = ref<FormData>({
 const errors = ref<Partial<Record<keyof FormData, string>>>({})
 const generalError = ref<string | null>(null)
 
-const minDate = computed(() => {
-  const today = new Date()
-  return today.toISOString().split('T')[0]
-})
+const minDate = computed(() => todayAsInputDate())
 
 function validateForm(): boolean {
   errors.value = {}

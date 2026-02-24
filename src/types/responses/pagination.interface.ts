@@ -16,7 +16,6 @@ export interface PaginatedResponse<T> {
     links: Array<{
       url: string | null
       label: string
-      page: number | null
       active: boolean
     }>
     path: string
