@@ -3,6 +3,7 @@ import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import QRCode from 'qrcode'
 import { apiClient, API_ROUTES } from '@/core/api'
 import type { ApiResponse } from '@/types/responses/apiResponse.interface'
+import { formatDate } from '@/core/utils/date'
 
 interface QRCodeData {
   qr_data: string
@@ -123,9 +124,7 @@ onUnmounted(() => {
       </div>
 
       <div v-if="expiresAt && !isLoading" class="qr-info">
-        <p class="validity-info">
-          <strong>Валідний до:</strong> {{ new Date(expiresAt).toLocaleDateString('uk-UA') }}
-        </p>
+        <p class="validity-info"><strong>Валідний до:</strong> {{ formatDate(expiresAt) }}</p>
         <p class="usage-info">
           Співробітники можуть використовувати цей QR-код для відмітки робочого часу
         </p>

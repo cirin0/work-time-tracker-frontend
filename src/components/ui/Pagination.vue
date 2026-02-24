@@ -20,6 +20,11 @@ function handlePageChange(page: number | null) {
     emit('changePage', page)
   }
 }
+
+function parsePage(label: string): number | null {
+  const n = parseInt(label, 10)
+  return isNaN(n) ? null : n
+}
 </script>
 
 <template>
@@ -44,18 +49,11 @@ function handlePageChange(page: number | null) {
 
     <div class="pagination-pages">
       <button
-        v-for="(link, index) in meta.links.filter(
-          (l) =>
-            l.page !== null &&
-            !l.label.includes('Previous') &&
-            !l.label.includes('Next') &&
-            !l.label.includes('laquo') &&
-            !l.label.includes('raquo'),
-        )"
+        v-for="(link, index) in meta.links.filter((l) => parsePage(l.label) !== null)"
         :key="index"
         class="pagination-page"
         :class="{ active: link.active }"
-        @click="handlePageChange(link.page)"
+        @click="handlePageChange(parsePage(link.label))"
       >
         {{ link.label }}
       </button>

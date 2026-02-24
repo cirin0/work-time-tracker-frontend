@@ -4,8 +4,6 @@ import { useRoleGuard } from '@/composables/useRoleGuard'
 import { apiClient, API_ROUTES } from '@/core/api'
 import type { User } from '@/types/interfaces/user.interface'
 import type { PaginatedResponse } from '@/types/responses/pagination.interface'
-import type { UserApiResponse } from '@/types/responses/user.api'
-import { transformUserFromApi } from '@/types/responses/user.api'
 import QRCodeDisplay from '@/components/qr-code/QRCodeDisplay.vue'
 
 const { isAdmin } = useRoleGuard()
@@ -16,8 +14,8 @@ const isLoading = ref(false)
 async function loadUsers() {
   isLoading.value = true
   try {
-    const { data } = await apiClient.get<PaginatedResponse<UserApiResponse>>(API_ROUTES.users.index)
-    users.value = data.data.map(transformUserFromApi)
+    const { data } = await apiClient.get<PaginatedResponse<User>>(API_ROUTES.users.index)
+    users.value = data.data
     console.log(users.value)
   } catch (error) {
     console.error('Failed to load users:', error)
