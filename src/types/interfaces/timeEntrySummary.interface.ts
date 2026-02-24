@@ -1,7 +1,13 @@
+export interface TimeEntrySummaryPeriodItem {
+  hours: number
+  minutes: number
+  entries: number
+}
+
 export interface TimeEntrySummaryPeriod {
-  today: number
-  week: number
-  month: number
+  today: TimeEntrySummaryPeriodItem
+  week: TimeEntrySummaryPeriodItem
+  month: TimeEntrySummaryPeriodItem
 }
 
 export interface TimeEntrySummary {

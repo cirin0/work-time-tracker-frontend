@@ -7,12 +7,7 @@ import type { TimeEntry } from '@/types/interfaces/timeEntry.interface'
 import type { TimeEntrySummary } from '@/types/interfaces/timeEntrySummary.interface'
 import type { WorkSchedule } from '@/types/interfaces/workSchedule.interface'
 import type { PaginatedResponse } from '@/types/responses/pagination.interface'
-import type { UserApiResponse } from '@/types/responses/user.api'
-import { transformUserFromApi } from '@/types/responses/user.api'
-import type { TimeEntryApiResponse } from '@/types/responses/timeEntry.api'
-import { transformTimeEntryFromApi } from '@/types/responses/timeEntry.api'
 import type { WorkScheduleWithUserResponse } from '@/types/responses/workSchedule.api'
-import { transformWorkScheduleFromApi } from '@/types/responses/workSchedule.api'
 import type { RejectLeaveRequestRequest } from '@/types/requests/managerLeaveRequestRequest.interface'
 import type { ApiResponse } from '@/types/responses/apiResponse.interface'
 import type {
@@ -49,10 +44,8 @@ export const useManagerStore = defineStore('manager', () => {
     isLoadingEmployees.value = true
     error.value = null
     try {
-      const { data } = await apiClient.get<PaginatedResponse<UserApiResponse>>(
-        API_ROUTES.manager.users.index,
-      )
-      employees.value = data.data.map(transformUserFromApi)
+      const { data } = await apiClient.get<PaginatedResponse<User>>(API_ROUTES.manager.users.index)
+      employees.value = data.data
     } catch (err: unknown) {
       const errorMessage =
         err && typeof err === 'object' && 'response' in err
@@ -188,11 +181,9 @@ export const useManagerStore = defineStore('manager', () => {
     error.value = null
     try {
       // Завжди робимо запит до API для отримання повних деталей співробітника
-      const { data } = await apiClient.get<ApiResponse<UserApiResponse>>(
-        API_ROUTES.manager.users.show(userId),
-      )
+      const { data } = await apiClient.get<ApiResponse<User>>(API_ROUTES.manager.users.show(userId))
       if (data.data) {
-        selectedEmployee.value = transformUserFromApi(data.data)
+        selectedEmployee.value = data.data
       }
     } catch (err: unknown) {
       const errorMessage =
@@ -226,11 +217,11 @@ export const useManagerStore = defineStore('manager', () => {
 
   async function fetchEmployeeTimeEntries(userId: number) {
     try {
-      const { data } = await apiClient.get<ApiResponse<TimeEntryApiResponse[]>>(
+      const { data } = await apiClient.get<ApiResponse<TimeEntry[]>>(
         API_ROUTES.manager.users.timeEntries(userId),
       )
       if (data.data) {
-        selectedEmployeeTimeEntries.value = data.data.map(transformTimeEntryFromApi)
+        selectedEmployeeTimeEntries.value = data.data
       }
     } catch (err: unknown) {
       const errorMessage =
@@ -248,7 +239,10 @@ export const useManagerStore = defineStore('manager', () => {
         API_ROUTES.manager.users.workSchedule(userId),
       )
       if (data.work_schedule) {
-        selectedEmployeeWorkSchedule.value = transformWorkScheduleFromApi(data.work_schedule)
+        selectedEmployeeWorkSchedule.value = {
+          ...data.work_schedule,
+          daily_schedules: data.work_schedule.daily_schedules || [],
+        }
       }
     } catch (err: unknown) {
       const errorMessage =

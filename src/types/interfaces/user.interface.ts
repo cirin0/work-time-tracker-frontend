@@ -24,8 +24,8 @@ export interface User extends BaseModel {
   avatar: string | null
   work_mode?: WorkMode
   has_pin_code?: boolean
-  // relationships
-  company?: Company
-  manager?: Manager
-  work_schedule?: WorkSchedule
+
+  company?: Company | null
+  manager?: Manager | null
+  work_schedule?: WorkSchedule | null
 }
