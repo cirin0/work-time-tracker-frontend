@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useManagerStore } from '@/stores/manager.store'
-import { useWorkScheduleStore } from '@/stores/workSchedule.store'
-import type { User } from '@/types/interfaces/user.interface'
-import type { TimeEntry } from '@/types/interfaces/timeEntry.interface'
-import type { TimeEntrySummary } from '@/types/interfaces/timeEntrySummary.interface'
-import type { WorkSchedule } from '@/types/interfaces/workSchedule.interface'
-import { formatDate, formatTime } from '@/core/utils/date'
-import { getAvatarUrl } from '@/core/utils/url'
+import { useManagerStore } from '@/stores/manager.store.ts'
+import { useWorkScheduleStore } from '@/stores/workSchedule.store.ts'
+import type { User } from '@/types/interfaces/user.interface.ts'
+import type { TimeEntry } from '@/types/interfaces/timeEntry.interface.ts'
+import type { TimeEntrySummary } from '@/types/interfaces/timeEntrySummary.interface.ts'
+import type { WorkSchedule } from '@/types/interfaces/workSchedule.interface.ts'
+import { formatDate, formatTime } from '@/core/utils/date.ts'
+import { getAvatarUrl } from '@/core/utils/url.ts'
 
 const route = useRoute()
 const router = useRouter()

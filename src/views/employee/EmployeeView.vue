@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useRoleGuard } from '@/composables/useRoleGuard'
+import { useRoleGuard } from '@/composables/useRoleGuard.ts'
 
 const { currentUser } = useRoleGuard()
 </script>

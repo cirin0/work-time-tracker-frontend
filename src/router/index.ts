@@ -18,7 +18,7 @@ export const router = createRouter({
     {
       path: '/chat',
       name: 'chat',
-      component: () => import('../views/ChatView.vue'),
+      component: () => import('../views/chat/ChatView.vue'),
       meta: { layout: 'main', requiresAuth: true },
     },
     {
@@ -36,7 +36,7 @@ export const router = createRouter({
     {
       path: '/admin',
       name: 'admin',
-      component: () => import('../views/AdminView.vue'),
+      component: () => import('../views/admin/AdminView.vue'),
       meta: {
         layout: 'main',
         requiresAuth: true,
@@ -46,7 +46,7 @@ export const router = createRouter({
     {
       path: '/manager',
       name: 'manager',
-      component: () => import('../views/ManagerView.vue'),
+      component: () => import('../views/manager/ManagerView.vue'),
       meta: {
         layout: 'main',
         requiresAuth: true,
@@ -56,7 +56,7 @@ export const router = createRouter({
     {
       path: '/manager/leave-requests',
       name: 'manager-leave-requests',
-      component: () => import('../views/ManagerLeaveRequestsView.vue'),
+      component: () => import('../views/manager/ManagerLeaveRequestsView.vue'),
       meta: {
         layout: 'main',
         requiresAuth: true,
@@ -66,7 +66,7 @@ export const router = createRouter({
     {
       path: '/manager/employee/:id',
       name: 'employee-details',
-      component: () => import('../views/EmployeeDetailsView.vue'),
+      component: () => import('../views/employee/EmployeeDetailsView.vue'),
       meta: {
         layout: 'main',
         requiresAuth: true,
@@ -86,7 +86,7 @@ export const router = createRouter({
     {
       path: '/manager/employees',
       name: 'manager-employees',
-      component: () => import('../views/EmployeesView.vue'),
+      component: () => import('../views/employee/EmployeesView.vue'),
       meta: {
         layout: 'main',
         requiresAuth: true,
@@ -96,7 +96,7 @@ export const router = createRouter({
     {
       path: '/manager/statistics',
       name: 'manager-statistics',
-      component: () => import('../views/CompanyStatisticsView.vue'),
+      component: () => import('../views/manager/CompanyStatisticsView.vue'),
       meta: {
         layout: 'main',
         requiresAuth: true,
@@ -112,7 +112,7 @@ export const router = createRouter({
     {
       path: '/auth',
       name: 'auth',
-      component: () => import('../views/AuthView.vue'),
+      component: () => import('../views/auth/AuthView.vue'),
       meta: { requiresAuth: false },
     },
   ],

@@ -45,31 +45,30 @@ function handlePageChange(page: number) {
       <p class="subtitle">Керування вашими запитами на відпустку</p>
     </div>
 
-      <div class="content-section">
-        <div class="section-header">
-          <h2>Мої запити</h2>
-          <button @click="showFormModal = true" class="btn-primary">+ Створити запит</button>
-        </div>
-
-        <LeaveRequestsList
-          :leave-requests="leaveRequestStore.leaveRequests"
-          :is-loading="leaveRequestStore.isLoading"
-          :error="leaveRequestStore.error"
-          :pagination="leaveRequestStore.pagination"
-          @retry="loadLeaveRequests"
-          @create="showFormModal = true"
-          @page-change="handlePageChange"
-        />
+    <div class="content-section">
+      <div class="section-header">
+        <h2>Мої запити</h2>
+        <button @click="showFormModal = true" class="btn-primary">+ Створити запит</button>
       </div>
 
-      <LeaveRequestForm
-        :show-form="showFormModal"
-        :is-submitting="isSubmittingForm"
-        @close="showFormModal = false"
-        @submit="handleCreateRequest"
+      <LeaveRequestsList
+        :leave-requests="leaveRequestStore.leaveRequests"
+        :is-loading="leaveRequestStore.isLoading"
+        :error="leaveRequestStore.error"
+        :pagination="leaveRequestStore.pagination"
+        @retry="loadLeaveRequests"
+        @create="showFormModal = true"
+        @page-change="handlePageChange"
       />
     </div>
-  </MainLayout>
+
+    <LeaveRequestForm
+      :show-form="showFormModal"
+      :is-submitting="isSubmittingForm"
+      @close="showFormModal = false"
+      @submit="handleCreateRequest"
+    />
+  </div>
 </template>
 
 <style scoped>

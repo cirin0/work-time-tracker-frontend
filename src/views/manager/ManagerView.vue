@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useRoleGuard } from '@/composables/useRoleGuard'
-import { useManagerStore } from '@/stores/manager.store'
+import { useRoleGuard } from '@/composables/useRoleGuard.ts'
+import { useManagerStore } from '@/stores/manager.store.ts'
 import ManagerLeaveRequestsList from '@/components/leave-requests/ManagerLeaveRequestsList.vue'
 import RejectModal from '@/components/leave-requests/RejectModal.vue'
 import QRCodeDisplay from '@/components/qr-code/QRCodeDisplay.vue'

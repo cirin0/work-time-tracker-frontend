@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRoleGuard } from '@/composables/useRoleGuard'
-import { apiClient, API_ROUTES } from '@/core/api'
-import type { User } from '@/types/interfaces/user.interface'
-import type { PaginatedResponse } from '@/types/responses/pagination.interface'
+import { useRoleGuard } from '@/composables/useRoleGuard.ts'
+import { apiClient, API_ROUTES } from '@/core/api.ts'
+import type { User } from '@/types/interfaces/user.interface.ts'
+import type { PaginatedResponse } from '@/types/responses/pagination.interface.ts'
 import QRCodeDisplay from '@/components/qr-code/QRCodeDisplay.vue'
 
 const { isAdmin } = useRoleGuard()

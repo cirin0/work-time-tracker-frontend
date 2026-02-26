@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useManagerStore } from '@/stores/manager.store'
+import { useManagerStore } from '@/stores/manager.store.ts'
 
 const router = useRouter()
 const managerStore = useManagerStore()

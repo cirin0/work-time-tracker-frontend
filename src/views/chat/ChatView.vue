@@ -2,9 +2,9 @@
 import { ref, onMounted, nextTick, computed } from 'vue'
 import ChatSidebar from '@/components/chat/ChatSidebar.vue'
 import ChatArea from '@/components/chat/ChatArea.vue'
-import { useChatLogic } from '@/composables/useChatLogic'
-import { useChatWebSocket } from '@/composables/useChatWebSocket'
-import { useProfileStore } from '@/stores/profile.store'
+import { useChatLogic } from '@/composables/useChatLogic.ts'
+import { useChatWebSocket } from '@/composables/useChatWebSocket.ts'
+import { useProfileStore } from '@/stores/profile.store.ts'
 
 const profileStore = useProfileStore()
 

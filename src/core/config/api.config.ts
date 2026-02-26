@@ -17,24 +17,14 @@ export const API_ROUTES = {
   users: {
     index: '/users',
     show: (id: number | string) => `/users/${id}`,
-    update: (id: number | string) => `/users/${id}`,
-    delete: (id: number | string) => `/users/${id}`,
-    updateAvatar: (id: number | string) => `/users/${id}/avatar`,
-    updateRole: (id: number | string) => `/users/${id}/role`,
-    getWorkSchedule: (id: number | string) => `/users/${id}/work-schedule`,
-    updateWorkSchedule: (id: number | string) => `/users/${id}/work-schedule`,
   },
   messages: {
     index: (receiverId: number | string) => `/messages/${receiverId}`,
     store: '/messages',
   },
   companies: {
-    index: '/companies',
-    store: '/companies',
     showById: (id: number) => `/companies/${id}`,
     showByName: (name: string) => `/companies/name/${name}`,
-    update: (id: number) => `/companies/${id}`,
-    delete: (id: number) => `/companies/${id}`,
   },
   leaveRequests: {
     index: '/leave-requests',
@@ -50,12 +40,6 @@ export const API_ROUTES = {
       timeSummary: (userId: number | string) => `/managers/users/${userId}/time-summary`,
       workSchedule: (userId: number | string) => `/managers/users/${userId}/work-schedule`,
       updateWorkSchedule: (userId: number | string) => `/managers/users/${userId}/work-schedule`,
-    },
-    companies: {
-      addEmployee: (companyId: number) => `/managers/companies/${companyId}/add-employee`,
-      removeEmployee: (companyId: number) => `/managers/companies/${companyId}/remove-employee`,
-      removeEmployeeById: (companyId: number, employeeId: number) =>
-        `/managers/companies/${companyId}/remove-employee/${employeeId}`,
     },
     leaveRequests: {
       index: '/managers/leave-requests',
@@ -82,5 +66,32 @@ export const API_ROUTES = {
   },
   qrCode: {
     daily: '/qr-code/daily',
+  },
+  admin: {
+    companies: {
+      store: '/admin/companies',
+      update: (id: number | string) => `/admin/companies/${id}`,
+      updateLogo: (id: number | string) => `/admin/companies/${id}/logo`,
+      delete: (id: number | string) => `/admin/companies/${id}`,
+      assignManager: (id: number | string) => `/admin/companies/${id}/assign-manager`,
+      addEmployee: (id: number | string) => `/admin/companies/${id}/add-employee`,
+      removeEmployee: (id: number | string) => `/admin/companies/${id}/remove-employee`,
+      removeEmployeeById: (id: number | string, employeeId: number | string) =>
+        `/admin/companies/${id}/remove-employee/${employeeId}`,
+      getUsersByCompany: (id: number | string) => `/admin/companies/${id}/users`,
+    },
+    users: {
+      index: '/admin/users',
+      show: (id: number | string) => `/admin/users/${id}`,
+      update: (id: number | string) => `/admin/users/${id}`,
+      updateRole: (id: number | string) => `/admin/users/${id}/role`,
+      updateWorkMode: (id: number | string) => `/admin/users/${id}/work-mode`,
+      resetPassword: (id: number | string) => `/admin/users/${id}/reset-password`,
+      delete: (id: number | string) => `/admin/users/${id}`,
+    },
+  },
+  auditLogs: {
+    index: '/audit-logs',
+    all: '/audit-logs/all',
   },
 } as const
