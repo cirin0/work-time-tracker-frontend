@@ -5,7 +5,7 @@
 
 ## Architecture Overview
 
-**Stack**: Vue 3 (Composition API) + TypeScript + Vite + Pinia + Vue Router  
+**Stack**: Vue 3 (Composition API) + TypeScript + Vite + Pinia + Vue Router + VueUse  
 **Backend**: Laravel API at `http://localhost:8000/api` with Laravel Echo (Reverb) WebSockets
 
 ### Core Structure
@@ -14,7 +14,9 @@
 - **API Layer**: Centralized in `src/core/api/` with Axios interceptors for auto-token refresh
 - **WebSocket**: Laravel Echo client in `src/core/websocket/` for real-time chat
 - **Routing**: Vue Router with role-based guards in `src/router/`
-- **Type System**: All domain models extend `BaseModel` interface (id, createdAt, updatedAt)
+- **Type System**: All domain models extend `BaseModel` interface (id, created_at, updated_at)
+- **Utility Helpers**: `src/core/utils/date.ts` — date formatting; `src/core/utils/url.ts` — avatar/logo URL resolution
+- **VueUse**: `@vueuse/core` composables used throughout (e.g. `useLocalStorage` in auth store)
 
 ## Critical Patterns
 
@@ -38,10 +40,13 @@
 
 ### 3. Form Validation
 
-- Use **vee-validate** with **Yup** schemas (see `src/composables/useAuthForm.ts`)
-- Ukrainian error messages defined in `VALIDATION_MESSAGES` constants
-- Frontend validation runs before API calls - display first error in `generalError`
-- Backend 422 errors mapped to field-specific errors via `setErrors()`
+- Use **vee-validate** (`useForm`, `useFieldArray`) with **Yup** object schemas
+- Schema and `VALIDATION_MESSAGES` constants are defined at the top of the composable file (not in the component)
+- Ukrainian error messages — all validation text must be in Ukrainian
+- `useForm({ validationSchema })` returns `handleSubmit`, `setErrors`, `resetForm`
+- Frontend validation runs before API calls; show the first error in a `generalError` ref
+- Backend 422 errors are mapped to field-specific errors via `setErrors()`
+- See `src/composables/useAuthForm.ts` and `src/composables/useWorkScheduleForm.ts` for real examples
 
 ### 4. Role-Based Access Control
 
@@ -91,6 +96,43 @@ npm run format      # Prettier formatting
 6. **Navigation**: Add feature access via quick actions or buttons in role-specific dashboard views, NOT in the header
 7. **View Design**: Follow existing view patterns - max-width container, consistent padding, card-based layouts
 
+### Utility Helpers
+
+#### `src/core/utils/date.ts`
+
+All date formatting goes through these helpers — do **not** call `toLocaleDateString` directly in components:
+
+| Function               | Description                                                              |
+| ---------------------- | ------------------------------------------------------------------------ |
+| `parseDate(str)`       | Parses ISO string → `Date` (falls back to `new Date()` on invalid input) |
+| `formatDate(date)`     | `DD.MM.YYYY` Ukrainian locale string                                     |
+| `formatDateTime(date)` | `DD.MM.YYYY HH:MM` Ukrainian locale string                               |
+| `formatTime(date)`     | `HH:MM` Ukrainian locale string                                          |
+| `todayAsInputDate()`   | `YYYY-MM-DD` string for HTML `<input type="date" min="...">`             |
+
+```typescript
+import { formatDate, formatDateTime, formatTime, todayAsInputDate } from '@/core/utils/date'
+```
+
+#### `src/core/utils/url.ts`
+
+Use for resolving avatar and logo URLs — handles both relative paths (prefixes with `API_BASE_URL`) and absolute URLs transparently:
+
+```typescript
+import { getAvatarUrl } from '@/core/utils/url'
+
+// Returns null if path is empty, full URL otherwise
+const src = getAvatarUrl(user.avatar) // static
+const src = getAvatarUrl(user.avatar, Date.now()) // with cache-bust timestamp
+```
+
+### VueUse (`@vueuse/core`)
+
+Prefer VueUse composables over hand-rolling common reactive utilities:
+
+- `useLocalStorage` — reactive localStorage (used in auth store for token persistence)
+- Other VueUse composables can be introduced as needed; import from `@vueuse/core`
+
 ### UI/UX Guidelines
 
 - **Header Navigation**: Keep minimal - only core features (Home, Chat). Role-specific features go in dashboard views.
@@ -100,6 +142,25 @@ npm run format      # Prettier formatting
   - Quick actions section with feature navigation
   - Role-specific content sections
 - **Styling Consistency**: Use existing color palette (gradient: #2563eb → #9333ea), spacing scale, and shadow patterns
+
+### Composables Catalogue
+
+All composables live in `src/composables/`. Each composable owns its own state — do not duplicate logic in stores or components.
+
+| File                     | Purpose                                                                                          |
+| ------------------------ | ------------------------------------------------------------------------------------------------ |
+| `useAuthForm.ts`         | Login/register form state, Yup schema validation, submit handling, backend error mapping         |
+| `useWorkScheduleForm.ts` | Work schedule create/edit form with `useFieldArray` for dynamic daily entries                    |
+| `useChatLogic.ts`        | Paginated user list loading, message fetching, send-message action                               |
+| `useChatWebSocket.ts`    | Laravel Echo private channel subscription, incoming message handling, cleanup                    |
+| `useRoleGuard.ts`        | Computed role booleans (`isAdmin`, `isManager`, `isEmployee`) and `hasRole`/`hasAnyRole` helpers |
+
+**Pattern rules for new composables:**
+
+- Name with `use` prefix, camelCase: `useFeatureName.ts`
+- Define Yup schemas and `VALIDATION_MESSAGES` constants at module level (outside the function)
+- Return only what the caller needs — keep internal refs private
+- Clean up side-effects (event listeners, Echo channels) in `onUnmounted`
 
 ### Type Conventions
 

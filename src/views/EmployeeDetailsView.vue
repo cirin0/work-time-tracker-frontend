@@ -191,6 +191,8 @@ const daysOfWeekLabels: Record<string, string> = {
       <!-- Statistics -->
       <div v-if="employeeSummary" class="stats-section">
         <h3>Статистика роботи</h3>
+
+        <!-- Period summary cards -->
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-icon">📅</div>
@@ -200,6 +202,11 @@ const daysOfWeekLabels: Record<string, string> = {
                 {{ employeeSummary.summary.today.minutes }}хв
               </div>
               <div class="stat-label">Сьогодні</div>
+              <div class="stat-sub">
+                Записів: {{ employeeSummary.summary.today.entries }} · Запізнень:
+                {{ employeeSummary.summary.today.late_count }} · Ранніх:
+                {{ employeeSummary.summary.today.early_count }}
+              </div>
             </div>
           </div>
           <div class="stat-card">
@@ -210,6 +217,11 @@ const daysOfWeekLabels: Record<string, string> = {
                 {{ employeeSummary.summary.week.minutes }}хв
               </div>
               <div class="stat-label">Цього тижня</div>
+              <div class="stat-sub">
+                Записів: {{ employeeSummary.summary.week.entries }} · Запізнень:
+                {{ employeeSummary.summary.week.late_count }} · Ранніх:
+                {{ employeeSummary.summary.week.early_count }}
+              </div>
             </div>
           </div>
           <div class="stat-card">
@@ -220,6 +232,11 @@ const daysOfWeekLabels: Record<string, string> = {
                 {{ employeeSummary.summary.month.minutes }}хв
               </div>
               <div class="stat-label">Цього місяця</div>
+              <div class="stat-sub">
+                Записів: {{ employeeSummary.summary.month.entries }} · Запізнень:
+                {{ employeeSummary.summary.month.late_count }} · Ранніх:
+                {{ employeeSummary.summary.month.early_count }}
+              </div>
             </div>
           </div>
           <div class="stat-card">
@@ -227,6 +244,58 @@ const daysOfWeekLabels: Record<string, string> = {
             <div class="stat-content">
               <div class="stat-value">{{ employeeSummary.entries_count }}</div>
               <div class="stat-label">Всього записів</div>
+              <div class="stat-sub">
+                Сер. {{ formatDuration(employeeSummary.average_work_time) }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Attendance details -->
+        <h3 class="stats-subsection-title">Відвідуваність та дисципліна</h3>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-content">
+              <div class="stat-value stat-success">
+                {{ employeeSummary.attendance.on_time_count }}
+              </div>
+              <div class="stat-label">Вчасно</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🕐</div>
+            <div class="stat-content">
+              <div class="stat-value stat-danger">{{ employeeSummary.attendance.late_count }}</div>
+              <div class="stat-label">Запізнень</div>
+              <div class="stat-sub">
+                Сер. {{ employeeSummary.attendance.average_late_minutes }} хв · Всього
+                {{ employeeSummary.attendance.total_late_minutes }} хв
+              </div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🚪</div>
+            <div class="stat-content">
+              <div class="stat-value">{{ employeeSummary.attendance.early_leave_count }}</div>
+              <div class="stat-label">Ранніх виходів</div>
+              <div class="stat-sub">
+                Сер. {{ employeeSummary.attendance.average_early_leave_minutes }} хв · Всього
+                {{ employeeSummary.attendance.total_early_leave_minutes }} хв
+              </div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">💪</div>
+            <div class="stat-content">
+              <div class="stat-value stat-success">
+                {{ employeeSummary.attendance.overtime_count }}
+              </div>
+              <div class="stat-label">Понаднормових</div>
+              <div class="stat-sub">
+                Сер. {{ employeeSummary.attendance.average_overtime_minutes }} хв · Всього
+                {{ formatDuration(employeeSummary.attendance.total_overtime_minutes) }}
+              </div>
             </div>
           </div>
         </div>
@@ -270,7 +339,9 @@ const daysOfWeekLabels: Record<string, string> = {
               <p>
                 Всього годин:
                 <strong>{{
-                  employeeSummary ? formatDuration(employeeSummary.total_minutes) : '-'
+                  employeeSummary
+                    ? `${employeeSummary.total_hours}г ${employeeSummary.total_minutes}хв`
+                    : '-'
                 }}</strong>
               </p>
             </div>
@@ -591,6 +662,27 @@ const daysOfWeekLabels: Record<string, string> = {
   font-size: 0.875rem;
   color: #6b7280;
   margin-top: 0.25rem;
+}
+
+.stat-sub {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-top: 0.25rem;
+}
+
+.stat-success {
+  color: #16a34a;
+}
+
+.stat-danger {
+  color: #dc2626;
+}
+
+.stats-subsection-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 1.5rem 0 1rem;
 }
 
 .tabs-section {

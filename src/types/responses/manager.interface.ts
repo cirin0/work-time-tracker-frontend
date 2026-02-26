@@ -1,32 +1,8 @@
 import type { TimeEntry } from '@/types/interfaces/timeEntry.interface'
 import type { TimeEntrySummary } from '@/types/interfaces/timeEntrySummary.interface'
+import type { CompanyStatistics } from '@/types/interfaces/companyStatistics.interface'
 
-export interface CompanyStatistics {
-  company_id: number
-  total_hours: number
-  total_minutes: number
-  entries_count: number
-  active_entries_count: number
-  active_employees: number
-  total_employees_with_entries: number
-  summary: {
-    today: {
-      minutes: number
-      hours: number
-      entries: number
-    }
-    week: {
-      minutes: number
-      hours: number
-      entries: number
-    }
-    month: {
-      minutes: number
-      hours: number
-      entries: number
-    }
-  }
-}
+export type { CompanyStatistics }
 
 export interface CompanyStatisticsResponse {
   message: string

@@ -82,6 +82,10 @@ function viewWorkSchedules() {
 function viewEmployees() {
   router.push({ name: 'manager-employees' })
 }
+
+function viewStatistics() {
+  router.push({ name: 'manager-statistics' })
+}
 </script>
 
 <template>
@@ -101,7 +105,7 @@ function viewEmployees() {
         <div class="stat-card">
           <div class="stat-icon">👥</div>
           <div class="stat-content">
-            <div class="stat-value">{{ managerStore.employees.length }}</div>
+            <div class="stat-value">{{ managerStore.companyStats?.employee_count ?? 0 }}</div>
             <div class="stat-label">Співробітників</div>
           </div>
         </div>
@@ -144,6 +148,10 @@ function viewEmployees() {
         <button class="quick-action-btn" @click="viewWorkSchedules">
           <span class="qa-icon">📅</span>
           <span class="qa-label">Робочі розклади</span>
+        </button>
+        <button class="quick-action-btn" @click="viewStatistics">
+          <span class="qa-icon">📊</span>
+          <span class="qa-label">Розширена статистика</span>
         </button>
       </div>
 

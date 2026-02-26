@@ -94,6 +94,16 @@ export const router = createRouter({
       },
     },
     {
+      path: '/manager/statistics',
+      name: 'manager-statistics',
+      component: () => import('../views/CompanyStatisticsView.vue'),
+      meta: {
+        layout: 'main',
+        requiresAuth: true,
+        roles: [UserRole.ADMIN, UserRole.MANAGER],
+      },
+    },
+    {
       path: '/role-examples',
       name: 'role-examples',
       component: () => import('../views/RoleExampleView.vue'),
