@@ -76,8 +76,6 @@ export const API_ROUTES = {
       assignManager: (id: number | string) => `/admin/companies/${id}/assign-manager`,
       addEmployee: (id: number | string) => `/admin/companies/${id}/add-employee`,
       removeEmployee: (id: number | string) => `/admin/companies/${id}/remove-employee`,
-      removeEmployeeById: (id: number | string, employeeId: number | string) =>
-        `/admin/companies/${id}/remove-employee/${employeeId}`,
       getUsersByCompany: (id: number | string) => `/admin/companies/${id}/users`,
     },
     users: {

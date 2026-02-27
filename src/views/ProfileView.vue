@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { useProfileStore } from '@/stores/profile.store'
 import { getAvatarUrl } from '@/core/utils/url'
 import { formatDate } from '@/core/utils/date'
@@ -12,6 +13,7 @@ import type {
 } from '@/types/requests/profileRequest.interface'
 
 const store = useProfileStore()
+const router = useRouter()
 
 const avatarUrl = ref<string | null>(null)
 
@@ -539,7 +541,9 @@ function getWorkModeLabel(mode?: string): string {
 
           <div v-if="store.profile.company" class="detail-row">
             <span class="detail-label">Компанія</span>
-            <span class="detail-value">{{ store.profile.company.name }}</span>
+            <button class="company-link" @click="router.push({ name: 'company' })">
+              🏢 {{ store.profile.company.name }}
+            </button>
           </div>
 
           <div v-if="store.profile.work_schedule" class="detail-row">
@@ -834,6 +838,26 @@ function getWorkModeLabel(mode?: string): string {
 .detail-value {
   color: #1f2937;
   font-size: 1rem;
+}
+
+.company-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.875rem;
+  background: #ede9fe;
+  color: #6d28d9;
+  border: 1px solid #ddd6fe;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.company-link:hover {
+  background: #ddd6fe;
+  transform: translateY(-1px);
 }
 
 .profile-actions {
