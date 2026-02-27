@@ -44,6 +44,22 @@ export const router = createRouter({
       },
     },
     {
+      path: '/admin/users',
+      name: 'admin-users',
+      component: () => import('../views/admin/AdminView.vue'),
+      meta: {
+        layout: 'main',
+        requiresAuth: true,
+        roles: [UserRole.ADMIN],
+      },
+    },
+    {
+      path: '/company',
+      name: 'company',
+      component: () => import('../views/CompanyView.vue'),
+      meta: { layout: 'main', requiresAuth: true },
+    },
+    {
       path: '/manager',
       name: 'manager',
       component: () => import('../views/manager/ManagerView.vue'),
@@ -102,6 +118,12 @@ export const router = createRouter({
         requiresAuth: true,
         roles: [UserRole.ADMIN, UserRole.MANAGER],
       },
+    },
+    {
+      path: '/users/:id',
+      name: 'user-details',
+      component: () => import('../views/UserView.vue'),
+      meta: { layout: 'main', requiresAuth: true },
     },
     {
       path: '/role-examples',
