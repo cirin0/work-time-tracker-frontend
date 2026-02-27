@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useManagerStore } from '@/stores/manager.store'
-import { getAvatarUrl } from '@/core/utils/url'
+import { useManagerStore } from '@/stores/manager.store.ts'
+import { getAvatarUrl } from '@/core/utils/url.ts'
 
 const router = useRouter()
 const managerStore = useManagerStore()

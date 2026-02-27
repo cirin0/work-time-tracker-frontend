@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useManagerStore } from '@/stores/manager.store'
+import { useManagerStore } from '@/stores/manager.store.ts'
 import ManagerLeaveRequestsList from '@/components/leave-requests/ManagerLeaveRequestsList.vue'
 import RejectModal from '@/components/leave-requests/RejectModal.vue'
 import Pagination from '@/components/ui/Pagination.vue'

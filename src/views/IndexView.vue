@@ -2,9 +2,9 @@
 import { computed } from 'vue'
 import { useRoleGuard } from '@/composables/useRoleGuard'
 import { UserRole } from '@/types/enums/enums.types'
-import AdminView from './AdminView.vue'
-import ManagerView from './ManagerView.vue'
-import EmployeeView from './EmployeeView.vue'
+import AdminView from './admin/AdminView.vue'
+import ManagerView from './manager/ManagerView.vue'
+import EmployeeView from './employee/EmployeeView.vue'
 
 const { currentUser } = useRoleGuard()
 
