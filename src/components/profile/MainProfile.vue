@@ -1,22 +1,20 @@
 <script setup lang="ts">
 import { useProfileStore } from '@/stores/profile.store'
-import { onMounted, computed } from 'vue'
+import { computed } from 'vue'
 import { getAvatarUrl } from '@/core/utils/url'
 
 const store = useProfileStore()
 
-const avatarUrl = computed(() => getAvatarUrl(store.profile?.avatar, store.avatarTimestamp))
-
-onMounted(() => {
-  store.fetchProfile()
-})
+const avatarUrl = computed(() => 
+  getAvatarUrl(store.displayProfile?.avatar, store.avatarTimestamp)
+)
 </script>
 <template>
-  <div class="profile-avatar" v-if="store.profile">
+  <div class="profile-avatar" v-if="store.displayProfile">
     <div>
-      <strong>Name:</strong> {{ store.profile.name }} <br />
-      <strong>Email:</strong> {{ store.profile.email }} <br />
-      <strong>Role:</strong> {{ store.profile.role }} <br />
+      <strong>Name:</strong> {{ store.displayProfile.name }} <br />
+      <strong>Email:</strong> {{ store.displayProfile.email }} <br />
+      <strong>Role:</strong> {{ store.displayProfile.role }} <br />
       <div v-if="avatarUrl">
         <img :key="store.avatarTimestamp" :src="avatarUrl" alt="User Avatar" />
       </div>

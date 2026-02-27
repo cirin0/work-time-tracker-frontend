@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProfileStore } from '@/stores/profile.store'
 import { getAvatarUrl } from '@/core/utils/url'
@@ -15,25 +15,13 @@ import type {
 const store = useProfileStore()
 const router = useRouter()
 
-const avatarUrl = ref<string | null>(null)
+function goBack() {
+  router.back()
+}
 
-watch(
-  () => [store.profile?.avatar, store.avatarTimestamp] as const,
-  () => {
-    avatarUrl.value = getAvatarUrl(store.profile?.avatar, store.avatarTimestamp)
-  },
-  { immediate: true },
-)
+const avatarUrl = computed(() => getAvatarUrl(store.displayProfile?.avatar, store.avatarTimestamp))
 
-// Manager avatar
-const managerAvatarUrl = ref<string | null>(null)
-watch(
-  () => store.profile?.manager?.avatar,
-  () => {
-    managerAvatarUrl.value = getAvatarUrl(store.profile?.manager?.avatar)
-  },
-  { immediate: true },
-)
+const managerAvatarUrl = computed(() => getAvatarUrl(store.displayProfile?.manager?.avatar))
 
 const isEditMode = ref(false)
 const editForm = ref<UpdateProfileRequest>({
@@ -65,15 +53,11 @@ const pinError = ref<string | null>(null)
 const avatarInput = ref<HTMLInputElement | null>(null)
 const isUploadingAvatar = ref(false)
 
-onMounted(() => {
-  store.fetchProfile()
-})
-
 function openEditMode() {
-  if (store.profile) {
+  if (store.displayProfile) {
     editForm.value = {
-      name: store.profile.name,
-      email: store.profile.email,
+      name: store.displayProfile.name,
+      email: store.displayProfile.email,
     }
   }
   formError.value = null
@@ -265,6 +249,7 @@ function getWorkModeLabel(mode?: string): string {
 <template>
   <div class="profile-page">
     <div class="page-header">
+      <button class="btn-back" @click="goBack">← Назад</button>
       <h1>Профіль</h1>
     </div>
 
@@ -278,7 +263,7 @@ function getWorkModeLabel(mode?: string): string {
       <button class="btn-primary" @click="store.fetchProfile()">Спробувати ще раз</button>
     </div>
 
-    <div v-else-if="store.profile" class="profile-content">
+    <div v-else-if="store.displayProfile" class="profile-content">
       <div v-if="isEditMode" class="modal-overlay" @click.self="cancelEdit">
         <div class="modal-content">
           <div class="modal-header">
@@ -459,7 +444,7 @@ function getWorkModeLabel(mode?: string): string {
                 class="avatar"
               />
               <div v-else class="avatar-placeholder">
-                <span>{{ store.profile?.name?.charAt(0).toUpperCase() || '?' }}</span>
+                <span>{{ store.displayProfile?.name?.charAt(0).toUpperCase() || '?' }}</span>
               </div>
               <div v-if="isUploadingAvatar" class="avatar-loading">
                 <span>Завантаження...</span>
@@ -482,10 +467,10 @@ function getWorkModeLabel(mode?: string): string {
           </div>
 
           <div class="profile-info">
-            <h2 class="profile-name">{{ store.profile.name }}</h2>
-            <p class="profile-email">{{ store.profile.email }}</p>
-            <span class="role-badge" :class="`role-${store.profile.role}`">
-              {{ store.profile.role }}
+            <h2 class="profile-name">{{ store.displayProfile.name }}</h2>
+            <p class="profile-email">{{ store.displayProfile.email }}</p>
+            <span class="role-badge" :class="`role-${store.displayProfile.role}`">
+              {{ store.displayProfile.role }}
             </span>
           </div>
         </div>
@@ -493,32 +478,32 @@ function getWorkModeLabel(mode?: string): string {
         <div class="profile-details">
           <div class="detail-row">
             <span class="detail-label">Ім'я</span>
-            <span class="detail-value">{{ store.profile.name }}</span>
+            <span class="detail-value">{{ store.displayProfile.name }}</span>
           </div>
 
           <div class="detail-row">
             <span class="detail-label">Email</span>
-            <span class="detail-value">{{ store.profile.email }}</span>
+            <span class="detail-value">{{ store.displayProfile.email }}</span>
           </div>
 
           <div class="detail-row">
             <span class="detail-label">Роль</span>
-            <span class="detail-value">{{ store.profile.role }}</span>
+            <span class="detail-value">{{ store.displayProfile.role }}</span>
           </div>
 
-          <div v-if="store.profile.work_mode" class="detail-row">
+          <div v-if="store.displayProfile.work_mode" class="detail-row">
             <span class="detail-label">Режим роботи</span>
-            <span class="detail-value">{{ getWorkModeLabel(store.profile.work_mode) }}</span>
+            <span class="detail-value">{{ getWorkModeLabel(store.displayProfile.work_mode) }}</span>
           </div>
 
           <div class="detail-row">
             <span class="detail-label">PIN код</span>
             <span class="detail-value">
-              {{ store.profile.has_pin_code ? '✓ Налаштовано' : '✗ Не налаштовано' }}
+              {{ store.displayProfile.has_pin_code ? '✓ Налаштовано' : '✗ Не налаштовано' }}
             </span>
           </div>
 
-          <div v-if="store.profile.manager" class="detail-row manager-row">
+          <div v-if="store.displayProfile.manager" class="detail-row manager-row">
             <span class="detail-label">Менеджер</span>
             <div class="manager-info">
               <div class="manager-avatar-container">
@@ -529,31 +514,31 @@ function getWorkModeLabel(mode?: string): string {
                   class="manager-avatar"
                 />
                 <div v-else class="manager-avatar-placeholder">
-                  <span>{{ store.profile.manager.name.charAt(0).toUpperCase() }}</span>
+                  <span>{{ store.displayProfile.manager.name.charAt(0).toUpperCase() }}</span>
                 </div>
               </div>
               <div class="manager-details">
-                <div class="manager-name">{{ store.profile.manager.name }}</div>
-                <div class="manager-email">{{ store.profile.manager.email }}</div>
+                <div class="manager-name">{{ store.displayProfile.manager.name }}</div>
+                <div class="manager-email">{{ store.displayProfile.manager.email }}</div>
               </div>
             </div>
           </div>
 
-          <div v-if="store.profile.company" class="detail-row">
+          <div v-if="store.displayProfile.company" class="detail-row">
             <span class="detail-label">Компанія</span>
             <button class="company-link" @click="router.push({ name: 'company' })">
-              🏢 {{ store.profile.company.name }}
+              🏢 {{ store.displayProfile.company.name }}
             </button>
           </div>
 
-          <div v-if="store.profile.work_schedule" class="detail-row">
+          <div v-if="store.displayProfile.work_schedule" class="detail-row">
             <span class="detail-label">Графік роботи</span>
-            <span class="detail-value">{{ store.profile.work_schedule.name }}</span>
+            <span class="detail-value">{{ store.displayProfile.work_schedule.name }}</span>
           </div>
 
           <div class="detail-row">
             <span class="detail-label">Дата реєстрації</span>
-            <span class="detail-value"> {{ formatDate(store.profile.created_at) }}</span>
+            <span class="detail-value"> {{ formatDate(store.displayProfile.created_at) }}</span>
           </div>
         </div>
 
@@ -561,14 +546,14 @@ function getWorkModeLabel(mode?: string): string {
           <button class="btn-primary" @click="openEditMode">Редагувати профіль</button>
           <button class="btn-secondary" @click="openPasswordModal">Змінити пароль</button>
           <button
-            v-if="!store.profile.has_pin_code"
+            v-if="!store.displayProfile.has_pin_code"
             class="btn-secondary"
             @click="openPinSetupModal"
           >
             Налаштувати PIN
           </button>
           <button
-            v-if="store.profile.has_pin_code"
+            v-if="store.displayProfile.has_pin_code"
             class="btn-secondary"
             @click="openPinChangeModal"
           >
@@ -589,6 +574,26 @@ function getWorkModeLabel(mode?: string): string {
 
 .page-header {
   margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn-back {
+  padding: 0.5rem 1rem;
+  background: #f3f4f6;
+  color: #374151;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.btn-back:hover {
+  background: #e5e7eb;
 }
 
 .page-header h1 {

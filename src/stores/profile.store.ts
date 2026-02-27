@@ -1,4 +1,6 @@
 import { API_ROUTES, apiClient } from '@/core/api'
+import { useAuthStore } from './auth.store'
+import { useUiStore } from './ui.store'
 import type {
   UpdateProfileRequest,
   ChangePasswordRequest,
@@ -7,7 +9,7 @@ import type {
 } from '@/types/requests/profileRequest.interface'
 import type { UserProfile, UserProfileResponse } from '@/types/responses/profile.api'
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 export const useProfileStore = defineStore('profile', () => {
   const profile = ref<UserProfile | null>(null)
@@ -19,34 +21,56 @@ export const useProfileStore = defineStore('profile', () => {
 
   const CACHE_DURATION = 5 * 60 * 1000
 
+  const displayProfile = computed(() => {
+    if (profile.value) return profile.value
+    const authStore = useAuthStore()
+    return authStore.currentUser as unknown as UserProfile | null
+  })
+
   function isCacheValid(): boolean {
     if (!profile.value || !lastFetchTime.value) return false
     return Date.now() - lastFetchTime.value < CACHE_DURATION
   }
 
   async function fetchProfile(forceRefresh = false) {
+    const authStore = useAuthStore()
+    if (!forceRefresh && authStore.currentUser && !profile.value) {
+      profile.value = authStore.currentUser as unknown as UserProfile
+      lastFetchTime.value = Date.now()
+      return profile.value
+    }
+
     if (!forceRefresh && isCacheValid()) {
       return profile.value
     }
 
-    if (isLoading.value) {
-      return profile.value
-    }
+    const uiStore = useUiStore()
+    return await uiStore.lockMeEndpoint(async () => {
+      if (authStore.currentUser && !profile.value && !forceRefresh) {
+        profile.value = authStore.currentUser as unknown as UserProfile
+        lastFetchTime.value = Date.now()
+        return profile.value
+      }
 
-    isLoading.value = true
-    error.value = null
+      if (!forceRefresh && isCacheValid()) {
+        return profile.value
+      }
 
-    try {
-      const { data } = await apiClient.get<UserProfile>(API_ROUTES.me.show)
-      profile.value = data
-      lastFetchTime.value = Date.now()
-      return profile.value
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to fetch profile'
-      throw err
-    } finally {
-      isLoading.value = false
-    }
+      isLoading.value = true
+      error.value = null
+
+      try {
+        const { data } = await apiClient.get<UserProfile>(API_ROUTES.me.show)
+        profile.value = data
+        lastFetchTime.value = Date.now()
+        return profile.value
+      } catch (err) {
+        error.value = err instanceof Error ? err.message : 'Failed to fetch profile'
+        throw err
+      } finally {
+        isLoading.value = false
+      }
+    })
   }
 
   function clearCache() {
@@ -159,6 +183,7 @@ export const useProfileStore = defineStore('profile', () => {
 
   return {
     profile,
+    displayProfile,
     isLoading,
     isSaving,
     error,

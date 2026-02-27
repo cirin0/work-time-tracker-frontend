@@ -8,7 +8,7 @@ import { useProfileStore } from '@/stores/profile.store.ts'
 
 const profileStore = useProfileStore()
 
-const currentUser = computed(() => profileStore.profile)
+const currentUser = computed(() => profileStore.displayProfile)
 
 const {
   sortedUsers,
@@ -36,10 +36,6 @@ const { setupWebSocket } = useChatWebSocket(currentUser, (message) => {
 })
 
 onMounted(async () => {
-  // Завантажуємо профіль тільки якщо його ще немає
-  if (!currentUser.value && !profileStore.isLoading) {
-    await profileStore.fetchProfile()
-  }
   setupWebSocket()
   await loadUsers()
 })

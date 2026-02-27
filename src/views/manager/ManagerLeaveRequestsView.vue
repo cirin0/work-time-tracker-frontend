@@ -74,7 +74,7 @@ function handlePageChange(page: number) {
 }
 
 function goBack() {
-  router.push({ name: 'main' })
+  router.push({ name: 'manager' })
 }
 </script>
 

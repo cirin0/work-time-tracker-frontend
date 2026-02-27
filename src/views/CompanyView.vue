@@ -1,8 +1,15 @@
 <script setup lang="ts">
 import { getAvatarUrl } from '@/core/utils/url'
 import { formatDate } from '@/core/utils/date'
+import { useRouter } from 'vue-router'
 import AdminCompanyEditModal from '@/components/admin/AdminCompanyEditModal.vue'
 import { useCompanyView } from '@/composables/useCompanyView'
+
+const router = useRouter()
+
+function goBack() {
+  router.back()
+}
 
 const {
   companyStore,
@@ -33,6 +40,7 @@ const {
 <template>
   <div class="company-view">
     <div class="page-header">
+      <button class="btn-back" @click="goBack">← Назад</button>
       <div>
         <h1>Компанія</h1>
         <p class="subtitle">Інформація про вашу компанію</p>
@@ -382,7 +390,26 @@ const {
   align-items: flex-start;
   justify-content: space-between;
   margin-bottom: 2rem;
+  gap: 1rem;
 }
+
+.btn-back {
+  padding: 0.5rem 1rem;
+  background: #f3f4f6;
+  color: #374151;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.btn-back:hover {
+  background: #e5e7eb;
+}
+
 .page-header h1 {
   font-size: 2rem;
   font-weight: 700;
