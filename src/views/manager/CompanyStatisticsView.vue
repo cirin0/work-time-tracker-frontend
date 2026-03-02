@@ -1,42 +1,29 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { useManagerStore } from '@/stores/manager.store.ts'
+import PageHeader from '@/components/ui/PageHeader.vue'
+import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
+import StatCard from '@/components/ui/StatCard.vue'
+import PeriodSummaryTable from '@/components/stats/PeriodSummaryTable.vue'
+import AttendanceStatsSection from '@/components/stats/AttendanceStatsSection.vue'
 
-const router = useRouter()
 const managerStore = useManagerStore()
-
 const stats = computed(() => managerStore.companyStats)
 
 onMounted(() => {
   managerStore.fetchCompanyStatistics()
 })
-
-function goBack() {
-  router.push({ name: 'manager' })
-}
-
-function formatMinutes(minutes: number) {
-  const h = Math.floor(minutes / 60)
-  const m = minutes % 60
-  return h > 0 ? `${h}г ${m}хв` : `${m}хв`
-}
 </script>
 
 <template>
   <div class="statistics-view">
-    <div class="page-header">
-      <button @click="goBack" class="btn-back">← Назад</button>
-      <div>
-        <h1>Розширена статистика компанії</h1>
-        <p class="subtitle">Аналіз робочого часу та відвідуваності</p>
-      </div>
-    </div>
+    <PageHeader
+      title="Розширена статистика компанії"
+      subtitle="Аналіз робочого часу та відвідуваності"
+      back-route="manager"
+    />
 
-    <div v-if="managerStore.isLoadingStats" class="loading">
-      <div class="spinner"></div>
-      <p>Завантаження статистики...</p>
-    </div>
+    <LoadingSpinner v-if="managerStore.isLoadingStats" text="Завантаження статистики..." />
 
     <div v-else-if="!stats" class="empty-state">
       <p>Статистика недоступна</p>
@@ -46,153 +33,44 @@ function formatMinutes(minutes: number) {
     </div>
 
     <div v-else class="content">
-      <!-- Overview -->
       <section class="section">
         <h2>Загальний огляд</h2>
         <div class="cards-row">
-          <div class="card">
-            <div class="card-label">Всього годин</div>
-            <div class="card-value">{{ stats.total_hours }}г {{ stats.total_minutes % 60 }}хв</div>
-          </div>
-          <div class="card">
-            <div class="card-label">Всього записів</div>
-            <div class="card-value">{{ stats.total_entries_count }}</div>
-          </div>
-          <div class="card">
-            <div class="card-label">Робочих днів (сума)</div>
-            <div class="card-value">{{ stats.total_working_days }}</div>
-          </div>
-          <div class="card">
-            <div class="card-label">Сер. днів на працівника</div>
-            <div class="card-value">{{ stats.average_working_days_per_employee }}</div>
-          </div>
-          <div class="card">
-            <div class="card-label">Активних зараз</div>
-            <div class="card-value">{{ stats.active_employees }}</div>
-          </div>
-          <div class="card">
-            <div class="card-label">Унікальних працівників</div>
-            <div class="card-value">{{ stats.total_employees_with_entries }}</div>
-          </div>
+          <StatCard
+            label="Всього годин"
+            :value="`${stats.total_hours}г ${stats.total_minutes % 60}хв`"
+          />
+          <StatCard label="Всього записів" :value="stats.total_entries_count" />
+          <StatCard label="Робочих днів (сума)" :value="stats.total_working_days" />
+          <StatCard
+            label="Сер. днів на працівника"
+            :value="stats.average_working_days_per_employee"
+          />
+          <StatCard label="Активних зараз" :value="stats.active_employees" />
+          <StatCard label="Унікальних працівників" :value="stats.total_employees_with_entries" />
         </div>
       </section>
 
-      <!-- Period Summary -->
       <section class="section">
         <h2>Розбивка по періодах</h2>
-        <div class="period-table">
-          <table>
-            <thead>
-              <tr>
-                <th>Період</th>
-                <th>Годин</th>
-                <th>Хвилин</th>
-                <th>Робочих днів</th>
-                <th>Запізнень</th>
-                <th>Ранніх виходів</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Сьогодні</td>
-                <td>{{ stats.summary.today.hours }}</td>
-                <td>{{ stats.summary.today.minutes }}</td>
-                <td>{{ stats.summary.today.working_days }}</td>
-                <td>{{ stats.summary.today.late_count }}</td>
-                <td>{{ stats.summary.today.early_count }}</td>
-              </tr>
-              <tr>
-                <td>Цього тижня</td>
-                <td>{{ stats.summary.week.hours }}</td>
-                <td>{{ stats.summary.week.minutes }}</td>
-                <td>{{ stats.summary.week.working_days }}</td>
-                <td>{{ stats.summary.week.late_count }}</td>
-                <td>{{ stats.summary.week.early_count }}</td>
-              </tr>
-              <tr>
-                <td>Цього місяця</td>
-                <td>{{ stats.summary.month.hours }}</td>
-                <td>{{ stats.summary.month.minutes }}</td>
-                <td>{{ stats.summary.month.working_days }}</td>
-                <td>{{ stats.summary.month.late_count }}</td>
-                <td>{{ stats.summary.month.early_count }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <!-- Placeholder for charts -->
+        <PeriodSummaryTable :summary="stats.summary" />
         <div class="chart-placeholder">
           <span>📊 Тут буде графік по тижнях/місяцях</span>
         </div>
       </section>
 
-      <!-- Attendance -->
-      <section class="section">
-        <h2>Відвідуваність та дисципліна</h2>
-        <div class="cards-row">
-          <div class="card">
-            <div class="card-label">Вчасно</div>
-            <div class="card-value success">{{ stats.attendance.on_time_count }}</div>
+      <AttendanceStatsSection :attendance="stats.attendance">
+        <template #chart-attendance>
+          <div class="chart-placeholder">
+            <span>🕐 Тут буде графік запізнень по днях</span>
           </div>
-          <div class="card">
-            <div class="card-label">Запізнень</div>
-            <div class="card-value danger">{{ stats.attendance.late_count }}</div>
+        </template>
+        <template #chart-overtime>
+          <div class="chart-placeholder">
+            <span>📈 Тут буде графік понаднормових</span>
           </div>
-          <div class="card">
-            <div class="card-label">Ранніх виходів (прихід)</div>
-            <div class="card-value">{{ stats.attendance.early_count }}</div>
-          </div>
-          <div class="card">
-            <div class="card-label">Сер. запізнення</div>
-            <div class="card-value">{{ stats.attendance.average_late_minutes }} хв</div>
-          </div>
-          <div class="card">
-            <div class="card-label">Загалом запізнення (хв)</div>
-            <div class="card-value">{{ stats.attendance.total_late_minutes }}</div>
-          </div>
-        </div>
-        <!-- Placeholder for charts -->
-        <div class="chart-placeholder">
-          <span>🕐 Тут буде графік запізнень по днях</span>
-        </div>
-      </section>
-
-      <!-- Early Leave & Overtime -->
-      <section class="section">
-        <h2>Ранні виходи та понаднормові</h2>
-        <div class="cards-row">
-          <div class="card">
-            <div class="card-label">Ранніх виходів</div>
-            <div class="card-value">{{ stats.attendance.early_leave_count }}</div>
-          </div>
-          <div class="card">
-            <div class="card-label">Загалом ранніх виходів (хв)</div>
-            <div class="card-value">{{ stats.attendance.total_early_leave_minutes }}</div>
-          </div>
-          <div class="card">
-            <div class="card-label">Сер. ранній вихід</div>
-            <div class="card-value">{{ stats.attendance.average_early_leave_minutes }} хв</div>
-          </div>
-          <div class="card">
-            <div class="card-label">Понаднормових</div>
-            <div class="card-value success">{{ stats.attendance.overtime_count }}</div>
-          </div>
-          <div class="card">
-            <div class="card-label">Загалом понаднормових (хв)</div>
-            <div class="card-value">
-              {{ formatMinutes(stats.attendance.total_overtime_minutes) }}
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-label">Сер. понаднормових</div>
-            <div class="card-value">{{ stats.attendance.average_overtime_minutes }} хв</div>
-          </div>
-        </div>
-        <!-- Placeholder for charts -->
-        <div class="chart-placeholder">
-          <span>📈 Тут буде графік понаднормових</span>
-        </div>
-      </section>
+        </template>
+      </AttendanceStatsSection>
     </div>
   </div>
 </template>
@@ -204,52 +82,6 @@ function formatMinutes(minutes: number) {
   padding: 2rem;
 }
 
-.page-header {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.page-header h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin: 0 0 0.25rem;
-}
-
-.subtitle {
-  color: #6b7280;
-  margin: 0;
-}
-
-.btn-back {
-  padding: 0.5rem 1rem;
-  background: #f3f4f6;
-  color: #374151;
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.btn-back:hover {
-  background: #e5e7eb;
-}
-
-.btn-primary {
-  padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.loading,
 .empty-state {
   text-align: center;
   padding: 4rem;
@@ -260,19 +92,14 @@ function formatMinutes(minutes: number) {
   gap: 1rem;
 }
 
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #e5e7eb;
-  border-top-color: #2563eb;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+.btn-primary {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
 }
 
 .content {
@@ -301,67 +128,27 @@ function formatMinutes(minutes: number) {
   gap: 1rem;
 }
 
-.card {
+.cards-row :deep(.stat-card) {
   flex: 1;
   min-width: 140px;
   background: #f9fafb;
   border-radius: 0.5rem;
   padding: 1rem 1.25rem;
+  box-shadow: none;
+  gap: 0;
 }
 
-.card-label {
-  font-size: 0.8rem;
-  color: #6b7280;
-  margin-bottom: 0.4rem;
+.cards-row :deep(.stat-card:hover) {
+  transform: none;
+  box-shadow: none;
 }
 
-.card-value {
+.cards-row :deep(.stat-value) {
   font-size: 1.5rem;
-  font-weight: 700;
-  color: #1f2937;
 }
 
-.card-value.success {
-  color: #16a34a;
-}
-
-.card-value.danger {
-  color: #dc2626;
-}
-
-.period-table {
-  overflow-x: auto;
-  margin-bottom: 1rem;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
-}
-
-thead tr {
-  background: #f3f4f6;
-}
-
-th,
-td {
-  padding: 0.6rem 1rem;
-  text-align: left;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-th {
-  font-weight: 600;
-  color: #374151;
-}
-
-td {
-  color: #4b5563;
-}
-
-tr:last-child td {
-  border-bottom: none;
+.cards-row :deep(.stat-icon) {
+  display: none;
 }
 
 .chart-placeholder {
@@ -372,5 +159,11 @@ tr:last-child td {
   text-align: center;
   color: #9ca3af;
   font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .statistics-view {
+    padding: 1rem;
+  }
 }
 </style>

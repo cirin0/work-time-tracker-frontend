@@ -7,6 +7,7 @@ import { useLeaveRequestStore } from '@/stores/leaveRequest.store.ts'
 import QRCodeDisplay from '@/components/qr-code/QRCodeDisplay.vue'
 import LeaveRequestsList from '@/components/leave-requests/LeaveRequestsList.vue'
 import LeaveRequestForm from '@/components/leave-requests/LeaveRequestForm.vue'
+import StatCard from '@/components/ui/StatCard.vue'
 import type { CreateLeaveRequestRequest } from '@/types/requests/leaveRequestRequest.interface'
 
 const router = useRouter()
@@ -123,37 +124,15 @@ function viewStatistics() {
 
     <div class="content-wrapper">
       <div class="stats-grid">
-        <div class="stat-card" :class="{ active: isWorking }">
-          <div class="stat-icon">{{ isWorking ? '🟢' : '⏰' }}</div>
-          <div class="stat-content">
-            <div class="stat-value">{{ todayHours }}г {{ todayMinutes }}хв</div>
-            <div class="stat-label">{{ isWorking ? 'Працюю зараз' : 'Сьогодні' }}</div>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon">📅</div>
-          <div class="stat-content">
-            <div class="stat-value">{{ weekHours.toFixed(1) }}</div>
-            <div class="stat-label">Годин за тиждень</div>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon">📊</div>
-          <div class="stat-content">
-            <div class="stat-value">{{ monthHours.toFixed(1) }}</div>
-            <div class="stat-label">Годин за місяць</div>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon">📄</div>
-          <div class="stat-content">
-            <div class="stat-value">{{ leaveRequestsCount }}</div>
-            <div class="stat-label">Запитів на відпустку</div>
-          </div>
-        </div>
+        <StatCard
+          :icon="isWorking ? '🟢' : '⏰'"
+          :label="isWorking ? 'Працюю зараз' : 'Сьогодні'"
+          :value="`${todayHours}г ${todayMinutes}хв`"
+          :variant="isWorking ? 'active' : undefined"
+        />
+        <StatCard icon="📅" label="Годин за тиждень" :value="weekHours.toFixed(1)" />
+        <StatCard icon="📊" label="Годин за місяць" :value="monthHours.toFixed(1)" />
+        <StatCard icon="📄" label="Запитів на відпустку" :value="leaveRequestsCount" />
       </div>
 
       <!-- Quick Actions -->
@@ -235,10 +214,9 @@ function viewStatistics() {
         <div class="right-column">
           <div class="content-section sticky-section">
             <div class="section-header">
-              <h2>Мої запити на відпустку</h2>
               <div class="header-actions">
+                <h2>Мої запити на відпустку</h2>
                 <span v-if="leaveRequestsCount > 0" class="badge">{{ leaveRequestsCount }}</span>
-                <button class="btn-create" @click="showFormModal = true">+ Створити</button>
               </div>
             </div>
 
@@ -324,48 +302,6 @@ function viewStatistics() {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
-}
-
-.stat-card {
-  background: white;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
-}
-
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.stat-card.active {
-  border: 2px solid #22c55e;
-  background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
-}
-
-.stat-icon {
-  font-size: 2.5rem;
-}
-
-.stat-content {
-  flex: 1;
-}
-
-.stat-value {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1f2937;
-  line-height: 1;
-}
-
-.stat-label {
-  color: #6b7280;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
 }
 
 /* Quick Actions */

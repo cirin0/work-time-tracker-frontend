@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { useLeaveRequestStore } from '@/stores/leaveRequest.store'
 import { LeaveRequestStatus, LeaveRequestType } from '@/types/enums/enums.types'
 import { formatDate } from '@/core/utils/date'
 import { getAvatarUrl } from '@/core/utils/url'
+import PageHeader from '@/components/ui/PageHeader.vue'
+import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 
 const route = useRoute()
-const router = useRouter()
 const leaveRequestStore = useLeaveRequestStore()
 
 function getTypeLabel(type: LeaveRequestType): string {
@@ -28,10 +29,6 @@ function getStatusLabel(status: LeaveRequestStatus): string {
   return labels[status] || status
 }
 
-function goBack() {
-  router.push({ name: 'leave-requests' })
-}
-
 onMounted(() => {
   const id = route.params.id as string
   leaveRequestStore.fetchLeaveRequest(id)
@@ -44,26 +41,9 @@ onUnmounted(() => {
 
 <template>
   <div class="leave-request-detail-view">
-    <div class="page-header">
-      <button class="btn-back" @click="goBack">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-          <path
-            d="M12.5 15L7.5 10L12.5 5"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
-        Назад
-      </button>
-      <h1>Деталі запиту на відпустку</h1>
-    </div>
+    <PageHeader title="Деталі запиту на відпустку" back-route="leave-requests" />
 
-    <div v-if="leaveRequestStore.isLoading" class="loading-state">
-      <div class="spinner" />
-      <p>Завантаження...</p>
-    </div>
+    <LoadingSpinner v-if="leaveRequestStore.isLoading" text="Завантаження..." />
 
     <div v-else-if="leaveRequestStore.error" class="error-state">
       <div class="error-icon">!</div>
@@ -210,62 +190,7 @@ onUnmounted(() => {
   padding: 2rem;
 }
 
-.page-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.page-header h1 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin: 0;
-}
-
-.btn-back {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 1rem;
-  background: #f3f4f6;
-  color: #374151;
-  border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-back:hover {
-  background: #e5e7eb;
-}
-
 /* Loading & Error */
-.loading-state {
-  text-align: center;
-  padding: 4rem 2rem;
-  color: #6b7280;
-}
-
-.spinner {
-  width: 2rem;
-  height: 2rem;
-  border: 3px solid #e5e7eb;
-  border-top-color: #2563eb;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin: 0 auto 1rem;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 .error-state {
   text-align: center;
   padding: 3rem;
@@ -562,11 +487,6 @@ onUnmounted(() => {
 @media (max-width: 640px) {
   .leave-request-detail-view {
     padding: 1rem;
-  }
-
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
   }
 
   .detail-header {

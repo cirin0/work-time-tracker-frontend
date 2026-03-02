@@ -3,6 +3,8 @@ import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useManagerStore } from '@/stores/manager.store.ts'
 import { getAvatarUrl } from '@/core/utils/url.ts'
+import PageHeader from '@/components/ui/PageHeader.vue'
+import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 
 const router = useRouter()
 const managerStore = useManagerStore()
@@ -14,26 +16,17 @@ onMounted(() => {
 function viewEmployeeDetails(id: number) {
   router.push({ name: 'employee-details', params: { id } })
 }
-
-function goBack() {
-  router.push({ name: 'manager' })
-}
 </script>
 
 <template>
   <div class="employees-page">
-    <div class="page-header">
-      <button class="btn-back" @click="goBack">← Назад</button>
-      <div class="header-text">
-        <h1>Підлеглі</h1>
-        <p class="subtitle">Список співробітників вашої команди</p>
-      </div>
-    </div>
+    <PageHeader
+      title="Підлеглі"
+      subtitle="Список співробітників вашої команди"
+      back-route="manager"
+    />
 
-    <div v-if="managerStore.isLoadingEmployees" class="loading-state">
-      <div class="spinner"></div>
-      <span>Завантаження...</span>
-    </div>
+    <LoadingSpinner v-if="managerStore.isLoadingEmployees" text="Завантаження..." />
 
     <div v-else-if="managerStore.error" class="error-state">
       <div class="error-icon">⚠️</div>
@@ -87,69 +80,6 @@ function goBack() {
   padding: 2rem;
 }
 
-.page-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.btn-back {
-  padding: 0.5rem 1rem;
-  background: #f3f4f6;
-  color: #374151;
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s;
-  white-space: nowrap;
-}
-
-.btn-back:hover {
-  background: #e5e7eb;
-}
-
-.header-text h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin: 0 0 0.25rem 0;
-}
-
-.subtitle {
-  color: #6b7280;
-  font-size: 1rem;
-  margin: 0;
-}
-
-/* Loading */
-.loading-state {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  justify-content: center;
-  padding: 3rem;
-  color: #6b7280;
-}
-
-.spinner {
-  width: 24px;
-  height: 24px;
-  border: 3px solid #e5e7eb;
-  border-top-color: #2563eb;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Error */
 .error-state {
   text-align: center;
   padding: 3rem;

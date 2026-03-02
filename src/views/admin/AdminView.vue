@@ -10,6 +10,7 @@ import QRCodeDisplay from '@/components/qr-code/QRCodeDisplay.vue'
 import AdminUsersList from '@/components/admin/AdminUsersList.vue'
 import AdminCompanyCreateModal from '@/components/admin/AdminCompanyCreateModal.vue'
 import AdminAssignManagerModal from '@/components/admin/AdminAssignManagerModal.vue'
+import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import type { CreateCompanyRequest } from '@/types/requests/companyRequest.interface'
 
 const router = useRouter()
@@ -40,13 +41,11 @@ onMounted(async () => {
   isLoadingInitialData.value = true
 
   try {
-    // Load company data if exists
     const companyId = authStore.currentUser?.company?.id
     if (companyId) {
       await companyStore.fetchById(companyId)
     }
 
-    // Load users to check if any managers exist
     await adminStore.fetchAllUsers(1)
   } finally {
     isLoadingInitialData.value = false
@@ -67,7 +66,6 @@ async function handleCreateSubmit(payload: CreateCompanyRequest) {
         authStore.currentUser.company = company
       }
       showCreateModal.value = false
-      // Fetch full company data to update store
       await companyStore.fetchById(company.id)
     }
   } catch {
@@ -85,11 +83,8 @@ async function handleAssignManager(managerId: number) {
   try {
     await companyStore.assignManager(companyId, managerId)
     showAssignManagerModal.value = false
-    // Refresh company data
     await companyStore.fetchById(companyId)
-    // Refresh user list to update manager status
     await adminStore.fetchAllUsers(1)
-    // Update auth store company reference
     if (authStore.currentUser && companyStore.company) {
       authStore.currentUser.company = companyStore.company
     }
@@ -114,13 +109,8 @@ async function handleAssignManager(managerId: number) {
     </div>
 
     <div v-else class="content-wrapper">
-      <!-- Loading state -->
-      <div v-if="isLoadingInitialData" class="loading-state">
-        <div class="spinner"></div>
-        <p>Завантаження...</p>
-      </div>
+      <LoadingSpinner v-if="isLoadingInitialData" text="Завантаження..." />
 
-      <!-- Company not created notice -->
       <div v-else-if="!hasCompany" class="no-company-banner">
         <div class="banner-icon">🏢</div>
         <div class="banner-content">
@@ -182,7 +172,6 @@ async function handleAssignManager(managerId: number) {
       </template>
     </div>
 
-    <!-- Create Company Modal -->
     <AdminCompanyCreateModal
       ref="createModalRef"
       :show="showCreateModal"
@@ -191,7 +180,6 @@ async function handleAssignManager(managerId: number) {
       @submit="handleCreateSubmit"
     />
 
-    <!-- Assign Manager Modal -->
     <AdminAssignManagerModal
       ref="assignManagerModalRef"
       :show="showAssignManagerModal"
@@ -372,80 +360,6 @@ async function handleAssignManager(managerId: number) {
   display: flex;
   flex-direction: column;
   gap: 2rem;
-}
-
-/* Loading State */
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem 2rem;
-  gap: 1rem;
-}
-
-.loading-state p {
-  color: #6b7280;
-  font-size: 0.95rem;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid #e5e7eb;
-  border-top-color: #2563eb;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Stats */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.5rem;
-}
-
-.stat-card {
-  background: white;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
-}
-
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.stat-icon {
-  font-size: 2.5rem;
-}
-
-.stat-content {
-  flex: 1;
-}
-
-.stat-value {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1f2937;
-  line-height: 1;
-}
-
-.stat-label {
-  color: #6b7280;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
 }
 
 /* Quick Actions */
