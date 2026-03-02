@@ -38,10 +38,8 @@ export const useLeaveRequestStore = defineStore('leaveRequest', () => {
     isLoading.value = true
     error.value = null
     try {
-      const response = await apiClient.get<ApiResponse<LeaveRequest>>(
-        API_ROUTES.leaveRequests.show(id),
-      )
-      const data = response.data.data
+      const response = await apiClient.get<LeaveRequest>(API_ROUTES.leaveRequests.show(id))
+      const data = response.data
       if (data) {
         currentLeaveRequest.value = data
         return data

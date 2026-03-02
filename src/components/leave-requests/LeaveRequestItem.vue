@@ -29,7 +29,10 @@ function getStatusLabel(status: LeaveRequestStatus): string {
 </script>
 
 <template>
-  <div class="leave-request-item">
+  <router-link
+    :to="{ name: 'leave-request-detail', params: { id: leaveRequest.id } }"
+    class="leave-request-item"
+  >
     <div class="leave-request-header">
       <div class="leave-request-info">
         <div class="leave-request-type">
@@ -63,25 +66,29 @@ function getStatusLabel(status: LeaveRequestStatus): string {
 
     <div class="leave-request-footer">
       <span class="created-date">Створено: {{ formatDate(leaveRequest.created_at) }}</span>
-      <span v-if="leaveRequest.updated_at !== leaveRequest.created_at" class="updated-date">
-        Оновлено: {{ formatDate(leaveRequest.updated_at) }}
-      </span>
     </div>
-  </div>
+  </router-link>
 </template>
 
 <style scoped>
 .leave-request-item {
+  display: block;
+  text-decoration: none;
+  color: inherit;
   background: white;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   padding: 20px;
   margin-bottom: 16px;
-  transition: box-shadow 0.2s;
+  transition:
+    box-shadow 0.2s,
+    border-color 0.2s;
+  cursor: pointer;
 }
 
 .leave-request-item:hover {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-color: #2563eb;
 }
 
 .leave-request-header {
@@ -90,7 +97,6 @@ function getStatusLabel(status: LeaveRequestStatus): string {
   align-items: center;
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 1px solid #f0f0f0;
   gap: 16px;
 }
 

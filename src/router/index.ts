@@ -34,6 +34,18 @@ export const router = createRouter({
       meta: { layout: 'main', requiresAuth: true },
     },
     {
+      path: '/leave-requests/:id',
+      name: 'leave-request-detail',
+      component: () => import('../views/LeaveRequestDetailView.vue'),
+      meta: { layout: 'main', requiresAuth: true },
+    },
+    {
+      path: '/statistics',
+      name: 'employee-statistics',
+      component: () => import('../views/employee/EmployeeStatisticsView.vue'),
+      meta: { layout: 'main', requiresAuth: true },
+    },
+    {
       path: '/admin',
       name: 'admin',
       component: () => import('../views/admin/AdminView.vue'),

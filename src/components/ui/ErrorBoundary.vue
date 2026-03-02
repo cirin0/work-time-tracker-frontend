@@ -32,7 +32,7 @@ function reload() {
         Вибачте, сталася неочікувана помилка. Спробуйте оновити сторінку або повернутися назад.
       </p>
 
-      <details v-if="isProduction" class="error-details">
+      <details v-if="!isProduction" class="error-details">
         <summary>Деталі помилки (тільки для розробки)</summary>
         <pre class="error-stack">{{ error.message }}</pre>
         <pre v-if="errorInfo" class="error-info">{{ errorInfo }}</pre>

@@ -8,7 +8,7 @@ import RejectModal from '@/components/leave-requests/RejectModal.vue'
 import QRCodeDisplay from '@/components/qr-code/QRCodeDisplay.vue'
 
 const router = useRouter()
-const { isManager } = useRoleGuard()
+const { isManager, isAdmin } = useRoleGuard()
 const managerStore = useManagerStore()
 
 const showRejectModal = ref(false)
@@ -95,7 +95,7 @@ function viewStatistics() {
       <p class="subtitle">Управління командою</p>
     </div>
 
-    <div v-if="!isManager" class="access-denied">
+    <div v-if="!isManager && !isAdmin" class="access-denied">
       <h2>Доступ заборонено</h2>
       <p>У вас немає прав для перегляду цієї сторінки</p>
     </div>

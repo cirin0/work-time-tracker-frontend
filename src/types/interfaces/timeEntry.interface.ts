@@ -8,6 +8,7 @@ export interface LocationData {
 
 export interface TimeEntry extends BaseModel {
   user_id?: number
+  date: string
   start_time: string | null
   stop_time: string | null
   duration: number

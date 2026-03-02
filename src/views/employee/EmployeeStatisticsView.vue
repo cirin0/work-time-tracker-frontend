@@ -1,22 +1,24 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useManagerStore } from '@/stores/manager.store.ts'
+import { useEmployeeStore } from '@/stores/employee.store'
 
 const router = useRouter()
-const managerStore = useManagerStore()
+const employeeStore = useEmployeeStore()
 
-const stats = computed(() => managerStore.companyStats)
+const summary = computed(() => employeeStore.timeSummary)
 
 onMounted(() => {
-  managerStore.fetchCompanyStatistics()
+  if (!employeeStore.timeSummary) {
+    employeeStore.fetchTimeSummary()
+  }
 })
 
 function goBack() {
-  router.push({ name: 'manager' })
+  router.push({ name: 'main' })
 }
 
-function formatMinutes(minutes: number) {
+function formatMinutes(minutes: number): string {
   const h = Math.floor(minutes / 60)
   const m = minutes % 60
   return h > 0 ? `${h}г ${m}хв` : `${m}хв`
@@ -26,23 +28,21 @@ function formatMinutes(minutes: number) {
 <template>
   <div class="statistics-view">
     <div class="page-header">
-      <button @click="goBack" class="btn-back">← Назад</button>
+      <button class="btn-back" @click="goBack">← Назад</button>
       <div>
-        <h1>Розширена статистика компанії</h1>
-        <p class="subtitle">Аналіз робочого часу та відвідуваності</p>
+        <h1>Розширена статистика</h1>
+        <p class="subtitle">Аналіз вашого робочого часу та відвідуваності</p>
       </div>
     </div>
 
-    <div v-if="managerStore.isLoadingStats" class="loading">
+    <div v-if="employeeStore.isLoadingSummary" class="loading">
       <div class="spinner"></div>
       <p>Завантаження статистики...</p>
     </div>
 
-    <div v-else-if="!stats" class="empty-state">
+    <div v-else-if="!summary" class="empty-state">
       <p>Статистика недоступна</p>
-      <button @click="managerStore.fetchCompanyStatistics()" class="btn-primary">
-        Завантажити
-      </button>
+      <button class="btn-primary" @click="employeeStore.fetchTimeSummary()">Завантажити</button>
     </div>
 
     <div v-else class="content">
@@ -52,27 +52,17 @@ function formatMinutes(minutes: number) {
         <div class="cards-row">
           <div class="card">
             <div class="card-label">Всього годин</div>
-            <div class="card-value">{{ stats.total_hours }}г {{ stats.total_minutes % 60 }}хв</div>
+            <div class="card-value">
+              {{ summary.total_hours }}г {{ summary.total_minutes % 60 }}хв
+            </div>
           </div>
           <div class="card">
-            <div class="card-label">Всього записів</div>
-            <div class="card-value">{{ stats.total_entries_count }}</div>
+            <div class="card-label">Робочих днів</div>
+            <div class="card-value">{{ summary.working_days }}</div>
           </div>
           <div class="card">
-            <div class="card-label">Робочих днів (сума)</div>
-            <div class="card-value">{{ stats.total_working_days }}</div>
-          </div>
-          <div class="card">
-            <div class="card-label">Сер. днів на працівника</div>
-            <div class="card-value">{{ stats.average_working_days_per_employee }}</div>
-          </div>
-          <div class="card">
-            <div class="card-label">Активних зараз</div>
-            <div class="card-value">{{ stats.active_employees }}</div>
-          </div>
-          <div class="card">
-            <div class="card-label">Унікальних працівників</div>
-            <div class="card-value">{{ stats.total_employees_with_entries }}</div>
+            <div class="card-label">Середній робочий час</div>
+            <div class="card-value">{{ formatMinutes(summary.average_work_time) }}</div>
           </div>
         </div>
       </section>
@@ -89,40 +79,39 @@ function formatMinutes(minutes: number) {
                 <th>Хвилин</th>
                 <th>Робочих днів</th>
                 <th>Запізнень</th>
-                <th>Ранніх виходів</th>
+                <th>Ранніх приходів</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td>Сьогодні</td>
-                <td>{{ stats.summary.today.hours }}</td>
-                <td>{{ stats.summary.today.minutes }}</td>
-                <td>{{ stats.summary.today.working_days }}</td>
-                <td>{{ stats.summary.today.late_count }}</td>
-                <td>{{ stats.summary.today.early_count }}</td>
+                <td>{{ summary.summary.today.hours }}</td>
+                <td>{{ summary.summary.today.minutes }}</td>
+                <td>{{ summary.summary.today.working_days }}</td>
+                <td>{{ summary.summary.today.late_count }}</td>
+                <td>{{ summary.summary.today.early_count }}</td>
               </tr>
               <tr>
                 <td>Цього тижня</td>
-                <td>{{ stats.summary.week.hours }}</td>
-                <td>{{ stats.summary.week.minutes }}</td>
-                <td>{{ stats.summary.week.working_days }}</td>
-                <td>{{ stats.summary.week.late_count }}</td>
-                <td>{{ stats.summary.week.early_count }}</td>
+                <td>{{ summary.summary.week.hours }}</td>
+                <td>{{ summary.summary.week.minutes }}</td>
+                <td>{{ summary.summary.week.working_days }}</td>
+                <td>{{ summary.summary.week.late_count }}</td>
+                <td>{{ summary.summary.week.early_count }}</td>
               </tr>
               <tr>
                 <td>Цього місяця</td>
-                <td>{{ stats.summary.month.hours }}</td>
-                <td>{{ stats.summary.month.minutes }}</td>
-                <td>{{ stats.summary.month.working_days }}</td>
-                <td>{{ stats.summary.month.late_count }}</td>
-                <td>{{ stats.summary.month.early_count }}</td>
+                <td>{{ summary.summary.month.hours }}</td>
+                <td>{{ summary.summary.month.minutes }}</td>
+                <td>{{ summary.summary.month.working_days }}</td>
+                <td>{{ summary.summary.month.late_count }}</td>
+                <td>{{ summary.summary.month.early_count }}</td>
               </tr>
             </tbody>
           </table>
         </div>
-        <!-- Placeholder for charts -->
         <div class="chart-placeholder">
-          <span>📊 Тут буде графік по тижнях/місяцях</span>
+          <span>Тут буде графік</span>
         </div>
       </section>
 
@@ -132,28 +121,27 @@ function formatMinutes(minutes: number) {
         <div class="cards-row">
           <div class="card">
             <div class="card-label">Вчасно</div>
-            <div class="card-value success">{{ stats.attendance.on_time_count }}</div>
+            <div class="card-value success">{{ summary.attendance.on_time_count }}</div>
           </div>
           <div class="card">
             <div class="card-label">Запізнень</div>
-            <div class="card-value danger">{{ stats.attendance.late_count }}</div>
+            <div class="card-value danger">{{ summary.attendance.late_count }}</div>
           </div>
           <div class="card">
-            <div class="card-label">Ранніх виходів (прихід)</div>
-            <div class="card-value">{{ stats.attendance.early_count }}</div>
+            <div class="card-label">Ранніх приходів</div>
+            <div class="card-value">{{ summary.attendance.early_count }}</div>
           </div>
           <div class="card">
             <div class="card-label">Сер. запізнення</div>
-            <div class="card-value">{{ stats.attendance.average_late_minutes }} хв</div>
+            <div class="card-value">{{ summary.attendance.average_late_minutes }} хв</div>
           </div>
           <div class="card">
-            <div class="card-label">Загалом запізнення (хв)</div>
-            <div class="card-value">{{ stats.attendance.total_late_minutes }}</div>
+            <div class="card-label">Загалом запізнення</div>
+            <div class="card-value">{{ formatMinutes(summary.attendance.total_late_minutes) }}</div>
           </div>
         </div>
-        <!-- Placeholder for charts -->
         <div class="chart-placeholder">
-          <span>🕐 Тут буде графік запізнень по днях</span>
+          <span>Тут буде графік</span>
         </div>
       </section>
 
@@ -163,34 +151,35 @@ function formatMinutes(minutes: number) {
         <div class="cards-row">
           <div class="card">
             <div class="card-label">Ранніх виходів</div>
-            <div class="card-value">{{ stats.attendance.early_leave_count }}</div>
+            <div class="card-value">{{ summary.attendance.early_leave_count }}</div>
           </div>
           <div class="card">
-            <div class="card-label">Загалом ранніх виходів (хв)</div>
-            <div class="card-value">{{ stats.attendance.total_early_leave_minutes }}</div>
+            <div class="card-label">Загалом ранніх виходів</div>
+            <div class="card-value">
+              {{ formatMinutes(summary.attendance.total_early_leave_minutes) }}
+            </div>
           </div>
           <div class="card">
             <div class="card-label">Сер. ранній вихід</div>
-            <div class="card-value">{{ stats.attendance.average_early_leave_minutes }} хв</div>
+            <div class="card-value">{{ summary.attendance.average_early_leave_minutes }} хв</div>
           </div>
           <div class="card">
             <div class="card-label">Понаднормових</div>
-            <div class="card-value success">{{ stats.attendance.overtime_count }}</div>
+            <div class="card-value success">{{ summary.attendance.overtime_count }}</div>
           </div>
           <div class="card">
-            <div class="card-label">Загалом понаднормових (хв)</div>
+            <div class="card-label">Загалом понаднормових</div>
             <div class="card-value">
-              {{ formatMinutes(stats.attendance.total_overtime_minutes) }}
+              {{ formatMinutes(summary.attendance.total_overtime_minutes) }}
             </div>
           </div>
           <div class="card">
             <div class="card-label">Сер. понаднормових</div>
-            <div class="card-value">{{ stats.attendance.average_overtime_minutes }} хв</div>
+            <div class="card-value">{{ summary.attendance.average_overtime_minutes }} хв</div>
           </div>
         </div>
-        <!-- Placeholder for charts -->
         <div class="chart-placeholder">
-          <span>📈 Тут буде графік понаднормових</span>
+          <span>Тут буде графік</span>
         </div>
       </section>
     </div>
@@ -247,6 +236,11 @@ function formatMinutes(minutes: number) {
   border-radius: 0.5rem;
   font-weight: 500;
   cursor: pointer;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
 }
 
 .loading,
@@ -366,11 +360,29 @@ tr:last-child td {
 
 .chart-placeholder {
   margin-top: 1.25rem;
-  padding: 2rem;
+  padding: 3rem 2rem;
   border: 2px dashed #e5e7eb;
   border-radius: 0.5rem;
   text-align: center;
   color: #9ca3af;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+  .statistics-view {
+    padding: 1rem;
+  }
+
+  .page-header {
+    flex-direction: column;
+  }
+
+  .cards-row {
+    flex-direction: column;
+  }
+
+  .card {
+    min-width: unset;
+  }
 }
 </style>

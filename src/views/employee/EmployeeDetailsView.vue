@@ -203,7 +203,7 @@ const daysOfWeekLabels: Record<string, string> = {
               </div>
               <div class="stat-label">Сьогодні</div>
               <div class="stat-sub">
-                Записів: {{ employeeSummary.summary.today.entries }} · Запізнень:
+                Днів: {{ employeeSummary.summary.today.working_days }} · Запізнень:
                 {{ employeeSummary.summary.today.late_count }} · Ранніх:
                 {{ employeeSummary.summary.today.early_count }}
               </div>
@@ -218,7 +218,7 @@ const daysOfWeekLabels: Record<string, string> = {
               </div>
               <div class="stat-label">Цього тижня</div>
               <div class="stat-sub">
-                Записів: {{ employeeSummary.summary.week.entries }} · Запізнень:
+                Днів: {{ employeeSummary.summary.week.working_days }} · Запізнень:
                 {{ employeeSummary.summary.week.late_count }} · Ранніх:
                 {{ employeeSummary.summary.week.early_count }}
               </div>
@@ -233,7 +233,7 @@ const daysOfWeekLabels: Record<string, string> = {
               </div>
               <div class="stat-label">Цього місяця</div>
               <div class="stat-sub">
-                Записів: {{ employeeSummary.summary.month.entries }} · Запізнень:
+                Днів: {{ employeeSummary.summary.month.working_days }} · Запізнень:
                 {{ employeeSummary.summary.month.late_count }} · Ранніх:
                 {{ employeeSummary.summary.month.early_count }}
               </div>
@@ -242,8 +242,8 @@ const daysOfWeekLabels: Record<string, string> = {
           <div class="stat-card">
             <div class="stat-icon">⏱️</div>
             <div class="stat-content">
-              <div class="stat-value">{{ employeeSummary.entries_count }}</div>
-              <div class="stat-label">Всього записів</div>
+              <div class="stat-value">{{ employeeSummary.working_days }}</div>
+              <div class="stat-label">Робочих днів</div>
               <div class="stat-sub">
                 Сер. {{ formatDuration(employeeSummary.average_work_time) }}
               </div>
