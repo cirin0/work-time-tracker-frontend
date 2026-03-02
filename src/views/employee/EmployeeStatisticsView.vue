@@ -1,73 +1,74 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
-import { useManagerStore } from '@/stores/manager.store.ts'
+import { useEmployeeStore } from '@/stores/employee.store'
+import { formatMinutes } from '@/core/utils/date'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import StatCard from '@/components/ui/StatCard.vue'
 import PeriodSummaryTable from '@/components/stats/PeriodSummaryTable.vue'
 import AttendanceStatsSection from '@/components/stats/AttendanceStatsSection.vue'
 
-const managerStore = useManagerStore()
-const stats = computed(() => managerStore.companyStats)
+const employeeStore = useEmployeeStore()
+const summary = computed(() => employeeStore.timeSummary)
 
 onMounted(() => {
-  managerStore.fetchCompanyStatistics()
+  if (!employeeStore.timeSummary) {
+    employeeStore.fetchTimeSummary()
+  }
 })
 </script>
 
 <template>
   <div class="statistics-view">
     <PageHeader
-      title="Розширена статистика компанії"
-      subtitle="Аналіз робочого часу та відвідуваності"
-      back-route="manager"
+      title="Розширена статистика"
+      subtitle="Аналіз вашого робочого часу та відвідуваності"
+      back-route="main"
     />
 
-    <LoadingSpinner v-if="managerStore.isLoadingStats" text="Завантаження статистики..." />
+    <LoadingSpinner v-if="employeeStore.isLoadingSummary" text="Завантаження статистики..." />
 
-    <div v-else-if="!stats" class="empty-state">
+    <div v-else-if="!summary" class="empty-state">
       <p>Статистика недоступна</p>
-      <button @click="managerStore.fetchCompanyStatistics()" class="btn-primary">
-        Завантажити
-      </button>
+      <button class="btn-primary" @click="employeeStore.fetchTimeSummary()">Завантажити</button>
     </div>
 
     <div v-else class="content">
+      <!-- Overview -->
       <section class="section">
         <h2>Загальний огляд</h2>
         <div class="cards-row">
           <StatCard
             label="Всього годин"
-            :value="`${stats.total_hours}г ${stats.total_minutes % 60}хв`"
+            :value="`${summary.total_hours}г ${summary.total_minutes % 60}хв`"
           />
-          <StatCard label="Всього записів" :value="stats.total_entries_count" />
-          <StatCard label="Робочих днів (сума)" :value="stats.total_working_days" />
+          <StatCard label="Робочих днів" :value="summary.working_days" />
           <StatCard
-            label="Сер. днів на працівника"
-            :value="stats.average_working_days_per_employee"
+            label="Середній робочий час"
+            :value="formatMinutes(summary.average_work_time)"
           />
-          <StatCard label="Активних зараз" :value="stats.active_employees" />
-          <StatCard label="Унікальних працівників" :value="stats.total_employees_with_entries" />
         </div>
       </section>
 
+      <!-- Period Summary -->
       <section class="section">
         <h2>Розбивка по періодах</h2>
-        <PeriodSummaryTable :summary="stats.summary" />
+        <PeriodSummaryTable :summary="summary.summary" />
         <div class="chart-placeholder">
-          <span>📊 Тут буде графік по тижнях/місяцях</span>
+          <span>Тут буде графік</span>
         </div>
       </section>
 
-      <AttendanceStatsSection :attendance="stats.attendance">
+      <!-- Attendance & Overtime -->
+      <AttendanceStatsSection :attendance="summary.attendance">
         <template #chart-attendance>
           <div class="chart-placeholder">
-            <span>🕐 Тут буде графік запізнень по днях</span>
+            <span>Тут буде графік</span>
           </div>
         </template>
         <template #chart-overtime>
           <div class="chart-placeholder">
-            <span>📈 Тут буде графік понаднормових</span>
+            <span>Тут буде графік</span>
           </div>
         </template>
       </AttendanceStatsSection>
@@ -100,6 +101,11 @@ onMounted(() => {
   border-radius: 0.5rem;
   font-weight: 500;
   cursor: pointer;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
 }
 
 .content {
@@ -153,17 +159,21 @@ onMounted(() => {
 
 .chart-placeholder {
   margin-top: 1.25rem;
-  padding: 2rem;
+  padding: 3rem 2rem;
   border: 2px dashed #e5e7eb;
   border-radius: 0.5rem;
   text-align: center;
   color: #9ca3af;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 
 @media (max-width: 768px) {
   .statistics-view {
     padding: 1rem;
+  }
+
+  .cards-row {
+    flex-direction: column;
   }
 }
 </style>

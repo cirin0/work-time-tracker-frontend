@@ -6,9 +6,10 @@ import { useManagerStore } from '@/stores/manager.store.ts'
 import ManagerLeaveRequestsList from '@/components/leave-requests/ManagerLeaveRequestsList.vue'
 import RejectModal from '@/components/leave-requests/RejectModal.vue'
 import QRCodeDisplay from '@/components/qr-code/QRCodeDisplay.vue'
+import StatCard from '@/components/ui/StatCard.vue'
 
 const router = useRouter()
-const { isManager } = useRoleGuard()
+const { isManager, isAdmin } = useRoleGuard()
 const managerStore = useManagerStore()
 
 const showRejectModal = ref(false)
@@ -95,44 +96,21 @@ function viewStatistics() {
       <p class="subtitle">Управління командою</p>
     </div>
 
-    <div v-if="!isManager" class="access-denied">
+    <div v-if="!isManager && !isAdmin" class="access-denied">
       <h2>Доступ заборонено</h2>
       <p>У вас немає прав для перегляду цієї сторінки</p>
     </div>
 
     <div v-else class="content-wrapper">
       <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon">👥</div>
-          <div class="stat-content">
-            <div class="stat-value">{{ managerStore.companyStats?.employee_count ?? 0 }}</div>
-            <div class="stat-label">Співробітників</div>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon">⚡</div>
-          <div class="stat-content">
-            <div class="stat-value">{{ activeEmployees }}</div>
-            <div class="stat-label">Активних зараз</div>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon">⏱️</div>
-          <div class="stat-content">
-            <div class="stat-value">{{ totalTeamHours.toFixed(1) }}</div>
-            <div class="stat-label">Годин команди (місяць)</div>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon">⏰</div>
-          <div class="stat-content">
-            <div class="stat-value">{{ pendingRequestsCount }}</div>
-            <div class="stat-label">Запитів на відпустку</div>
-          </div>
-        </div>
+        <StatCard
+          icon="👥"
+          label="Співробітників"
+          :value="managerStore.companyStats?.employee_count ?? 0"
+        />
+        <StatCard icon="⚡" label="Активних зараз" :value="activeEmployees" />
+        <StatCard icon="⏱️" label="Годин команди (місяць)" :value="totalTeamHours.toFixed(1)" />
+        <StatCard icon="⏰" label="Запитів на відпустку" :value="pendingRequestsCount" />
       </div>
 
       <!-- Quick Actions -->
@@ -242,43 +220,6 @@ function viewStatistics() {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
-}
-
-.stat-card {
-  background: white;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
-}
-
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.stat-icon {
-  font-size: 2.5rem;
-}
-
-.stat-content {
-  flex: 1;
-}
-
-.stat-value {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1f2937;
-  line-height: 1;
-}
-
-.stat-label {
-  color: #6b7280;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
 }
 
 /* Two Column Layout: 60% left (QR + Employees), 40% right (Leave Requests) */

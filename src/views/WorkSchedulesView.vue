@@ -1,28 +1,25 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { useWorkScheduleStore } from '@/stores/workSchedule.store'
 import { useManagerStore } from '@/stores/manager.store'
 import WorkScheduleCard from '@/components/work-schedules/WorkScheduleCard.vue'
 import WorkScheduleForm from '@/components/work-schedules/WorkScheduleForm.vue'
 import AssignScheduleModal from '@/components/work-schedules/AssignScheduleModal.vue'
+import PageHeader from '@/components/ui/PageHeader.vue'
+import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import type { WorkSchedule } from '@/types/interfaces/workSchedule.interface'
 import type { CreateWorkScheduleRequest } from '@/types/requests/workScheduleRequest.interface'
 
-const router = useRouter()
 const workScheduleStore = useWorkScheduleStore()
 const managerStore = useManagerStore()
 
-// Panel state: 'list' | 'create' | 'edit'
 const panelMode = ref<'list' | 'create' | 'edit'>('list')
 const editingSchedule = ref<WorkSchedule | null>(null)
 const deletingId = ref<number | null>(null)
 
-// Assign modal
 const showAssignModal = ref(false)
 const assigningSchedule = ref<WorkSchedule | null>(null)
 
-// Notifications
 const notification = ref<{ type: 'success' | 'error'; message: string } | null>(null)
 
 function showNotification(type: 'success' | 'error', message: string) {
@@ -97,31 +94,25 @@ async function handleAssign(userId: number, scheduleId: number) {
     showNotification('error', workScheduleStore.error ?? 'Помилка призначення розкладу')
   }
 }
-
-function goBack() {
-  router.push({ name: 'manager' })
-}
 </script>
 
 <template>
   <div class="work-schedules-page">
-    <!-- Notification -->
     <Transition name="slide-down">
       <div v-if="notification" class="notification" :class="notification.type">
         {{ notification.message }}
       </div>
     </Transition>
 
-    <div class="page-header">
-      <button class="btn-back" @click="goBack">← Назад</button>
-      <div class="header-left">
-        <h1>Робочі розклади</h1>
-        <p class="subtitle">Управління розкладами та змінами співробітників</p>
-      </div>
-      <button v-if="panelMode === 'list'" class="btn-create" @click="openCreate">
-        + Новий розклад
-      </button>
-    </div>
+    <PageHeader
+      title="Робочі розклади"
+      subtitle="Управління розкладами та змінами співробітників"
+      back-route="manager"
+    >
+      <template v-if="panelMode === 'list'" #actions>
+        <button class="btn-create" @click="openCreate">+ Новий розклад</button>
+      </template>
+    </PageHeader>
 
     <!-- Error banner -->
     <div v-if="workScheduleStore.error && panelMode === 'list'" class="error-banner">
@@ -146,10 +137,7 @@ function goBack() {
 
     <!-- Schedules List -->
     <div v-else>
-      <div v-if="workScheduleStore.isLoading" class="loading-state">
-        <div class="spinner"></div>
-        <span>Завантаження розкладів...</span>
-      </div>
+      <LoadingSpinner v-if="workScheduleStore.isLoading" text="Завантаження розкладів..." />
 
       <div v-else-if="workScheduleStore.workSchedules.length === 0" class="empty-state">
         <div class="empty-icon">📅</div>
@@ -228,64 +216,6 @@ function goBack() {
   transform: translateY(-10px);
 }
 
-/* Header */
-.page-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 2rem;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.btn-back {
-  padding: 0.5rem 1rem;
-  background: #f3f4f6;
-  color: #374151;
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s;
-  white-space: nowrap;
-  align-self: flex-start;
-}
-
-.btn-back:hover {
-  background: #e5e7eb;
-}
-
-.header-left h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin: 0 0 0.35rem 0;
-}
-
-.subtitle {
-  color: #6b7280;
-  font-size: 1rem;
-  margin: 0;
-}
-
-.btn-create {
-  padding: 0.65rem 1.5rem;
-  background: linear-gradient(135deg, #2563eb, #9333ea);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: opacity 0.2s;
-}
-
-.btn-create:hover {
-  opacity: 0.9;
-}
-
 /* Error banner */
 .error-banner {
   background: #fef2f2;
@@ -331,29 +261,22 @@ function goBack() {
   margin: 0 0 1.5rem 0;
 }
 
-/* Loading */
-.loading-state {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  justify-content: center;
-  padding: 3rem;
-  color: #6b7280;
+/* Create button (used in header actions slot and empty state) */
+.btn-create {
+  padding: 0.65rem 1.5rem;
+  background: linear-gradient(135deg, #2563eb, #9333ea);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.2s;
 }
 
-.spinner {
-  width: 24px;
-  height: 24px;
-  border: 3px solid #e5e7eb;
-  border-top-color: #2563eb;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+.btn-create:hover {
+  opacity: 0.9;
 }
 
 /* Empty */
@@ -393,10 +316,6 @@ function goBack() {
 
   .schedules-grid {
     grid-template-columns: 1fr;
-  }
-
-  .page-header {
-    flex-direction: column;
   }
 }
 </style>

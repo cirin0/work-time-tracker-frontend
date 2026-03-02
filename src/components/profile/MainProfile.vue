@@ -5,9 +5,7 @@ import { getAvatarUrl } from '@/core/utils/url'
 
 const store = useProfileStore()
 
-const avatarUrl = computed(() => 
-  getAvatarUrl(store.displayProfile?.avatar, store.avatarTimestamp)
-)
+const avatarUrl = computed(() => getAvatarUrl(store.displayProfile?.avatar, store.avatarTimestamp))
 </script>
 <template>
   <div class="profile-avatar" v-if="store.displayProfile">

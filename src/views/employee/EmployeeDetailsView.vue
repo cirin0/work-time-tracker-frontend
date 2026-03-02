@@ -1,17 +1,19 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { useManagerStore } from '@/stores/manager.store.ts'
 import { useWorkScheduleStore } from '@/stores/workSchedule.store.ts'
 import type { User } from '@/types/interfaces/user.interface.ts'
 import type { TimeEntry } from '@/types/interfaces/timeEntry.interface.ts'
 import type { TimeEntrySummary } from '@/types/interfaces/timeEntrySummary.interface.ts'
 import type { WorkSchedule } from '@/types/interfaces/workSchedule.interface.ts'
-import { formatDate, formatTime } from '@/core/utils/date.ts'
+import { formatDate, formatTime, formatMinutes } from '@/core/utils/date.ts'
 import { getAvatarUrl } from '@/core/utils/url.ts'
+import StatCard from '@/components/ui/StatCard.vue'
+import PageHeader from '@/components/ui/PageHeader.vue'
+import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 
 const route = useRoute()
-const router = useRouter()
 const managerStore = useManagerStore()
 const workScheduleStore = useWorkScheduleStore()
 
@@ -107,14 +109,8 @@ async function assignSchedule() {
   }
 }
 
-function goBack() {
-  router.push({ name: 'manager-employees' })
-}
-
 function formatDuration(minutes: number) {
-  const hours = Math.floor(minutes / 60)
-  const mins = minutes % 60
-  return `${hours}г ${mins}хв`
+  return formatMinutes(minutes)
 }
 
 const workModeLabel = computed(() => {
@@ -139,15 +135,9 @@ const daysOfWeekLabels: Record<string, string> = {
 
 <template>
   <div class="employee-details">
-    <div class="page-header">
-      <button @click="goBack" class="btn-back">← Назад</button>
-      <h1>Деталі співробітника</h1>
-    </div>
+    <PageHeader title="Деталі співробітника" back-route="manager-employees" />
 
-    <div v-if="isLoading" class="loading">
-      <div class="spinner"></div>
-      <p>Завантаження...</p>
-    </div>
+    <LoadingSpinner v-if="isLoading" text="Завантаження..." />
 
     <div v-else-if="employee" class="content-wrapper">
       <!-- Employee Info Card -->
@@ -194,110 +184,61 @@ const daysOfWeekLabels: Record<string, string> = {
 
         <!-- Period summary cards -->
         <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon">📅</div>
-            <div class="stat-content">
-              <div class="stat-value">
-                {{ employeeSummary.summary.today.hours }}г
-                {{ employeeSummary.summary.today.minutes }}хв
-              </div>
-              <div class="stat-label">Сьогодні</div>
-              <div class="stat-sub">
-                Записів: {{ employeeSummary.summary.today.entries }} · Запізнень:
-                {{ employeeSummary.summary.today.late_count }} · Ранніх:
-                {{ employeeSummary.summary.today.early_count }}
-              </div>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">📊</div>
-            <div class="stat-content">
-              <div class="stat-value">
-                {{ employeeSummary.summary.week.hours }}г
-                {{ employeeSummary.summary.week.minutes }}хв
-              </div>
-              <div class="stat-label">Цього тижня</div>
-              <div class="stat-sub">
-                Записів: {{ employeeSummary.summary.week.entries }} · Запізнень:
-                {{ employeeSummary.summary.week.late_count }} · Ранніх:
-                {{ employeeSummary.summary.week.early_count }}
-              </div>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">📈</div>
-            <div class="stat-content">
-              <div class="stat-value">
-                {{ employeeSummary.summary.month.hours }}г
-                {{ employeeSummary.summary.month.minutes }}хв
-              </div>
-              <div class="stat-label">Цього місяця</div>
-              <div class="stat-sub">
-                Записів: {{ employeeSummary.summary.month.entries }} · Запізнень:
-                {{ employeeSummary.summary.month.late_count }} · Ранніх:
-                {{ employeeSummary.summary.month.early_count }}
-              </div>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">⏱️</div>
-            <div class="stat-content">
-              <div class="stat-value">{{ employeeSummary.entries_count }}</div>
-              <div class="stat-label">Всього записів</div>
-              <div class="stat-sub">
-                Сер. {{ formatDuration(employeeSummary.average_work_time) }}
-              </div>
-            </div>
-          </div>
+          <StatCard
+            icon="📅"
+            label="Сьогодні"
+            :value="`${employeeSummary.summary.today.hours}г ${employeeSummary.summary.today.minutes}хв`"
+            :sub="`Днів: ${employeeSummary.summary.today.working_days} · Запізнень: ${employeeSummary.summary.today.late_count} · Ранніх: ${employeeSummary.summary.today.early_count}`"
+          />
+          <StatCard
+            icon="📊"
+            label="Цього тижня"
+            :value="`${employeeSummary.summary.week.hours}г ${employeeSummary.summary.week.minutes}хв`"
+            :sub="`Днів: ${employeeSummary.summary.week.working_days} · Запізнень: ${employeeSummary.summary.week.late_count} · Ранніх: ${employeeSummary.summary.week.early_count}`"
+          />
+          <StatCard
+            icon="📈"
+            label="Цього місяця"
+            :value="`${employeeSummary.summary.month.hours}г ${employeeSummary.summary.month.minutes}хв`"
+            :sub="`Днів: ${employeeSummary.summary.month.working_days} · Запізнень: ${employeeSummary.summary.month.late_count} · Ранніх: ${employeeSummary.summary.month.early_count}`"
+          />
+          <StatCard
+            icon="⏱️"
+            label="Робочих днів"
+            :value="employeeSummary.working_days"
+            :sub="`Сер. ${formatDuration(employeeSummary.average_work_time)}`"
+          />
         </div>
 
         <!-- Attendance details -->
         <h3 class="stats-subsection-title">Відвідуваність та дисципліна</h3>
         <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon">✅</div>
-            <div class="stat-content">
-              <div class="stat-value stat-success">
-                {{ employeeSummary.attendance.on_time_count }}
-              </div>
-              <div class="stat-label">Вчасно</div>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">🕐</div>
-            <div class="stat-content">
-              <div class="stat-value stat-danger">{{ employeeSummary.attendance.late_count }}</div>
-              <div class="stat-label">Запізнень</div>
-              <div class="stat-sub">
-                Сер. {{ employeeSummary.attendance.average_late_minutes }} хв · Всього
-                {{ employeeSummary.attendance.total_late_minutes }} хв
-              </div>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">🚪</div>
-            <div class="stat-content">
-              <div class="stat-value">{{ employeeSummary.attendance.early_leave_count }}</div>
-              <div class="stat-label">Ранніх виходів</div>
-              <div class="stat-sub">
-                Сер. {{ employeeSummary.attendance.average_early_leave_minutes }} хв · Всього
-                {{ employeeSummary.attendance.total_early_leave_minutes }} хв
-              </div>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">💪</div>
-            <div class="stat-content">
-              <div class="stat-value stat-success">
-                {{ employeeSummary.attendance.overtime_count }}
-              </div>
-              <div class="stat-label">Понаднормових</div>
-              <div class="stat-sub">
-                Сер. {{ employeeSummary.attendance.average_overtime_minutes }} хв · Всього
-                {{ formatDuration(employeeSummary.attendance.total_overtime_minutes) }}
-              </div>
-            </div>
-          </div>
+          <StatCard
+            icon="✅"
+            label="Вчасно"
+            :value="employeeSummary.attendance.on_time_count"
+            variant="success"
+          />
+          <StatCard
+            icon="🕐"
+            label="Запізнень"
+            :value="employeeSummary.attendance.late_count"
+            variant="danger"
+            :sub="`Сер. ${employeeSummary.attendance.average_late_minutes} хв · Всього ${employeeSummary.attendance.total_late_minutes} хв`"
+          />
+          <StatCard
+            icon="🚪"
+            label="Ранніх виходів"
+            :value="employeeSummary.attendance.early_leave_count"
+            :sub="`Сер. ${employeeSummary.attendance.average_early_leave_minutes} хв · Всього ${employeeSummary.attendance.total_early_leave_minutes} хв`"
+          />
+          <StatCard
+            icon="💪"
+            label="Понаднормових"
+            :value="employeeSummary.attendance.overtime_count"
+            variant="success"
+            :sub="`Сер. ${employeeSummary.attendance.average_overtime_minutes} хв · Всього ${formatDuration(employeeSummary.attendance.total_overtime_minutes)}`"
+          />
         </div>
       </div>
 
@@ -472,60 +413,6 @@ const daysOfWeekLabels: Record<string, string> = {
   padding: 2rem;
 }
 
-.page-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.btn-back {
-  padding: 0.5rem 1rem;
-  background: #f3f4f6;
-  color: #374151;
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-back:hover {
-  background: #e5e7eb;
-}
-
-.page-header h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin: 0;
-}
-
-.loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem;
-  gap: 1rem;
-}
-
-.spinner {
-  width: 48px;
-  height: 48px;
-  border: 4px solid #e5e7eb;
-  border-top-color: #2563eb;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 .content-wrapper {
   display: flex;
   flex-direction: column;
@@ -635,47 +522,24 @@ const daysOfWeekLabels: Record<string, string> = {
   gap: 1rem;
 }
 
-.stat-card {
+/* Compact/flat stat card style for this detail view */
+.stats-grid :deep(.stat-card) {
   background: #f9fafb;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+  box-shadow: none;
+  padding: 1.25rem 1.5rem;
 }
 
-.stat-icon {
-  font-size: 2rem;
+.stats-grid :deep(.stat-card:hover) {
+  transform: none;
+  box-shadow: none;
 }
 
-.stat-content {
-  flex: 1;
-}
-
-.stat-value {
+.stats-grid :deep(.stat-value) {
   font-size: 1.5rem;
-  font-weight: 700;
-  color: #1f2937;
 }
 
-.stat-label {
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin-top: 0.25rem;
-}
-
-.stat-sub {
-  font-size: 0.75rem;
-  color: #9ca3af;
-  margin-top: 0.25rem;
-}
-
-.stat-success {
-  color: #16a34a;
-}
-
-.stat-danger {
-  color: #dc2626;
+.stats-grid :deep(.stat-icon) {
+  font-size: 2rem;
 }
 
 .stats-subsection-title {

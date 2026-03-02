@@ -8,7 +8,9 @@ export interface CompanyStatistics {
   employee_count: number
   total_hours: number
   total_minutes: number
-  entries_count: number
+  total_entries_count: number
+  total_working_days: number
+  average_working_days_per_employee: number
   active_entries_count: number
   active_employees: number
   total_employees_with_entries: number

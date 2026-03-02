@@ -89,3 +89,13 @@ export function formatTime(date: Date | string | null | undefined): string {
 export function todayAsInputDate(): string {
   return new Date().toISOString().split('T')[0]!
 }
+
+/**
+ * Formats a duration given in total minutes into a human-readable
+ * Ukrainian string, e.g. "2г 15хв" or "45хв".
+ */
+export function formatMinutes(minutes: number): string {
+  const h = Math.floor(minutes / 60)
+  const m = minutes % 60
+  return h > 0 ? `${h}г ${m}хв` : `${m}хв`
+}

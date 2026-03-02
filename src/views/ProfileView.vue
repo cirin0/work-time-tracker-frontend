@@ -5,6 +5,7 @@ import { useProfileStore } from '@/stores/profile.store'
 import { getAvatarUrl } from '@/core/utils/url'
 import { formatDate } from '@/core/utils/date'
 import InputField from '@/components/ui/InputField.vue'
+import PageHeader from '@/components/ui/PageHeader.vue'
 import type {
   UpdateProfileRequest,
   ChangePasswordRequest,
@@ -14,10 +15,6 @@ import type {
 
 const store = useProfileStore()
 const router = useRouter()
-
-function goBack() {
-  router.back()
-}
 
 const avatarUrl = computed(() => getAvatarUrl(store.displayProfile?.avatar, store.avatarTimestamp))
 
@@ -248,10 +245,7 @@ function getWorkModeLabel(mode?: string): string {
 
 <template>
   <div class="profile-page">
-    <div class="page-header">
-      <button class="btn-back" @click="goBack">← Назад</button>
-      <h1>Профіль</h1>
-    </div>
+    <PageHeader title="Профіль" />
 
     <div v-if="store.isLoading" class="loading">
       <p>Завантаження профілю...</p>
@@ -570,37 +564,6 @@ function getWorkModeLabel(mode?: string): string {
   max-width: 900px;
   margin: 0 auto;
   padding: 2rem;
-}
-
-.page-header {
-  margin-bottom: 2rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.btn-back {
-  padding: 0.5rem 1rem;
-  background: #f3f4f6;
-  color: #374151;
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s;
-  white-space: nowrap;
-}
-
-.btn-back:hover {
-  background: #e5e7eb;
-}
-
-.page-header h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 0.5rem;
 }
 
 .subtitle {

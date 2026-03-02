@@ -1,15 +1,10 @@
 <script setup lang="ts">
 import { getAvatarUrl } from '@/core/utils/url'
 import { formatDate } from '@/core/utils/date'
-import { useRouter } from 'vue-router'
 import AdminCompanyEditModal from '@/components/admin/AdminCompanyEditModal.vue'
 import { useCompanyView } from '@/composables/useCompanyView'
-
-const router = useRouter()
-
-function goBack() {
-  router.back()
-}
+import PageHeader from '@/components/ui/PageHeader.vue'
+import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 
 const {
   companyStore,
@@ -39,18 +34,9 @@ const {
 
 <template>
   <div class="company-view">
-    <div class="page-header">
-      <button class="btn-back" @click="goBack">← Назад</button>
-      <div>
-        <h1>Компанія</h1>
-        <p class="subtitle">Інформація про вашу компанію</p>
-      </div>
-    </div>
+    <PageHeader title="Компанія" subtitle="Інформація про вашу компанію" />
 
-    <div v-if="companyStore.isLoading" class="loading-state">
-      <div class="spinner" />
-      <p>Завантаження...</p>
-    </div>
+    <LoadingSpinner v-if="companyStore.isLoading" text="Завантаження..." />
 
     <div v-else-if="!companyId" class="empty-state">
       <div class="empty-icon">🏢</div>
@@ -331,7 +317,6 @@ const {
 }
 
 /* ── States ── */
-.loading-state,
 .empty-state {
   text-align: center;
   padding: 5rem 2rem;
@@ -342,15 +327,6 @@ const {
   margin-bottom: 1rem;
 }
 
-.spinner {
-  width: 2.25rem;
-  height: 2.25rem;
-  border: 3px solid #e5e7eb;
-  border-top-color: #2563eb;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin: 0 auto 1rem;
-}
 .spinner-sm {
   display: inline-block;
   width: 1rem;
@@ -362,12 +338,6 @@ const {
   vertical-align: middle;
   margin-right: 0.4rem;
 }
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 /* ── Layout ── */
 .content {
   display: flex;
@@ -383,43 +353,6 @@ const {
   box-shadow:
     0 1px 3px rgba(0, 0, 0, 0.08),
     0 4px 16px rgba(0, 0, 0, 0.04);
-}
-
-.page-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 2rem;
-  gap: 1rem;
-}
-
-.btn-back {
-  padding: 0.5rem 1rem;
-  background: #f3f4f6;
-  color: #374151;
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s;
-  white-space: nowrap;
-}
-
-.btn-back:hover {
-  background: #e5e7eb;
-}
-
-.page-header h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 0.25rem;
-}
-.subtitle {
-  color: #6b7280;
-  font-size: 1rem;
-  margin: 0;
 }
 
 /* ── Company hero ── */
