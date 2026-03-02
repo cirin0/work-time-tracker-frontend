@@ -108,7 +108,7 @@ async function assignSchedule() {
 }
 
 function goBack() {
-  router.push({ name: 'main' })
+  router.push({ name: 'manager-employees' })
 }
 
 function formatDuration(minutes: number) {

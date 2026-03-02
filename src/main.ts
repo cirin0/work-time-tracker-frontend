@@ -7,13 +7,13 @@ import App from './App.vue'
 import { router } from './router'
 import VueScan, { type VueScanOptions } from 'z-vue-scan'
 
-const isProduction = import.meta.env.PROD
+export const isProduction = import.meta.env.VITE_PRODUCTION === 'true'
 
 const app = createApp(App)
 
 app.use(createPinia())
 app.use(router)
-if (!isProduction) {
+if (isProduction) {
   app.use<VueScanOptions>(VueScan, {})
 }
 

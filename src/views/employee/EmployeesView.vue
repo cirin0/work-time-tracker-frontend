@@ -16,7 +16,7 @@ function viewEmployeeDetails(id: number) {
 }
 
 function goBack() {
-  router.push({ name: 'main' })
+  router.push({ name: 'manager' })
 }
 </script>
 

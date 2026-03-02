@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useLeaveRequestStore } from '@/stores/leaveRequest.store'
 import LeaveRequestsList from '@/components/leave-requests/LeaveRequestsList.vue'
 import LeaveRequestForm from '@/components/leave-requests/LeaveRequestForm.vue'
 import type { CreateLeaveRequestRequest } from '@/types/requests/leaveRequestRequest.interface'
 
+const router = useRouter()
 const leaveRequestStore = useLeaveRequestStore()
 const showFormModal = ref(false)
 const isSubmittingForm = ref(false)
@@ -36,13 +38,20 @@ async function handleCreateRequest(data: CreateLeaveRequestRequest) {
 function handlePageChange(page: number) {
   loadLeaveRequests(page)
 }
+
+function goBack() {
+  router.push({ name: 'main' })
+}
 </script>
 
 <template>
   <div class="leave-requests-view">
     <div class="page-header">
-      <h1>Запити на відпустку</h1>
-      <p class="subtitle">Керування вашими запитами на відпустку</p>
+      <button class="btn-back" @click="goBack">← Назад</button>
+      <div>
+        <h1>Запити на відпустку</h1>
+        <p class="subtitle">Керування вашими запитами на відпустку</p>
+      </div>
     </div>
 
     <div class="content-section">
@@ -80,6 +89,26 @@ function handlePageChange(page: number) {
 
 .page-header {
   margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn-back {
+  padding: 0.5rem 1rem;
+  background: #f3f4f6;
+  color: #374151;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.btn-back:hover {
+  background: #e5e7eb;
 }
 
 .page-header h1 {

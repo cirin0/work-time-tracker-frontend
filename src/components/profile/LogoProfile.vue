@@ -2,30 +2,20 @@
 import type { User } from '@/types/interfaces/user.interface'
 import { getAvatarUrl } from '@/core/utils/url'
 import { useProfileStore } from '@/stores/profile.store'
-import { computed, watch, ref } from 'vue'
+import { computed } from 'vue'
 
 const props = defineProps<{
   user: User
 }>()
 
 const profileStore = useProfileStore()
-const avatarUrlKey = ref(0)
 
-const avatarUrl = computed(() => {
-  return getAvatarUrl(props.user.avatar, profileStore.avatarTimestamp)
-})
-
-watch(
-  () => profileStore.avatarTimestamp,
-  () => {
-    avatarUrlKey.value++
-  },
-)
+const avatarUrl = computed(() => getAvatarUrl(props.user.avatar, profileStore.avatarTimestamp))
 </script>
 <template>
   <div class="user">
     <div class="user-avatar">
-      <img v-if="avatarUrl" :key="`avatar-${avatarUrlKey}`" :src="avatarUrl" alt="User Avatar" />
+      <img v-if="avatarUrl" :src="avatarUrl" alt="User Avatar" />
       <div v-else>{{ user.name.charAt(0).toUpperCase() }}</div>
     </div>
     <div class="user-info">

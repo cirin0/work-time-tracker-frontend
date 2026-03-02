@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useWorkScheduleStore } from '@/stores/workSchedule.store'
 import { useManagerStore } from '@/stores/manager.store'
 import WorkScheduleCard from '@/components/work-schedules/WorkScheduleCard.vue'
@@ -8,6 +9,7 @@ import AssignScheduleModal from '@/components/work-schedules/AssignScheduleModal
 import type { WorkSchedule } from '@/types/interfaces/workSchedule.interface'
 import type { CreateWorkScheduleRequest } from '@/types/requests/workScheduleRequest.interface'
 
+const router = useRouter()
 const workScheduleStore = useWorkScheduleStore()
 const managerStore = useManagerStore()
 
@@ -95,6 +97,10 @@ async function handleAssign(userId: number, scheduleId: number) {
     showNotification('error', workScheduleStore.error ?? 'Помилка призначення розкладу')
   }
 }
+
+function goBack() {
+  router.push({ name: 'manager' })
+}
 </script>
 
 <template>
@@ -107,6 +113,7 @@ async function handleAssign(userId: number, scheduleId: number) {
     </Transition>
 
     <div class="page-header">
+      <button class="btn-back" @click="goBack">← Назад</button>
       <div class="header-left">
         <h1>Робочі розклади</h1>
         <p class="subtitle">Управління розкладами та змінами співробітників</p>
@@ -229,6 +236,24 @@ async function handleAssign(userId: number, scheduleId: number) {
   margin-bottom: 2rem;
   gap: 1rem;
   flex-wrap: wrap;
+}
+
+.btn-back {
+  padding: 0.5rem 1rem;
+  background: #f3f4f6;
+  color: #374151;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+  align-self: flex-start;
+}
+
+.btn-back:hover {
+  background: #e5e7eb;
 }
 
 .header-left h1 {

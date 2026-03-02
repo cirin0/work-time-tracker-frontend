@@ -2,7 +2,8 @@
 import { useAuthStore } from '@/stores/auth.store'
 import { useProfileStore } from '@/stores/profile.store'
 import { useChatStore } from '@/stores/chat.store'
-import { computed, onMounted } from 'vue'
+import { useRoleGuard } from '@/composables/useRoleGuard'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import LogoProfile from '../profile/LogoProfile.vue'
 
@@ -10,9 +11,12 @@ const authStore = useAuthStore()
 const profileStore = useProfileStore()
 const chatStore = useChatStore()
 const router = useRouter()
+const { isAdmin, isManager } = useRoleGuard()
+
+const currentProfile = computed(() => profileStore.displayProfile)
 
 const profileRoute = computed(() => {
-  const user = profileStore.profile
+  const user = currentProfile.value
   if (!user?.id) return null
   return {
     name: 'profile',
@@ -25,12 +29,6 @@ function handleLogout() {
   chatStore.resetAll()
   router.push({ name: 'auth' })
 }
-
-onMounted(async () => {
-  if (authStore.getToken && !profileStore.profile && !profileStore.isLoading) {
-    await profileStore.fetchProfile()
-  }
-})
 </script>
 
 <template>
@@ -45,18 +43,22 @@ onMounted(async () => {
             {{ chatStore.totalUnread > 99 ? '99+' : chatStore.totalUnread }}
           </span>
         </router-link>
+        <router-link v-if="isAdmin" :to="{ name: 'admin' }" class="nav-link">
+          Панель адміністратора
+        </router-link>
+        <router-link v-if="isManager && !isAdmin" :to="{ name: 'manager' }" class="nav-link">
+          Панель менеджера
+        </router-link>
       </nav>
     </div>
     <div class="header-right">
-      <router-link
-        v-if="profileRoute && profileStore.profile"
-        :to="profileRoute"
-        class="profile-link"
-      >
-        <LogoProfile :user="profileStore.profile" />
+      <router-link v-if="profileRoute && currentProfile" :to="profileRoute" class="profile-link">
+        <LogoProfile :user="currentProfile" />
       </router-link>
 
-      <div v-else-if="profileStore.isLoading" class="profile-loading">Завантаження...</div>
+      <div v-else-if="authStore.isLoadingUser || profileStore.isLoading" class="profile-loading">
+        Завантаження...
+      </div>
       <div v-else class="profile-loading">Профіль</div>
       <button @click="handleLogout" class="logout-button">Вихід</button>
     </div>
