@@ -1,11 +1,8 @@
 import type { UserRole, WorkMode } from '../enums/enums.types'
 import type { BaseModel } from './base.model'
+import type { WorkSchedule } from './workSchedule.interface'
 
 interface Company {
-  id: number | null
-  name: string
-}
-interface WorkSchedule {
   id: number | null
   name: string
 }

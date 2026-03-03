@@ -4,6 +4,7 @@ import { apiClient, API_ROUTES } from '@/core/api'
 import type { TimeEntry } from '@/types/interfaces/timeEntry.interface'
 import type { TimeEntrySummary } from '@/types/interfaces/timeEntrySummary.interface'
 import type { ApiResponse } from '@/types/responses/apiResponse.interface'
+import type { PaginatedResponse } from '@/types/responses/pagination.interface'
 
 export const useEmployeeStore = defineStore('employee', () => {
   // Time summary
@@ -13,6 +14,11 @@ export const useEmployeeStore = defineStore('employee', () => {
   // Active time entry
   const activeEntry = ref<TimeEntry | null>(null)
   const isLoadingActiveEntry = ref(false)
+
+  // Recent time entries
+  const recentEntries = ref<TimeEntry[]>([])
+  const entriesMeta = ref<PaginatedResponse<TimeEntry>['meta'] | null>(null)
+  const isLoadingEntries = ref(false)
 
   // Errors
   const error = ref<string | null>(null)
@@ -54,7 +60,27 @@ export const useEmployeeStore = defineStore('employee', () => {
     }
   }
 
-  async function startWork(payload: { entry_type: string; start_comment?: string }) {
+  async function fetchTimeEntries(page = 1, perPage = 5) {
+    isLoadingEntries.value = true
+    try {
+      const { data } = await apiClient.get<PaginatedResponse<TimeEntry>>(
+        API_ROUTES.timeEntries.index,
+        { params: { per_page: perPage, page } },
+      )
+      if (data?.data) {
+        recentEntries.value = data.data
+        entriesMeta.value = data.meta
+      }
+      return data.data
+    } catch (err: unknown) {
+      console.error('Failed to load time entries:', extractErrorMessage(err) || err)
+      return null
+    } finally {
+      isLoadingEntries.value = false
+    }
+  }
+
+  async function startWork(payload: { entry_type?: string; start_comment?: string }) {
     error.value = null
     try {
       const { data } = await apiClient.post<ApiResponse<TimeEntry>>(
@@ -95,8 +121,11 @@ export const useEmployeeStore = defineStore('employee', () => {
   function $reset() {
     timeSummary.value = null
     activeEntry.value = null
+    recentEntries.value = []
+    entriesMeta.value = null
     isLoadingSummary.value = false
     isLoadingActiveEntry.value = false
+    isLoadingEntries.value = false
     error.value = null
   }
 
@@ -104,12 +133,16 @@ export const useEmployeeStore = defineStore('employee', () => {
     // State
     timeSummary,
     activeEntry,
+    recentEntries,
+    entriesMeta,
     isLoadingSummary,
     isLoadingActiveEntry,
+    isLoadingEntries,
     error,
     // Actions
     fetchTimeSummary,
     fetchActiveEntry,
+    fetchTimeEntries,
     startWork,
     stopWork,
     clearError,

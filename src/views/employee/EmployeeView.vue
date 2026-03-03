@@ -1,105 +1,83 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useRoleGuard } from '@/composables/useRoleGuard.ts'
 import { useEmployeeStore } from '@/stores/employee.store.ts'
-import { useLeaveRequestStore } from '@/stores/leaveRequest.store.ts'
+import { useAuthStore } from '@/stores/auth.store.ts'
+import ActiveWorkSessionCard from '@/components/work-time/ActiveWorkSessionCard.vue'
+import TodayScheduleWidget from '@/components/work-time/TodayScheduleWidget.vue'
+import TimeEntryList from '@/components/work-time/TimeEntryList.vue'
 import QRCodeDisplay from '@/components/qr-code/QRCodeDisplay.vue'
-import LeaveRequestsList from '@/components/leave-requests/LeaveRequestsList.vue'
-import LeaveRequestForm from '@/components/leave-requests/LeaveRequestForm.vue'
 import StatCard from '@/components/ui/StatCard.vue'
-import type { CreateLeaveRequestRequest } from '@/types/requests/leaveRequestRequest.interface'
+import Pagination from '@/components/ui/Pagination.vue'
 
 const router = useRouter()
 const { currentUser, isManager } = useRoleGuard()
+const authStore = useAuthStore()
 const employeeStore = useEmployeeStore()
-const leaveRequestStore = useLeaveRequestStore()
 
-const showFormModal = ref(false)
-const isSubmittingForm = ref(false)
-const isStartingWork = ref(false)
-const isStoppingWork = ref(false)
-const stopPinCode = ref('')
-const showStopModal = ref(false)
-
-const todayHours = computed(() => {
-  return employeeStore.timeSummary?.summary.today.hours ?? 0
+// Stats Card: Сьогодні
+const todayStats = computed(() => {
+  const hours = employeeStore.timeSummary?.summary.today.hours ?? 0
+  const minutes = employeeStore.timeSummary?.summary.today.minutes ?? 0
+  return `${hours}г ${minutes.toString().padStart(2, '0')}хв`
 })
 
-const todayMinutes = computed(() => {
-  return employeeStore.timeSummary?.summary.today.minutes ?? 0
+const todayHours = computed(() => employeeStore.timeSummary?.summary.today.hours ?? 0)
+const todayMinutes = computed(() => employeeStore.timeSummary?.summary.today.minutes ?? 0)
+
+// Stats Card: Тиждень
+const weekStats = computed(() => {
+  const hours = employeeStore.timeSummary?.summary.week.hours ?? 0
+  const minutes = employeeStore.timeSummary?.summary.week.minutes ?? 0
+  return `${hours}г ${minutes.toString().padStart(2, '0')}хв`
 })
 
-const weekHours = computed(() => {
-  return employeeStore.timeSummary?.summary.week.hours ?? 0
+// Stats Card: Місяць
+const monthStats = computed(() => {
+  const hours = employeeStore.timeSummary?.summary.month.hours ?? 0
+  const minutes = employeeStore.timeSummary?.summary.month.minutes ?? 0
+  return `${hours}г ${minutes.toString().padStart(2, '0')}хв`
 })
 
-const monthHours = computed(() => {
-  return employeeStore.timeSummary?.summary.month.hours ?? 0
-})
-
-const isWorking = computed(() => {
-  return employeeStore.activeEntry !== null
-})
-
-const leaveRequestsCount = computed(() => {
-  return leaveRequestStore.leaveRequests.length
+// Stats Card: Вчасно
+const attendanceStats = computed(() => {
+  const onTime = employeeStore.timeSummary?.attendance.on_time_count ?? 0
+  const late = employeeStore.timeSummary?.attendance.late_count ?? 0
+  return {
+    value: onTime,
+    subText: `Запізнень: ${late}`,
+  }
 })
 
 onMounted(() => {
+  authStore.getCurrentUser()
   employeeStore.fetchTimeSummary()
   employeeStore.fetchActiveEntry()
-  leaveRequestStore.fetchLeaveRequests()
+  employeeStore.fetchTimeEntries()
 })
 
 async function handleStartWork() {
-  isStartingWork.value = true
   try {
-    await employeeStore.startWork({ entry_type: 'remote' })
+    await employeeStore.startWork({})
   } catch (error) {
     console.error('Failed to start work:', error)
-  } finally {
-    isStartingWork.value = false
   }
 }
 
-function openStopModal() {
-  stopPinCode.value = ''
-  showStopModal.value = true
-}
-
-async function handleStopWork() {
-  if (stopPinCode.value.length !== 4) return
-
-  isStoppingWork.value = true
+async function handleStopWork(pinCode: string) {
   try {
     await employeeStore.stopWork({
       stop_comment: undefined,
-      pin_code: stopPinCode.value,
+      pin_code: pinCode,
     })
-    showStopModal.value = false
-    stopPinCode.value = ''
   } catch (error) {
     console.error('Failed to stop work:', error)
-  } finally {
-    isStoppingWork.value = false
   }
 }
 
-async function handleCreateLeaveRequest(data: CreateLeaveRequestRequest) {
-  isSubmittingForm.value = true
-  try {
-    await leaveRequestStore.createLeaveRequest(data)
-    showFormModal.value = false
-  } catch (error) {
-    console.error('Failed to create leave request:', error)
-  } finally {
-    isSubmittingForm.value = false
-  }
-}
-
-function handlePageChange(page: number) {
-  leaveRequestStore.fetchLeaveRequests(page)
+async function handlePageChange(page: number) {
+  await employeeStore.fetchTimeEntries(page)
 }
 
 function viewLeaveRequests() {
@@ -118,50 +96,42 @@ function viewStatistics() {
 <template>
   <div class="employee-dashboard">
     <div class="dashboard-header">
-      <h1>Головна сторінка</h1>
+      <h1>Відстеження робочого часу</h1>
       <p class="subtitle">Ласкаво просимо, {{ currentUser?.name }}</p>
     </div>
 
     <div class="content-wrapper">
+      <ActiveWorkSessionCard
+        v-if="currentUser?.role !== 'employee'"
+        :active-entry="employeeStore.activeEntry"
+        :is-starting="employeeStore.isLoadingActiveEntry"
+        :is-stopping="employeeStore.isLoadingActiveEntry"
+        @start="handleStartWork"
+        @stop="handleStopWork"
+      />
+
+      <!-- Stats Grid -->
       <div class="stats-grid">
+        <StatCard icon="📅" label="Сьогодні" :value="todayStats" />
+        <StatCard icon="📊" label="Тиждень" :value="weekStats" />
+        <StatCard icon="📈" label="Місяць" :value="monthStats" />
         <StatCard
-          :icon="isWorking ? '🟢' : '⏰'"
-          :label="isWorking ? 'Працюю зараз' : 'Сьогодні'"
-          :value="`${todayHours}г ${todayMinutes}хв`"
-          :variant="isWorking ? 'active' : undefined"
+          icon="✅"
+          label="Вчасно"
+          :value="attendanceStats.value"
+          :sub-text="attendanceStats.subText"
         />
-        <StatCard icon="📅" label="Годин за тиждень" :value="weekHours.toFixed(1)" />
-        <StatCard icon="📊" label="Годин за місяць" :value="monthHours.toFixed(1)" />
-        <StatCard icon="📄" label="Запитів на відпустку" :value="leaveRequestsCount" />
       </div>
 
       <!-- Quick Actions -->
       <div class="quick-actions">
-        <button
-          v-if="!isWorking"
-          class="quick-action-btn start"
-          :disabled="isStartingWork"
-          @click="handleStartWork"
-        >
-          <span class="qa-icon">▶️</span>
-          <span class="qa-label">{{ isStartingWork ? 'Починаю...' : 'Почати роботу' }}</span>
-        </button>
-        <button
-          v-else
-          class="quick-action-btn stop"
-          :disabled="isStoppingWork"
-          @click="openStopModal"
-        >
-          <span class="qa-icon">⏹️</span>
-          <span class="qa-label">Завершити роботу</span>
+        <button class="quick-action-btn" @click="viewStatistics">
+          <span class="qa-icon">📈</span>
+          <span class="qa-label">Розширена статистика</span>
         </button>
         <button class="quick-action-btn" @click="viewLeaveRequests">
           <span class="qa-icon">📋</span>
           <span class="qa-label">Запити на відпустку</span>
-        </button>
-        <button class="quick-action-btn" @click="viewStatistics">
-          <span class="qa-icon">📈</span>
-          <span class="qa-label">Розширена статистика</span>
         </button>
         <button class="quick-action-btn" @click="viewCompany">
           <span class="qa-icon">🏢</span>
@@ -169,19 +139,56 @@ function viewStatistics() {
         </button>
       </div>
 
+      <!-- Two Column Layout -->
       <div class="two-column-layout">
         <div class="left-column">
-          <div v-if="isManager" class="qr-section">
+          <!-- Recent Work Log -->
+          <div class="content-section">
+            <h2>📝 Історія робочого часу</h2>
+            <TimeEntryList
+              :entries="employeeStore.recentEntries"
+              :is-loading="employeeStore.isLoadingEntries"
+              :show-view-more="false"
+            />
+            <Pagination
+              v-if="employeeStore.entriesMeta"
+              :meta="employeeStore.entriesMeta"
+              @change-page="handlePageChange"
+            />
+          </div>
+
+          <!-- QR Code for Managers -->
+          <div v-if="isManager" class="content-section">
             <QRCodeDisplay />
           </div>
 
+          <!-- Error Banner -->
           <div v-if="employeeStore.error" class="error-banner">
             <p>{{ employeeStore.error }}</p>
             <button @click="employeeStore.clearError()">Закрити</button>
           </div>
+        </div>
 
+        <div class="right-column">
+          <!-- Today's Schedule Widget -->
+          <TodayScheduleWidget
+            v-if="currentUser?.work_schedule"
+            :current-user="currentUser"
+            :today-hours="todayHours"
+            :today-minutes="todayMinutes"
+          />
+
+          <div v-else-if="authStore.isLoadingUser" class="content-section">
+            <h3>📅 Сьогоднішній графік</h3>
+            <div class="loading-state">
+              <div class="spinner"></div>
+              <p>Завантаження графіку...</p>
+            </div>
+          </div>
+
+          <!-- Attendance Stats -->
           <div v-if="employeeStore.timeSummary" class="content-section">
-            <h2>Статистика відвідуваності</h2>
+            <h3>📊 Статистика відвідуваності</h3>
             <div class="attendance-grid">
               <div class="attendance-item">
                 <span class="attendance-value on-time">{{
@@ -210,60 +217,6 @@ function viewStatistics() {
             </div>
           </div>
         </div>
-
-        <div class="right-column">
-          <div class="content-section sticky-section">
-            <div class="section-header">
-              <div class="header-actions">
-                <h2>Мої запити на відпустку</h2>
-                <span v-if="leaveRequestsCount > 0" class="badge">{{ leaveRequestsCount }}</span>
-              </div>
-            </div>
-
-            <LeaveRequestsList
-              :leave-requests="leaveRequestStore.leaveRequests"
-              :is-loading="leaveRequestStore.isLoading"
-              :error="leaveRequestStore.error"
-              :pagination="leaveRequestStore.pagination"
-              @retry="leaveRequestStore.fetchLeaveRequests()"
-              @create="showFormModal = true"
-              @page-change="handlePageChange"
-            />
-          </div>
-        </div>
-      </div>
-
-      <LeaveRequestForm
-        :show-form="showFormModal"
-        :is-submitting="isSubmittingForm"
-        @close="showFormModal = false"
-        @submit="handleCreateLeaveRequest"
-      />
-
-      <!-- Stop Work Modal -->
-      <div v-if="showStopModal" class="modal-overlay" @click.self="showStopModal = false">
-        <div class="modal-content">
-          <h3>Завершити роботу</h3>
-          <p class="modal-description">Введіть ваш PIN-код для підтвердження</p>
-          <input
-            v-model="stopPinCode"
-            type="password"
-            maxlength="4"
-            placeholder="0000"
-            class="pin-input"
-            @keyup.enter="handleStopWork"
-          />
-          <div class="modal-actions">
-            <button class="btn-cancel" @click="showStopModal = false">Скасувати</button>
-            <button
-              class="btn-confirm"
-              :disabled="stopPinCode.length !== 4 || isStoppingWork"
-              @click="handleStopWork"
-            >
-              {{ isStoppingWork ? 'Завершую...' : 'Підтвердити' }}
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -283,7 +236,10 @@ function viewStatistics() {
 .dashboard-header h1 {
   font-size: 2rem;
   font-weight: 700;
-  color: #1f2937;
+  background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   margin-bottom: 0.5rem;
 }
 
@@ -295,9 +251,10 @@ function viewStatistics() {
 .content-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
+/* Stats Grid */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -339,28 +296,6 @@ function viewStatistics() {
   cursor: not-allowed;
 }
 
-.quick-action-btn.start {
-  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-  color: white;
-  border-color: transparent;
-}
-
-.quick-action-btn.start:hover:not(:disabled) {
-  color: white;
-  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
-}
-
-.quick-action-btn.stop {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  color: white;
-  border-color: transparent;
-}
-
-.quick-action-btn.stop:hover:not(:disabled) {
-  color: white;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-}
-
 .qa-icon {
   font-size: 1.1rem;
 }
@@ -372,7 +307,7 @@ function viewStatistics() {
 /* Two Column Layout */
 .two-column-layout {
   display: grid;
-  grid-template-columns: 3fr 2fr;
+  grid-template-columns: 1.5fr 1fr;
   gap: 1.5rem;
   align-items: start;
 }
@@ -390,14 +325,11 @@ function viewStatistics() {
 }
 
 .right-column {
-  min-width: 0;
-}
-
-.sticky-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
   position: sticky;
   top: 1rem;
-  max-height: calc(100vh - 2rem);
-  overflow-y: auto;
 }
 
 .content-section {
@@ -407,65 +339,18 @@ function viewStatistics() {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.content-section h2 {
+.content-section h2,
+.content-section h3 {
   font-size: 1.25rem;
   font-weight: 600;
   color: #1f2937;
-  margin-bottom: 1rem;
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.section-header h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 0;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.badge {
-  background: #2563eb;
-  color: white;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
-.btn-create {
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: none;
-  background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
-  color: white;
-}
-
-.btn-create:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(147, 51, 234, 0.3);
+  margin-bottom: 1.25rem;
 }
 
 /* Attendance Grid */
 .attendance-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
 }
 
@@ -507,7 +392,7 @@ function viewStatistics() {
   text-align: center;
 }
 
-/* Error banner */
+/* Error Banner */
 .error-banner {
   background: #fee2e2;
   border: 1px solid #fecaca;
@@ -532,104 +417,44 @@ function viewStatistics() {
   padding: 0.25rem 0.5rem;
 }
 
-/* Stop Work Modal */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+/* Loading State */
+.loading-state {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background: white;
-  border-radius: 1rem;
-  padding: 2rem;
-  width: 100%;
-  max-width: 400px;
-  text-align: center;
-}
-
-.modal-content h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 0.5rem;
-}
-
-.modal-description {
+  padding: 3rem 1rem;
   color: #6b7280;
-  font-size: 0.9rem;
-  margin-bottom: 1.5rem;
 }
 
-.pin-input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  font-size: 1.5rem;
-  text-align: center;
-  letter-spacing: 0.5rem;
-  border: 2px solid #e5e7eb;
-  border-radius: 0.5rem;
-  outline: none;
-  transition: border-color 0.2s;
-  margin-bottom: 1.5rem;
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 1rem;
 }
 
-.pin-input:focus {
-  border-color: #2563eb;
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.modal-actions {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-}
-
-.btn-cancel {
-  padding: 0.625rem 1.5rem;
-  background: #f3f4f6;
-  color: #374151;
-  border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-cancel:hover {
-  background: #e5e7eb;
-}
-
-.btn-confirm {
-  padding: 0.625rem 1.5rem;
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-confirm:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3);
-}
-
-.btn-confirm:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.loading-state p {
+  margin: 0;
+  font-size: 0.875rem;
 }
 
 @media (max-width: 768px) {
   .employee-dashboard {
     padding: 1rem;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.5rem;
   }
 
   .stats-grid {
@@ -642,6 +467,10 @@ function viewStatistics() {
 
   .quick-action-btn {
     justify-content: center;
+  }
+
+  .right-column {
+    position: static;
   }
 
   .attendance-grid {

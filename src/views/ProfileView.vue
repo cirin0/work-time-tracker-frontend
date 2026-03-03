@@ -12,6 +12,7 @@ import type {
   SetupPinCodeRequest,
   ChangePinCodeRequest,
 } from '@/types/requests/profileRequest.interface'
+import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 
 const store = useProfileStore()
 const router = useRouter()
@@ -247,9 +248,7 @@ function getWorkModeLabel(mode?: string): string {
   <div class="profile-page">
     <PageHeader title="Профіль" />
 
-    <div v-if="store.isLoading" class="loading">
-      <p>Завантаження профілю...</p>
-    </div>
+    <LoadingSpinner v-if="store.isLoading" text="Завантаження..." />
 
     <div v-else-if="store.error" class="error-state">
       <h2>Помилка завантаження</h2>

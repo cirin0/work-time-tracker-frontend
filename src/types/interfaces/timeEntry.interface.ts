@@ -17,6 +17,13 @@ export interface TimeEntry extends BaseModel {
   start_comment: string | null
   stop_comment: string | null
 
+  // Schedule adherence fields (may be null if no work schedule assigned)
+  lateness_minutes?: number | null
+  scheduled_start_time?: string | null
+  early_leave_minutes?: number | null
+  scheduled_end_time?: string | null
+  overtime_minutes?: number | null
+
   // relationships
   user?: UserBasic
 }

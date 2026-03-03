@@ -99,3 +99,29 @@ export function formatMinutes(minutes: number): string {
   const m = minutes % 60
   return h > 0 ? `${h}г ${m}хв` : `${m}хв`
 }
+
+/**
+ * Calculates elapsed time in minutes from a given ISO start time to now.
+ */
+export function calculateElapsedMinutes(startTime: string | null | undefined): number {
+  if (!startTime) return 0
+
+  const start = new Date(startTime)
+  const now = new Date()
+
+  if (isNaN(start.getTime())) {
+    console.error('Invalid start time:', startTime)
+    return 0
+  }
+
+  const diffMs = now.getTime() - start.getTime()
+  return Math.floor(diffMs / 1000 / 60) // Convert to minutes
+}
+
+/**
+ * Formats elapsed time from start time to now.
+ * Returns a formatted string like "3г 25хв".
+ */
+export function formatElapsedTime(startTime: string | null | undefined): string {
+  return formatMinutes(calculateElapsedMinutes(startTime))
+}
