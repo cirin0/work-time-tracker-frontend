@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { apiClient, API_ROUTES } from '@/core/api'
 import type { UserBasic } from '@/types/interfaces/userBasic.interface'
-import type { PaginatedResponse } from '@/types/responses/paginatedResponse.interface'
+import type { PaginatedResponse } from '@/types/responses/pagination.interface'
 
 export const useUsersStore = defineStore('users', () => {
   const users = ref<UserBasic[]>([])

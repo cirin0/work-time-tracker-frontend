@@ -1,5 +1,7 @@
+import type { DayOfWeek } from '@/types/enums/enums.types'
+
 export interface DailyScheduleInput {
-  day_of_week: string
+  day_of_week: DayOfWeek
   start_time: string
   end_time: string
   break_duration: number

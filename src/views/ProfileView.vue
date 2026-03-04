@@ -42,6 +42,8 @@ const isPasswordModalOpen = ref(false)
 const passwordForm = ref<ChangePasswordRequest>({
   current_password: '',
   new_password: '',
+  code: '',
+  new_password_confirmation: '',
 })
 const passwordError = ref<string | null>(null)
 
@@ -134,6 +136,8 @@ function openPasswordModal() {
   passwordForm.value = {
     current_password: '',
     new_password: '',
+    code: '',
+    new_password_confirmation: '',
   }
   passwordError.value = null
   isPasswordModalOpen.value = true
@@ -160,6 +164,16 @@ async function changePassword() {
     return
   }
 
+  if (passwordForm.value.code && passwordForm.value.code.length !== 6) {
+    passwordError.value = 'Код підтвердження повинен містить 6 символів'
+    return
+  }
+
+  if (passwordForm.value.new_password !== passwordForm.value.new_password_confirmation) {
+    passwordError.value = 'Паролі не співпадають'
+    return
+  }
+
   try {
     await store.changePassword(passwordForm.value)
     isPasswordModalOpen.value = false
@@ -170,7 +184,6 @@ async function changePassword() {
   }
 }
 
-// PIN code functions
 function openPinSetupModal() {
   pinSetupForm.value = { pin_code: '' }
   pinError.value = null
@@ -309,7 +322,6 @@ function getWorkModeLabel(mode?: string): string {
         </div>
       </div>
 
-      <!-- Change Password Modal -->
       <div v-if="isPasswordModalOpen" class="modal-overlay" @click.self="cancelPasswordChange">
         <div class="modal-content">
           <div class="modal-header">
@@ -319,6 +331,16 @@ function getWorkModeLabel(mode?: string): string {
           <div class="modal-body">
             <div v-if="passwordError" class="error-message">
               {{ passwordError }}
+            </div>
+
+            <div class="form-group">
+              <InputField
+                name="code"
+                label="Код підтвердження (якщо увімкнено 2FA)"
+                v-model="passwordForm.code"
+                type="text"
+                placeholder="Введіть код підтвердження"
+              />
             </div>
 
             <div class="form-group">
@@ -338,6 +360,16 @@ function getWorkModeLabel(mode?: string): string {
                 v-model="passwordForm.new_password"
                 type="password"
                 placeholder="Введіть новий пароль (мінімум 8 символів)"
+              />
+            </div>
+
+            <div class="form-group">
+              <InputField
+                name="new_password_confirmation"
+                label="Підтвердження пароля"
+                v-model="passwordForm.new_password_confirmation"
+                type="password"
+                placeholder="Повторно введіть новий пароль"
               />
             </div>
           </div>

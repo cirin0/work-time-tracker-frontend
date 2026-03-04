@@ -7,6 +7,7 @@ export interface LoginResponse {
 }
 
 export interface RefreshResponse {
+  message: string
   access_token: string
   expires_in: number
   user: User
