@@ -1,5 +1,6 @@
 import type { BaseModel } from './base.model'
 import type { UserBasic } from './userBasic.interface'
+import type { WorkSchedule } from './workSchedule.interface'
 
 export interface Company extends BaseModel {
   name: string
@@ -14,4 +15,5 @@ export interface Company extends BaseModel {
   radius_meters: number | null
   employees?: UserBasic[]
   employee_count?: number
+  work_schedules?: WorkSchedule[]
 }

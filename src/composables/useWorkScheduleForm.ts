@@ -7,6 +7,7 @@ import type {
   CreateWorkScheduleRequest,
   DailyScheduleInput,
 } from '@/types/requests/workScheduleRequest.interface'
+import { DayOfWeek } from '@/types/enums/enums.types'
 
 const VALIDATION_MESSAGES = {
   name: {
@@ -19,18 +20,32 @@ const VALIDATION_MESSAGES = {
   },
 } as const
 
-const DAY_LABELS: Record<string, string> = {
-  monday: 'Понеділок',
-  tuesday: 'Вівторок',
-  wednesday: 'Середа',
-  thursday: 'Четвер',
-  friday: "П'ятниця",
-  saturday: 'Субота',
-  sunday: 'Неділя',
+const DAY_LABELS: Record<DayOfWeek, string> = {
+  [DayOfWeek.MONDAY]: 'Понеділок',
+  [DayOfWeek.TUESDAY]: 'Вівторок',
+  [DayOfWeek.WEDNESDAY]: 'Середа',
+  [DayOfWeek.THURSDAY]: 'Четвер',
+  [DayOfWeek.FRIDAY]: "П'ятниця",
+  [DayOfWeek.SATURDAY]: 'Субота',
+  [DayOfWeek.SUNDAY]: 'Неділя',
 }
 
-const WORKING_DAYS_DEFAULT = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
-const ALL_DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+const WORKING_DAYS_DEFAULT: DayOfWeek[] = [
+  DayOfWeek.MONDAY,
+  DayOfWeek.TUESDAY,
+  DayOfWeek.WEDNESDAY,
+  DayOfWeek.THURSDAY,
+  DayOfWeek.FRIDAY,
+]
+const ALL_DAYS: DayOfWeek[] = [
+  DayOfWeek.MONDAY,
+  DayOfWeek.TUESDAY,
+  DayOfWeek.WEDNESDAY,
+  DayOfWeek.THURSDAY,
+  DayOfWeek.FRIDAY,
+  DayOfWeek.SATURDAY,
+  DayOfWeek.SUNDAY,
+]
 
 const workScheduleSchema = yup.object({
   name: yup
@@ -137,7 +152,7 @@ export function useWorkScheduleForm({ schedule, onSubmit }: UseWorkScheduleFormO
   }
 
   // Label for a day key
-  function getDayLabel(key: string): string {
+  function getDayLabel(key: DayOfWeek): string {
     return DAY_LABELS[key] ?? key
   }
 

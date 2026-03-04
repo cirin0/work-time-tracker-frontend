@@ -14,6 +14,7 @@ function getTypeLabel(type: LeaveRequestType): string {
     [LeaveRequestType.VACATION]: 'Відпустка',
     [LeaveRequestType.SICK]: 'Лікарняний',
     [LeaveRequestType.PERSONAL]: 'Особисті причини',
+    [LeaveRequestType.UNPAID]: 'Неоплачувана відпустка',
   }
   return labels[type] || type
 }
