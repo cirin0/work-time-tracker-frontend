@@ -71,10 +71,14 @@ function handleLogout() {
   justify-content: space-between;
   gap: 10px;
   align-items: center;
-  padding: 1rem;
-  background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
-  color: white;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 0 1.5rem;
+  height: 68px;
+  background: var(--header-bg);
+  color: var(--header-text);
+  box-shadow: var(--header-shadow);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .header-left {
@@ -93,33 +97,38 @@ function handleLogout() {
 
 .header h1 {
   margin: 0;
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--header-text);
+  letter-spacing: 0.01em;
 }
 
 .nav-links {
   display: flex;
-  gap: 1rem;
+  gap: 0.25rem;
   flex-wrap: wrap;
   justify-content: center;
 }
 
 .nav-link {
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--header-nav-text);
   text-decoration: none;
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
   transition: all 0.2s ease;
   font-weight: 500;
   position: relative;
+  font-size: 0.95rem;
 }
 
 .nav-link:hover {
-  background: rgba(255, 255, 255, 0.1);
+  color: var(--accent-2);
+  background: rgba(255, 155, 81, 0.1);
 }
 
 .nav-link.router-link-active {
-  background: rgba(255, 255, 255, 0.2);
+  color: var(--accent-2);
+  background: rgba(255, 155, 81, 0.15);
 }
 
 .chat-link {
@@ -155,42 +164,47 @@ function handleLogout() {
 
 .profile-link {
   text-decoration: none;
-  color: inherit;
+  color: var(--header-text);
   display: flex;
   align-items: center;
   border-radius: 0.5rem;
+  padding: 0.25rem 0.5rem;
   transition: all 0.2s ease;
 }
 
 .profile-link:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 155, 81, 0.1);
 }
 
 .profile-loading {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--header-nav-text);
   font-size: 0.875rem;
   padding: 1.22rem 0.5rem;
 }
 
 .logout-button {
-  padding: 0.5rem 1.5rem;
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 0.5rem 1.25rem;
+  background: transparent;
+  color: var(--accent-2);
+  border: 1px solid rgba(255, 155, 81, 0.3);
   border-radius: 0.5rem;
   cursor: pointer;
   font-weight: 500;
-  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
 }
 
 .logout-button:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: translateY(-2px);
+  background: rgba(255, 155, 81, 0.1);
+  border-color: var(--accent-2);
+  transform: translateY(-1px);
 }
 
 @media (max-width: 768px) {
   .header {
     flex-direction: column;
+    height: auto;
+    padding: 1rem;
     gap: 1rem;
   }
 
