@@ -87,6 +87,10 @@ function viewEmployees() {
 function viewStatistics() {
   router.push({ name: 'manager-statistics' })
 }
+
+function viewCompany() {
+  router.push({ name: 'company' })
+}
 </script>
 
 <template>
@@ -115,21 +119,25 @@ function viewStatistics() {
 
       <!-- Quick Actions -->
       <div class="quick-actions">
-        <button class="quick-action-btn" @click="viewEmployees">
-          <span class="qa-icon">👥</span>
-          <span class="qa-label">Підлеглі</span>
+        <button class="quick-action-btn" @click="viewCompany">
+          <span class="qa-icon">🏢</span>
+          <span class="qa-label">Компанія</span>
+        </button>
+        <button class="quick-action-btn" @click="viewStatistics">
+          <span class="qa-icon">📊</span>
+          <span class="qa-label">Розширена статистика</span>
         </button>
         <button class="quick-action-btn" @click="viewAllLeaveRequests">
           <span class="qa-icon">📋</span>
           <span class="qa-label">Запити на відпустку</span>
         </button>
+        <button class="quick-action-btn" @click="viewEmployees">
+          <span class="qa-icon">👥</span>
+          <span class="qa-label">Підлеглі</span>
+        </button>
         <button class="quick-action-btn" @click="viewWorkSchedules">
           <span class="qa-icon">📅</span>
           <span class="qa-label">Робочі розклади</span>
-        </button>
-        <button class="quick-action-btn" @click="viewStatistics">
-          <span class="qa-icon">📊</span>
-          <span class="qa-label">Розширена статистика</span>
         </button>
       </div>
 

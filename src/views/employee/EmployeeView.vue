@@ -125,6 +125,10 @@ function viewStatistics() {
 
       <!-- Quick Actions -->
       <div class="quick-actions">
+        <button class="quick-action-btn" @click="viewCompany">
+          <span class="qa-icon">🏢</span>
+          <span class="qa-label">Компанія</span>
+        </button>
         <button class="quick-action-btn" @click="viewStatistics">
           <span class="qa-icon">📈</span>
           <span class="qa-label">Розширена статистика</span>
@@ -132,10 +136,6 @@ function viewStatistics() {
         <button class="quick-action-btn" @click="viewLeaveRequests">
           <span class="qa-icon">📋</span>
           <span class="qa-label">Запити на відпустку</span>
-        </button>
-        <button class="quick-action-btn" @click="viewCompany">
-          <span class="qa-icon">🏢</span>
-          <span class="qa-label">Компанія</span>
         </button>
       </div>
 
