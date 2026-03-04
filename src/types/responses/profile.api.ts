@@ -38,22 +38,6 @@ export interface UserProfileResponse {
   user: UserProfile
 }
 
-interface UserWorkScheduleInfo {
-  id: number
-  name: string
-  email: string
-  avatar: string | null
-  role: UserRole
-  work_mode: WorkMode
-  has_pin_code: boolean
-  work_schedule: {
-    id: number
-    name: string
-  }
-  created_at: string
-  updated_at: string
-}
-
 interface WorkScheduleDetails {
   id: number
   name: string
@@ -63,6 +47,5 @@ interface WorkScheduleDetails {
 
 export interface UserWorkScheduleResponse {
   message: string
-  user: UserWorkScheduleInfo
-  work_schedule: WorkScheduleDetails
+  data: WorkScheduleDetails
 }

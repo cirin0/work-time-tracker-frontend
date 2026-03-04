@@ -51,7 +51,7 @@ const attendanceStats = computed(() => {
 })
 
 onMounted(() => {
-  authStore.getCurrentUser()
+  authStore.fetchMyWorkSchedule()
   employeeStore.fetchTimeSummary()
   employeeStore.fetchActiveEntry()
   employeeStore.fetchTimeEntries()

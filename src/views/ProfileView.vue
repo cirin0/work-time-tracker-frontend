@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProfileStore } from '@/stores/profile.store'
 import { getAvatarUrl } from '@/core/utils/url'
@@ -17,7 +17,16 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 const store = useProfileStore()
 const router = useRouter()
 
-const avatarUrl = computed(() => getAvatarUrl(store.displayProfile?.avatar, store.avatarTimestamp))
+const imageKey = ref(0)
+
+watch(
+  () => store.profile?.avatar,
+  () => {
+    imageKey.value++
+  },
+)
+
+const avatarUrl = computed(() => getAvatarUrl(store.displayProfile?.avatar))
 
 const managerAvatarUrl = computed(() => getAvatarUrl(store.displayProfile?.manager?.avatar))
 
@@ -431,7 +440,7 @@ function getWorkModeLabel(mode?: string): string {
             <div class="avatar-container">
               <img
                 v-if="avatarUrl"
-                :key="`profile-${store.avatarTimestamp}`"
+                :key="`profile-${imageKey}`"
                 :src="avatarUrl"
                 alt="Аватар користувача"
                 class="avatar"

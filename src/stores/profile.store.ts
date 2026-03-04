@@ -1,6 +1,4 @@
 import { API_ROUTES, apiClient } from '@/core/api'
-import { useAuthStore } from './auth.store'
-import { useUiStore } from './ui.store'
 import type {
   UpdateProfileRequest,
   ChangePasswordRequest,
@@ -10,79 +8,45 @@ import type {
 import type { UserProfile, UserProfileResponse } from '@/types/responses/profile.api'
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { useAuthStore } from './auth.store'
 
 export const useProfileStore = defineStore('profile', () => {
+  const authStore = useAuthStore()
+
   const profile = ref<UserProfile | null>(null)
   const isLoading = ref(false)
   const isSaving = ref(false)
   const error = ref<string | null>(null)
-  const lastFetchTime = ref<number | null>(null)
-  const avatarTimestamp = ref<number>(Date.now())
-
-  const CACHE_DURATION = 5 * 60 * 1000
 
   const displayProfile = computed(() => {
     if (profile.value) return profile.value
-    const authStore = useAuthStore()
     return authStore.currentUser as unknown as UserProfile | null
   })
 
-  function isCacheValid(): boolean {
-    if (!profile.value || !lastFetchTime.value) return false
-    return Date.now() - lastFetchTime.value < CACHE_DURATION
+  async function fetchProfile() {
+    isLoading.value = true
+    error.value = null
+
+    try {
+      const { data } = await apiClient.get<UserProfile>(API_ROUTES.me.show)
+      profile.value = data
+      return profile.value
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to fetch profile'
+      throw err
+    } finally {
+      isLoading.value = false
+    }
   }
 
-  async function fetchProfile(forceRefresh = false) {
-    const authStore = useAuthStore()
-    if (!forceRefresh && authStore.currentUser && !profile.value) {
-      profile.value = authStore.currentUser as unknown as UserProfile
-      lastFetchTime.value = Date.now()
-      return profile.value
-    }
-
-    if (!forceRefresh && isCacheValid()) {
-      return profile.value
-    }
-
-    const uiStore = useUiStore()
-    return await uiStore.lockMeEndpoint(async () => {
-      if (authStore.currentUser && !profile.value && !forceRefresh) {
-        profile.value = authStore.currentUser as unknown as UserProfile
-        lastFetchTime.value = Date.now()
-        return profile.value
-      }
-
-      if (!forceRefresh && isCacheValid()) {
-        return profile.value
-      }
-
-      isLoading.value = true
-      error.value = null
-
-      try {
-        const { data } = await apiClient.get<UserProfile>(API_ROUTES.me.show)
-        profile.value = data
-        lastFetchTime.value = Date.now()
-        return profile.value
-      } catch (err) {
-        error.value = err instanceof Error ? err.message : 'Failed to fetch profile'
-        throw err
-      } finally {
-        isLoading.value = false
-      }
-    })
-  }
-
-  function clearCache() {
+  function clearProfile() {
     profile.value = null
-    lastFetchTime.value = null
     error.value = null
   }
 
   function updateProfileLocally(updates: Partial<UserProfile>) {
     if (profile.value) {
       profile.value = { ...profile.value, ...updates }
-      lastFetchTime.value = Date.now()
     }
   }
 
@@ -93,7 +57,6 @@ export const useProfileStore = defineStore('profile', () => {
     try {
       const { data } = await apiClient.patch<UserProfileResponse>(API_ROUTES.me.update, updates)
       profile.value = data.user
-      lastFetchTime.value = Date.now()
       return profile.value
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to update profile'
@@ -115,15 +78,11 @@ export const useProfileStore = defineStore('profile', () => {
         API_ROUTES.me.updateAvatar,
         formData,
         {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
+          headers: { 'Content-Type': 'multipart/form-data' },
         },
       )
 
       profile.value = data.user
-      lastFetchTime.value = Date.now()
-      avatarTimestamp.value = Date.now() // Update timestamp for cache-busting
       return profile.value
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to update avatar'
@@ -187,15 +146,13 @@ export const useProfileStore = defineStore('profile', () => {
     isLoading,
     isSaving,
     error,
-    avatarTimestamp,
     fetchProfile,
-    clearCache,
+    clearProfile,
     updateProfileLocally,
     updateProfile,
     updateAvatar,
     changePassword,
     setupPinCode,
     changePinCode,
-    isCacheValid,
   }
 })

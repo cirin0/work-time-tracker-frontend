@@ -1,7 +1,8 @@
 import { API_ROUTES, apiClient } from '@/core/api'
-import { useUiStore } from './ui.store'
+import { tokenService } from '@/core/api/token.service'
 import type { User } from '@/types/interfaces/user.interface'
 import type { LoginResponse, RefreshResponse } from '@/types/responses/auth.interface'
+import type { UserWorkScheduleResponse } from '@/types/responses/profile.api'
 import { useLocalStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
@@ -13,24 +14,22 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
   const isLoadingUser = ref(false)
 
-  const initialValue = localStorage.getItem(TOKEN_STORE_KEY)
-  if (initialValue) {
-    token.value = initialValue
-  }
-
   function setToken(newToken: string) {
     token.value = newToken
-    localStorage.setItem(TOKEN_STORE_KEY, newToken)
   }
 
   function clearToken() {
     token.value = undefined
     user.value = null
     isLoadingUser.value = false
-    localStorage.removeItem(TOKEN_STORE_KEY)
   }
 
-  const getToken = computed(() => token.value)
+  tokenService.register({
+    get: () => token.value,
+    set: setToken,
+    clear: clearToken,
+  })
+
   const isAuthenticated = computed(() => !!token.value)
   const currentUser = computed(() => user.value)
 
@@ -73,28 +72,44 @@ export const useAuthStore = defineStore('auth', () => {
   async function getCurrentUser() {
     if (!token.value) return null
 
-    if (user.value) return user.value
+    isLoadingUser.value = true
+    try {
+      const { data } = await apiClient.get<User>(API_ROUTES.me.show)
+      user.value = data
+      return user.value
+    } catch (error) {
+      console.error('Failed to get current user:', error)
+      return null
+    } finally {
+      isLoadingUser.value = false
+    }
+  }
 
-    const uiStore = useUiStore()
-    return await uiStore.lockMeEndpoint(async () => {
-      if (user.value) return user.value
+  async function fetchMyWorkSchedule() {
+    if (!token.value || !user.value) return
 
-      isLoadingUser.value = true
-      try {
-        const { data } = await apiClient.get<User>(API_ROUTES.me.show)
-        user.value = data
-        return user.value
-      } catch (error) {
-        console.error('Failed to get current user:', error)
-        return null
-      } finally {
-        isLoadingUser.value = false
+    try {
+      const { data: responseData } = await apiClient.get<UserWorkScheduleResponse>(
+        API_ROUTES.me.getWorkSchedule,
+      )
+      if (user.value && responseData.data) {
+        user.value = {
+          ...user.value,
+          work_schedule: {
+            id: responseData.data.id,
+            name: responseData.data.name,
+            is_default: responseData.data.is_default,
+            daily_schedules: responseData.data.daily_schedules,
+          },
+        }
       }
-    })
+    } catch (error) {
+      console.error('Failed to fetch work schedule details:', error)
+    }
   }
 
   return {
-    getToken,
+    token,
     isAuthenticated,
     currentUser,
     isLoadingUser,
@@ -103,6 +118,7 @@ export const useAuthStore = defineStore('auth', () => {
     logout,
     refreshToken,
     getCurrentUser,
+    fetchMyWorkSchedule,
     setToken,
     clearToken,
   }

@@ -1,4 +1,4 @@
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { useCompanyStore } from '@/stores/company.store'
@@ -21,7 +21,7 @@ export function useCompanyView() {
 
   const isUploadingLogo = ref(false)
   const logoInputRef = ref<HTMLInputElement | null>(null)
-  const logoTimestamp = ref(Date.now())
+  const logoImageKey = ref(0)
 
   const newEmployeeId = ref('')
   const isAddingEmployee = ref(false)
@@ -31,7 +31,14 @@ export function useCompanyView() {
 
   const company = computed(() => companyStore.company)
   const companyId = computed(() => authStore.currentUser?.company?.id ?? null)
-  const logoUrl = computed(() => getAvatarUrl(company.value?.logo ?? null, logoTimestamp.value))
+  const logoUrl = computed(() => getAvatarUrl(company.value?.logo ?? null))
+
+  watch(
+    () => company.value?.logo,
+    () => {
+      logoImageKey.value++
+    },
+  )
 
   onMounted(async () => {
     const id = companyId.value
@@ -72,7 +79,6 @@ export function useCompanyView() {
     isUploadingLogo.value = true
     try {
       await companyStore.updateCompanyLogo(company.value.id, formData)
-      logoTimestamp.value = Date.now()
     } catch {
       logoUploadError.value = companyStore.error ?? 'Помилка завантаження логотипу'
     } finally {
@@ -120,6 +126,7 @@ export function useCompanyView() {
     company,
     companyId,
     logoUrl,
+    logoImageKey,
     isAdmin,
     showEditModal,
     isSubmittingEdit,

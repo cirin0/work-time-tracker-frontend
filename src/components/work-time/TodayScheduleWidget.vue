@@ -2,7 +2,6 @@
 import { computed } from 'vue'
 import type { User } from '@/types/interfaces/user.interface'
 import type { DailySchedule } from '@/types/interfaces/dailySchedule.interface'
-import { formatDateTime } from '@/core/utils/date'
 
 interface Props {
   currentUser: User | null
@@ -89,12 +88,12 @@ const statusColor = computed(() => {
       <div class="schedule-time">
         <div class="time-item">
           <span class="time-label">Початок</span>
-          <span class="time-value">{{ formatDateTime(todaySchedule.start_time) }}</span>
+          <span class="time-value">{{ todaySchedule.start_time }}</span>
         </div>
         <div class="time-divider">—</div>
         <div class="time-item">
           <span class="time-label">Кінець</span>
-          <span class="time-value">{{ formatDateTime(todaySchedule.end_time) }}</span>
+          <span class="time-value">{{ todaySchedule.end_time }}</span>
         </div>
       </div>
 

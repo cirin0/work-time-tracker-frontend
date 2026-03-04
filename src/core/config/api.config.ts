@@ -4,6 +4,8 @@ export const API_ROUTES = {
     register: '/auth/register',
     logout: '/auth/logout',
     refresh: '/auth/refresh',
+    verifyEmail: '/auth/verify-email',
+    resendVerificationCode: '/auth/resend-verification-code',
   },
   me: {
     show: '/me',

@@ -1,21 +1,37 @@
 <script setup lang="ts">
 import type { User } from '@/types/interfaces/user.interface'
+import type { UserProfile } from '@/types/responses/profile.api'
 import { getAvatarUrl } from '@/core/utils/url'
 import { useProfileStore } from '@/stores/profile.store'
-import { computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 const props = defineProps<{
-  user: User
+  user: User | UserProfile
 }>()
 
 const profileStore = useProfileStore()
+const imageKey = ref(0)
 
-const avatarUrl = computed(() => getAvatarUrl(props.user.avatar, profileStore.avatarTimestamp))
+watch(
+  () => props.user.avatar,
+  () => {
+    imageKey.value++
+  },
+)
+
+watch(
+  () => profileStore.profile?.avatar,
+  () => {
+    imageKey.value++
+  },
+)
+
+const avatarUrl = computed(() => getAvatarUrl(props.user.avatar))
 </script>
 <template>
   <div class="user">
     <div class="user-avatar">
-      <img v-if="avatarUrl" :src="avatarUrl" alt="User Avatar" />
+      <img v-if="avatarUrl" :key="imageKey" :src="avatarUrl" alt="User Avatar" />
       <div v-else>{{ user.name.charAt(0).toUpperCase() }}</div>
     </div>
     <div class="user-info">

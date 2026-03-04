@@ -50,8 +50,6 @@ watch(
     <div v-if="generalError" class="error-alert">
       {{ generalError }}
     </div>
-    1. main@test.com / vasiu@test.com <br />
-    2. muko@test.com / visiu2@test.com
     <form @submit="handleSubmit">
       <InputField
         v-if="!isLogin"
