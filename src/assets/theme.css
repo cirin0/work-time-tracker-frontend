@@ -1,0 +1,110 @@
+/* ── Arctic Orange Theme ─────────────────────────────────────────────────── */
+/* Light mode (default) */
+:root {
+  /* Шрифти */
+  --font-heading: 'Sora', system-ui, -apple-system, sans-serif;
+  --font-body: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Geist Mono', 'Courier New', monospace;
+
+  /* Кольори */
+  --bg: #eaefef;
+  --surface: #ffffff;
+  --sidebar-bg: #ffffff;
+  --accent-1: #25343f;
+  --accent-2: #ff9b51;
+  --accent-2-hover: #ffab6a;
+  --sand: #bfc9d1;
+  --sand-light: #d8e6e6;
+  --text: #25343f;
+  --text-muted: #6b7c8a;
+  --border: #d0dada;
+  --shadow: rgba(37, 52, 63, 0.12);
+
+  /* Semantic aliases */
+  --header-bg: #25343f;
+  --header-text: #eaefef;
+  --header-text-muted: rgba(234, 239, 239, 0.5);
+  --header-nav-text: #bfc9d1;
+  --header-shadow: 0 2px 12px rgba(37, 52, 63, 0.18);
+
+  --avatar-gradient-from: #25343f;
+  --avatar-gradient-to: #3d5060;
+
+  --role-admin-bg: rgba(255, 155, 81, 0.15);
+  --role-admin-color: #c05e00;
+  --role-admin-border: rgba(255, 155, 81, 0.35);
+  --role-manager-bg: rgba(37, 52, 63, 0.1);
+  --role-manager-color: #25343f;
+  --role-manager-border: rgba(37, 52, 63, 0.2);
+  --role-employee-bg: #d8e6e6;
+  --role-employee-color: #3d5060;
+  --role-employee-border: #d0dada;
+
+  --modal-shadow: 0 20px 40px rgba(37, 52, 63, 0.18);
+  --error-bg: rgba(239, 68, 68, 0.1);
+  --error-border: rgba(239, 68, 68, 0.3);
+  --error-text: #ef4444;
+
+  /* Always dark text on accent-2 (orange) buttons — constant in both modes */
+  --btn-on-accent: #25343f;
+
+  /* Company link button (light mode) */
+  --company-link-bg: rgba(37, 52, 63, 0.07);
+  --company-link-border: rgba(37, 52, 63, 0.2);
+
+  /* Manager avatar background */
+  --manager-avatar-bg: #25343f;
+
+  /* PIN active indicator */
+  --pin-ok-color: #16a34a;
+}
+
+/* Dark mode — toggled by adding [data-theme="dark"] on <html> */
+[data-theme='dark'] {
+  --bg: #1a2630;
+  --surface: #253040;
+  --sidebar-bg: #253040;
+  --accent-1: #ff9b51;
+  --accent-2: #ffb37a;
+  --accent-2-hover: #ffc090;
+  --sand: #4a6070;
+  --sand-light: #1e2d3a;
+  --text: #eaefef;
+  --text-muted: #8a9baa;
+  --border: #2a3f50;
+  --shadow: rgba(0, 0, 0, 0.4);
+
+  --header-bg: #0f1820;
+  --header-text: #eaefef;
+  --header-text-muted: rgba(234, 239, 239, 0.5);
+  --header-nav-text: rgba(234, 239, 239, 0.7);
+  --header-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+
+  --avatar-gradient-from: #253040;
+  --avatar-gradient-to: #3d5060;
+
+  --role-admin-bg: rgba(255, 155, 81, 0.2);
+  --role-admin-color: #ff9b51;
+  --role-admin-border: rgba(255, 155, 81, 0.3);
+  --role-manager-bg: rgba(255, 155, 81, 0.15);
+  --role-manager-color: #ff9b51;
+  --role-manager-border: rgba(255, 155, 81, 0.25);
+  --role-employee-bg: rgba(191, 201, 209, 0.12);
+  --role-employee-color: #bfc9d1;
+  --role-employee-border: rgba(191, 201, 209, 0.2);
+
+  --modal-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  --error-bg: rgba(254, 226, 226, 0.1);
+  --error-border: rgba(254, 202, 202, 0.2);
+  --error-text: #fca5a5;
+
+  /* Company link button (dark mode) */
+  --company-link-bg: rgba(255, 155, 81, 0.1);
+  --company-link-border: rgba(255, 155, 81, 0.25);
+
+  /* Manager avatar background */
+  --manager-avatar-bg: rgba(255, 155, 81, 0.12);
+
+  /* PIN active indicator */
+  --pin-ok-color: #4ade80;
+}
