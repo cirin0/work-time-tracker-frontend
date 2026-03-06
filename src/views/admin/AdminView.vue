@@ -11,6 +11,8 @@ import AdminUsersList from '@/components/admin/AdminUsersList.vue'
 import AdminCompanyCreateModal from '@/components/admin/AdminCompanyCreateModal.vue'
 import AdminAssignManagerModal from '@/components/admin/AdminAssignManagerModal.vue'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
+import Card from '@/components/ui/Card.vue'
+import ButtonMain from '@/components/ui/ButtonMain.vue'
 import type { CreateCompanyRequest } from '@/types/requests/companyRequest.interface'
 
 const router = useRouter()
@@ -100,69 +102,79 @@ async function handleAssignManager(managerId: number) {
   <div class="admin-panel">
     <div class="panel-header">
       <h1>Панель адміністратора</h1>
-      <p class="subtitle">Управління системою</p>
     </div>
 
     <div v-if="!isAdmin" class="access-denied">
-      <h2>Доступ заборонено</h2>
-      <p>У вас немає прав для перегляду цієї сторінки</p>
+      <Card>
+        <div class="denied-content">
+          <h2>Доступ заборонено</h2>
+          <p>У вас немає прав для перегляду цієї сторінки</p>
+        </div>
+      </Card>
     </div>
 
     <div v-else class="content-wrapper">
       <LoadingSpinner v-if="isLoadingInitialData" text="Завантаження..." />
 
-      <div v-else-if="!hasCompany" class="no-company-banner">
-        <div class="banner-icon">🏢</div>
-        <div class="banner-content">
-          <h3>Компанія не створена</h3>
-          <p>Для початку роботи системи спочатку створіть компанію</p>
-        </div>
-        <button class="btn-create-company" @click="showCreateModal = true">
-          Створити компанію
-        </button>
-      </div>
+      <template v-else-if="!hasCompany">
+        <Card>
+          <div class="info-card">
+            <div class="info-icon">🏢</div>
+            <div class="info-content">
+              <h3>Компанія не створена</h3>
+              <p>Для початку роботи системи спочатку створіть компанію</p>
+            </div>
+            <ButtonMain variant="primary" @click="showCreateModal = true">
+              Створити компанію
+            </ButtonMain>
+          </div>
+        </Card>
+      </template>
 
       <!-- Company exists - show content -->
       <template v-else>
         <!-- No manager role in system -->
-        <div v-if="!hasManager && !hasAnyManager" class="no-manager-role-banner">
-          <div class="banner-icon">⚙️</div>
-          <div class="banner-content">
-            <h3>Створіть менеджера</h3>
-            <p>
-              Спочатку призначте роль "Менеджер" одному з користувачів у списку нижче, а потім
-              зможете призначити його менеджером компанії
-            </p>
+        <Card v-if="!hasManager && !hasAnyManager">
+          <div class="info-card warning">
+            <div class="info-icon">⚙️</div>
+            <div class="info-content">
+              <h3>Створіть менеджера</h3>
+              <p>
+                Спочатку призначте роль "Менеджер" одному з користувачів у списку нижче, а потім
+                зможете призначити його менеджером компанії
+              </p>
+            </div>
           </div>
-        </div>
+        </Card>
 
         <!-- Manager exists but not assigned -->
-        <div v-else-if="!hasManager && hasAnyManager" class="no-manager-banner">
-          <div class="banner-icon">👤</div>
-          <div class="banner-content">
-            <h3>Менеджер не призначений</h3>
-            <p>Призначте менеджера для управління компанією</p>
+        <Card v-else-if="!hasManager && hasAnyManager">
+          <div class="info-card">
+            <div class="info-icon">👤</div>
+            <div class="info-content">
+              <h3>Менеджер не призначений</h3>
+              <p>Призначте менеджера для управління компанією</p>
+            </div>
+            <ButtonMain variant="primary" @click="showAssignManagerModal = true">
+              Призначити менеджера
+            </ButtonMain>
           </div>
-          <button class="btn-assign-manager" @click="showAssignManagerModal = true">
-            Призначити менеджера
-          </button>
-        </div>
+        </Card>
 
         <!-- Quick actions - only when fully configured -->
-        <div v-if="hasManager" class="quick-actions">
-          <button class="quick-action-btn" @click="viewCompany">
-            <span class="qa-icon">🏢</span>
-            <span class="qa-label">Компанія</span>
-          </button>
-        </div>
+        <Card v-if="hasManager">
+          <div class="quick-actions">
+            <button class="quick-action-btn" @click="viewCompany">
+              <span class="qa-icon">🏢</span>
+              <span class="qa-label">Компанія</span>
+            </button>
+          </div>
+        </Card>
 
         <!-- Main Layout -->
         <div class="two-column-layout">
           <div class="left-column">
-            <div class="content-section">
-              <div class="section-header"></div>
-              <AdminUsersList />
-            </div>
+            <AdminUsersList />
           </div>
 
           <div v-if="hasManager" class="right-column">
@@ -192,7 +204,7 @@ async function handleAssignManager(managerId: number) {
 
 <style scoped>
 .admin-panel {
-  max-width: 1600px;
+  max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
 }
@@ -202,164 +214,79 @@ async function handleAssignManager(managerId: number) {
 }
 
 .panel-header h1 {
-  font-size: 2rem;
+  font-family: var(--font-heading);
+  font-size: 1.75rem;
   font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 0.5rem;
-}
-
-.subtitle {
-  color: #6b7280;
-  font-size: 1rem;
+  color: var(--text);
+  margin: 0;
 }
 
 .access-denied {
-  background: #fee2e2;
-  border: 1px solid #fecaca;
-  border-radius: 0.5rem;
-  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.denied-content {
   text-align: center;
-}
-
-.access-denied h2 {
-  color: #dc2626;
-  margin-bottom: 0.5rem;
-}
-
-/* No Company Banner */
-.no-company-banner {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  background: linear-gradient(135deg, #eff6ff 0%, #f5f3ff 100%);
-  border: 2px solid #dbeafe;
-  border-radius: 1rem;
   padding: 2rem;
-  margin-bottom: 2rem;
 }
 
-.banner-icon {
-  font-size: 3rem;
-  flex-shrink: 0;
-}
-
-.banner-content {
-  flex: 1;
-}
-
-.banner-content h3 {
+.denied-content h2 {
+  font-family: var(--font-heading);
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1e40af;
-  margin-bottom: 0.375rem;
+  color: var(--error-text);
+  margin: 0 0 0.5rem 0;
 }
 
-.banner-content p {
-  color: #4b5563;
-  font-size: 0.95rem;
-}
-
-.btn-create-company {
-  padding: 0.75rem 1.75rem;
-  background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
-  color: white;
-  border: none;
-  border-radius: 0.625rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
-}
-
-.btn-create-company:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
-}
-
-/* No Manager Role Banner */
-.no-manager-role-banner {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-  border: 2px solid #86efac;
-  border-radius: 1rem;
-  padding: 2rem;
-  margin-bottom: 2rem;
-}
-
-.no-manager-role-banner .banner-icon {
-  font-size: 3rem;
-  flex-shrink: 0;
-}
-
-.no-manager-role-banner .banner-content h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #166534;
-  margin-bottom: 0.375rem;
-}
-
-.no-manager-role-banner .banner-content p {
-  color: #15803d;
-  font-size: 0.95rem;
-  line-height: 1.5;
-}
-
-/* No Manager Banner */
-.no-manager-banner {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  border: 2px solid #fbbf24;
-  border-radius: 1rem;
-  padding: 2rem;
-  margin-bottom: 2rem;
-}
-
-.no-manager-banner .banner-icon {
-  font-size: 3rem;
-  flex-shrink: 0;
-}
-
-.no-manager-banner .banner-content h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #92400e;
-  margin-bottom: 0.375rem;
-}
-
-.no-manager-banner .banner-content p {
-  color: #78350f;
-  font-size: 0.95rem;
-}
-
-.btn-assign-manager {
-  padding: 0.75rem 1.75rem;
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  color: white;
-  border: none;
-  border-radius: 0.625rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s;
-  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
-}
-
-.btn-assign-manager:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.35);
+.denied-content p {
+  font-family: var(--font-body);
+  color: var(--text-muted);
+  margin: 0;
 }
 
 .content-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.5rem;
+}
+
+/* Info Card */
+.info-card {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.5rem;
+}
+
+.info-card.warning {
+  background: var(--sand-light);
+  border-radius: 0.5rem;
+}
+
+.info-icon {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+}
+
+.info-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.info-content h3 {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 0.375rem 0;
+}
+
+.info-content p {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.5;
 }
 
 /* Quick Actions */
@@ -374,22 +301,26 @@ async function handleAssignManager(managerId: number) {
   align-items: center;
   gap: 0.5rem;
   padding: 0.65rem 1.25rem;
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 0.5rem;
+  font-family: var(--font-body);
   font-size: 0.9rem;
   font-weight: 500;
-  color: #374151;
+  color: var(--text);
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
-.quick-action-btn:hover {
-  border-color: #2563eb;
-  color: #2563eb;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12);
+.quick-action-btn:hover:not(:disabled) {
+  border-color: var(--accent-2);
+  color: var(--accent-2);
   transform: translateY(-1px);
+}
+
+.quick-action-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .qa-icon {
@@ -408,7 +339,16 @@ async function handleAssignManager(managerId: number) {
   align-items: start;
 }
 
-@media (max-width: 1100px) {
+.left-column,
+.right-column {
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .admin-panel {
+    padding: 1.5rem;
+  }
+
   .two-column-layout {
     grid-template-columns: 1fr;
   }
@@ -416,27 +356,29 @@ async function handleAssignManager(managerId: number) {
   .right-column {
     order: -1;
   }
+
+  .info-card {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
 }
 
-.left-column,
-.right-column {
-  min-width: 0;
-}
+@media (max-width: 640px) {
+  .admin-panel {
+    padding: 1rem;
+  }
 
-.content-section {
-  background: white;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
+  .panel-header h1 {
+    font-size: 1.5rem;
+  }
 
-.section-header {
-  margin-bottom: 1.5rem;
-}
+  .info-card {
+    padding: 1.25rem;
+  }
 
-.section-header h2 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #1f2937;
+  .info-icon {
+    font-size: 2rem;
+  }
 }
 </style>
