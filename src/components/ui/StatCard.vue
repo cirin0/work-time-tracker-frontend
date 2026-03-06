@@ -1,10 +1,10 @@
 <script setup lang="ts">
 defineProps<{
   label: string
-  value: string | number
+  value?: string | number
   icon?: string
   variant?: 'success' | 'danger' | 'active'
-  sub?: string
+  subText?: string
 }>()
 </script>
 
@@ -12,33 +12,36 @@ defineProps<{
   <div class="stat-card" :class="{ active: variant === 'active' }">
     <div v-if="icon" class="stat-icon">{{ icon }}</div>
     <div class="stat-content">
-      <div class="stat-value" :class="variant">{{ value }}</div>
+      <div v-if="$slots.default" class="stat-value" :class="variant">
+        <slot />
+      </div>
+      <div v-else class="stat-value" :class="variant">{{ value }}</div>
       <div class="stat-label">{{ label }}</div>
-      <div v-if="sub" class="stat-sub">{{ sub }}</div>
+      <div v-if="subText" class="stat-sub">{{ subText }}</div>
     </div>
   </div>
 </template>
 
 <style scoped>
 .stat-card {
-  background: white;
-  border-radius: 0.75rem;
+  background: var(--surface);
+  border-radius: 1rem;
   padding: 1.5rem;
   display: flex;
   align-items: center;
   gap: 1rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 12px var(--shadow);
+  border: 1px solid var(--border);
   transition: transform 0.2s;
 }
 
 .stat-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .stat-card.active {
-  border: 2px solid #22c55e;
-  background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+  border: 2px solid var(--pin-ok-color);
+  background: var(--sand-light);
 }
 
 .stat-icon {
@@ -49,32 +52,36 @@ defineProps<{
 .stat-content {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .stat-value {
+  font-family: var(--font-mono);
   font-size: 2rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--text);
   line-height: 1;
 }
 
 .stat-value.success {
-  color: #16a34a;
+  color: var(--pin-ok-color);
 }
 
 .stat-value.danger {
-  color: #dc2626;
+  color: var(--error-text);
 }
 
 .stat-label {
-  color: #6b7280;
+  font-family: var(--font-body);
+  color: var(--text-muted);
   font-size: 0.875rem;
-  margin-top: 0.25rem;
 }
 
 .stat-sub {
+  font-family: var(--font-body);
   font-size: 0.75rem;
-  color: #9ca3af;
-  margin-top: 0.25rem;
+  color: var(--text-muted);
 }
 </style>

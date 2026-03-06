@@ -5,21 +5,38 @@
 </template>
 <style scoped>
 .button {
-  width: 100%;
   padding: 0.75rem 1rem;
-  background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
-  color: white;
-  font-weight: 500;
+  background: var(--accent-2);
+  color: var(--btn-on-accent);
+  font-family: var(--font-body);
+  font-weight: 600;
   font-size: 1rem;
   border: none;
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   cursor: pointer;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px var(--shadow);
+  transition: all 0.2s ease;
 }
 
 .button:hover {
-  transform: scale(1.02);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  background: var(--accent-2-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--shadow);
+}
+
+.button:active {
+  transform: translateY(0);
+}
+
+.button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 640px) {
+  .button {
+    padding: 0.875rem 1rem;
+  }
 }
 </style>

@@ -2,10 +2,12 @@
 import { ref, computed, onMounted } from 'vue'
 import { useAdminStore } from '@/stores/admin.store'
 import { useAuthStore } from '@/stores/auth.store'
-import { getAvatarUrl } from '@/core/utils/url'
 import { UserRole } from '@/types/enums/enums.types'
 import type { User } from '@/types/interfaces/user.interface'
 import type { WorkMode } from '@/types/enums/enums.types'
+import Card from '@/components/ui/Card.vue'
+import Avatar from '@/components/ui/Avatar.vue'
+import Badge from '@/components/ui/Badge.vue'
 import Pagination from '@/components/ui/Pagination.vue'
 import AdminEditUserModal from '@/components/admin/AdminEditUserModal.vue'
 import AdminChangeRoleModal from '@/components/admin/AdminChangeRoleModal.vue'
@@ -39,6 +41,12 @@ const roleLabels: Record<UserRole, string> = {
   [UserRole.ADMIN]: 'Адмін',
   [UserRole.MANAGER]: 'Менеджер',
   [UserRole.EMPLOYEE]: 'Співробітник',
+}
+
+const roleVariants: Record<UserRole, 'role-admin' | 'role-manager' | 'role-employee'> = {
+  [UserRole.ADMIN]: 'role-admin',
+  [UserRole.MANAGER]: 'role-manager',
+  [UserRole.EMPLOYEE]: 'role-employee',
 }
 
 const workModeLabels: Record<WorkMode, string> = {
@@ -151,63 +159,62 @@ onMounted(() => loadPage(1))
 
 <template>
   <div class="users-manager">
-    <div class="section-header">
-      <h2>Працівники компанії</h2>
-      <span v-if="store.pagination" class="total-badge">
-        Всього: {{ store.pagination.total > 1 ? store.pagination.total : '-' }}
-      </span>
-    </div>
+    <Card>
+      <template #header>
+        <h2>Працівники компанії</h2>
+        <span v-if="store.pagination" class="total-badge">
+          Всього: {{ store.pagination.total > 1 ? store.pagination.total : '-' }}
+        </span>
+      </template>
 
-    <div v-if="store.error" class="error-alert">{{ store.error }}</div>
+      <div v-if="store.error" class="error-alert">{{ store.error }}</div>
 
-    <div v-if="store.isLoading" class="loading">Завантаження...</div>
+      <div v-if="store.isLoading" class="loading">Завантаження...</div>
 
-    <div v-else>
-      <div v-if="filteredUsers.length === 0" class="empty-state">Користувачів не знайдено</div>
+      <div v-else>
+        <div v-if="filteredUsers.length === 0" class="empty-state">Користувачів не знайдено</div>
 
-      <div class="user-list">
-        <div v-for="user in filteredUsers" :key="user.id" class="user-card">
-          <div class="user-main">
-            <img
-              v-if="user.avatar"
-              :src="getAvatarUrl(user.avatar) ?? undefined"
-              class="avatar"
-              :alt="user.name"
-            />
-            <div v-else class="avatar-placeholder">{{ user.name[0] }}</div>
+        <div class="user-list">
+          <div v-for="user in filteredUsers" :key="user.id" class="user-card">
+            <div class="user-main">
+              <Avatar
+                :src="user.avatar || undefined"
+                :alt="user.name"
+                :fallback-text="user.name"
+                size="medium"
+              />
 
-            <div class="user-info">
-              <div class="user-name">{{ user.name }}</div>
-              <div class="user-email">{{ user.email }}</div>
-              <div class="user-meta">
-                <span class="badge" :class="`badge-${user.role}`">
-                  {{ roleLabels[user.role] }}
-                </span>
-                <span v-if="user.work_mode" class="badge badge-mode">
-                  {{ workModeLabels[user.work_mode] }}
-                </span>
-                <span v-if="user.company" class="meta-text">{{ user.company.name }}</span>
-                <span v-if="user.manager" class="meta-text">{{ user.manager.name }}</span>
+              <div class="user-info">
+                <div class="user-name">{{ user.name }}</div>
+                <div class="user-email">{{ user.email }}</div>
+                <div class="user-meta">
+                  <Badge :variant="roleVariants[user.role]" :label="roleLabels[user.role]" />
+                  <span v-if="user.work_mode" class="work-mode-text">
+                    {{ workModeLabels[user.work_mode] }}
+                  </span>
+                  <span v-if="user.company" class="meta-text">{{ user.company.name }}</span>
+                  <span v-if="user.manager" class="meta-text">{{ user.manager.name }}</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="user-actions">
-            <button class="btn-action btn-edit" @click="openEdit(user)">Редагувати</button>
-            <button class="btn-action btn-role" @click="openRoleChange(user)">Роль</button>
-            <button class="btn-action btn-mode" @click="openWorkModeChange(user)">Режим</button>
-            <button class="btn-action btn-password" @click="openPasswordReset(user)">Пароль</button>
-            <button class="btn-action btn-delete" @click="handleDelete(user)">Видалити</button>
+            <div class="user-actions">
+              <button class="action-btn" @click="openEdit(user)" title="Редагувати">✏️</button>
+              <button class="action-btn" @click="openRoleChange(user)" title="Роль">👤</button>
+              <button class="action-btn" @click="openWorkModeChange(user)" title="Режим">💼</button>
+              <button class="action-btn" @click="openPasswordReset(user)" title="Пароль">🔑</button>
+              <button class="action-btn danger" @click="handleDelete(user)" title="Видалити">🗑️</button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <Pagination
-      v-if="store.pagination && store.pagination.last_page > 1"
-      :meta="store.pagination"
-      @change-page="loadPage"
-    />
+      <Pagination
+        v-if="store.pagination && store.pagination.last_page > 1"
+        :meta="store.pagination"
+        @change-page="loadPage"
+      />
+    </Card>
 
     <!-- Modals -->
     <AdminEditUserModal
@@ -250,37 +257,35 @@ onMounted(() => loadPage(1))
 
 <style scoped>
 .users-manager {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  max-width: 1100px;
+  margin: 0 auto;
 }
 
-.section-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.section-header h2 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #1f2937;
+h2 {
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
 }
 
 .total-badge {
-  background: #ede9fe;
-  color: #6d28d9;
-  padding: 0.2rem 0.75rem;
+  background: var(--sand-light);
+  color: var(--text);
+  padding: 0.25rem 0.875rem;
   border-radius: 9999px;
-  font-size: 0.8rem;
-  font-weight: 500;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
 .error-alert {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--error-bg);
+  color: var(--error-text);
+  border: 1px solid var(--error-border);
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
+  font-family: var(--font-body);
   font-size: 0.875rem;
 }
 
@@ -288,7 +293,8 @@ onMounted(() => loadPage(1))
 .empty-state {
   text-align: center;
   padding: 2rem;
-  color: #6b7280;
+  color: var(--text-muted);
+  font-family: var(--font-body);
 }
 
 .user-list {
@@ -303,15 +309,15 @@ onMounted(() => loadPage(1))
   justify-content: space-between;
   gap: 1rem;
   padding: 1rem 1.25rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.75rem;
-  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--surface);
   transition: box-shadow 0.15s;
   flex-wrap: wrap;
 }
 
 .user-card:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px var(--shadow);
 }
 
 .user-main {
@@ -319,29 +325,7 @@ onMounted(() => loadPage(1))
   align-items: center;
   gap: 1rem;
   min-width: 0;
-}
-
-.avatar {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 9999px;
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
-.avatar-placeholder {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 9999px;
-  background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.9rem;
-  font-weight: 600;
-  flex-shrink: 0;
-  text-transform: uppercase;
+  flex: 1;
 }
 
 .user-info {
@@ -349,20 +333,23 @@ onMounted(() => loadPage(1))
   flex-direction: column;
   gap: 0.25rem;
   min-width: 0;
+  flex: 1;
 }
 
 .user-name {
+  font-family: var(--font-body);
   font-weight: 600;
   font-size: 0.95rem;
-  color: #111827;
+  color: var(--text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .user-email {
+  font-family: var(--font-body);
   font-size: 0.8rem;
-  color: #6b7280;
+  color: var(--text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -372,13 +359,15 @@ onMounted(() => loadPage(1))
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.375rem;
-  margin-top: 0.125rem;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
 }
 
+.work-mode-text,
 .meta-text {
+  font-family: var(--font-body);
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: var(--text-muted);
 }
 
 .meta-text::before {
@@ -386,93 +375,64 @@ onMounted(() => loadPage(1))
   margin-right: 0.375rem;
 }
 
-.badge {
-  display: inline-block;
-  padding: 0.15rem 0.55rem;
-  border-radius: 9999px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.badge-admin {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.badge-manager {
-  background: #dbeafe;
-  color: #1e40af;
-}
-
-.badge-employee {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-.badge-mode {
-  background: #f3f4f6;
-  color: #374151;
-  text-transform: none;
-  font-weight: 500;
-  font-size: 0.7rem;
-}
-
 .user-actions {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0.375rem;
   flex-shrink: 0;
 }
 
-.btn-action {
-  padding: 0.3rem 0.7rem;
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.375rem 0.5rem;
   border-radius: 0.375rem;
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-size: 1rem;
   cursor: pointer;
-  border: none;
   transition: all 0.15s;
-  white-space: nowrap;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  min-width: 32px;
+  height: 32px;
 }
 
-.btn-edit {
-  background: #dbeafe;
-  color: #1e40af;
-}
-.btn-edit:hover {
-  background: #bfdbfe;
+.action-btn:hover {
+  border-color: var(--accent-2);
+  background: var(--sand-light);
+  transform: scale(1.1);
 }
 
-.btn-role {
-  background: #fef3c7;
-  color: #92400e;
-}
-.btn-role:hover {
-  background: #fde68a;
+.action-btn.danger:hover {
+  border-color: var(--error-border);
+  background: var(--error-bg);
+  transform: scale(1.1);
 }
 
-.btn-mode {
-  background: #d1fae5;
-  color: #065f46;
-}
-.btn-mode:hover {
-  background: #a7f3d0;
+@media (max-width: 900px) {
+  .user-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .user-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
 }
 
-.btn-password {
-  background: #ede9fe;
-  color: #5b21b6;
-}
-.btn-password:hover {
-  background: #ddd6fe;
-}
+@media (max-width: 640px) {
+  h2 {
+    font-size: 1.1rem;
+  }
 
-.btn-delete {
-  background: #fee2e2;
-  color: #991b1b;
-}
-.btn-delete:hover {
-  background: #fecaca;
+  .user-card {
+    padding: 0.875rem 1rem;
+  }
+
+  .user-actions {
+    gap: 0.375rem;
+  }
 }
 </style>

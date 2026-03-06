@@ -92,10 +92,11 @@ watch(
 .success-alert {
   padding: 0.75rem 1rem;
   margin-bottom: 1rem;
-  background-color: #d1fae5;
-  border: 1px solid #a7f3d0;
+  background-color: rgba(74, 222, 128, 0.1);
+  border: 1px solid rgba(74, 222, 128, 0.3);
   border-radius: 0.5rem;
-  color: #065f46;
+  color: var(--pin-ok-color);
+  font-family: var(--font-body);
   font-size: 0.875rem;
   font-weight: 500;
 }
@@ -103,10 +104,11 @@ watch(
 .error-alert {
   padding: 0.75rem 1rem;
   margin-bottom: 1rem;
-  background-color: #fee2e2;
-  border: 1px solid #fecaca;
+  background-color: var(--error-bg);
+  border: 1px solid var(--error-border);
   border-radius: 0.5rem;
-  color: #dc2626;
+  color: var(--error-text);
+  font-family: var(--font-body);
   font-size: 0.875rem;
   font-weight: 500;
 }
@@ -117,39 +119,55 @@ watch(
 }
 
 .forgot-link {
+  font-family: var(--font-body);
   font-size: 0.875rem;
-  color: #2563eb;
+  color: var(--accent-2);
   text-decoration: none;
   font-weight: 500;
+  transition: color 0.2s ease;
 }
 
 .forgot-link:hover {
-  color: #1d4ed8;
+  color: var(--accent-2-hover);
 }
 
 .submit-button {
   width: 100%;
   padding: 0.75rem 1rem;
-  background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
-  color: white;
-  font-weight: 500;
+  background: var(--accent-2);
+  color: var(--btn-on-accent);
+  font-family: var(--font-body);
+  font-weight: 600;
   font-size: 1rem;
   border: none;
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   cursor: pointer;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px var(--shadow);
+  transition: all 0.2s ease;
 }
 
 .submit-button:hover {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  transform: scale(1.02);
+  background: var(--accent-2-hover);
+  box-shadow: 0 4px 12px var(--shadow);
+  transform: translateY(-1px);
+}
+
+.submit-button:active {
+  transform: translateY(0);
 }
 
 .terms-text {
   text-align: center;
+  font-family: var(--font-body);
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--text-muted);
   margin-top: 1rem;
+}
+
+@media (max-width: 640px) {
+  .submit-button {
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+  }
 }
 </style>

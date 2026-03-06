@@ -65,9 +65,10 @@ function handleFocus(event: FocusEvent) {
 
 .input-label {
   display: block;
+  font-family: var(--font-body);
   font-size: 0.875rem;
   font-weight: 500;
-  color: #374151;
+  color: var(--text);
   margin-bottom: 0.5rem;
 }
 
@@ -82,43 +83,54 @@ function handleFocus(event: FocusEvent) {
   transform: translateY(-50%);
   width: 1.25rem;
   height: 1.25rem;
-  color: #9ca3af;
+  color: var(--text-muted);
 }
 
 .input-field {
   width: 100%;
   padding: 0.75rem 1rem 0.75rem 2.75rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.75rem;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 0.5rem;
+  font-family: var(--font-body);
   font-size: 1rem;
-  transition: all 0.3s ease;
+  color: var(--text);
+  transition: all 0.2s ease;
   box-sizing: border-box;
 }
 
 .input-field:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: var(--accent-2);
+  box-shadow: 0 0 0 3px rgba(255, 155, 81, 0.1);
 }
 
 .input-field::placeholder {
-  color: #9ca3af;
+  color: var(--text-muted);
 }
 
 .input-error {
-  border-color: #ef4444 !important;
+  border-color: var(--error-text) !important;
 }
 
 .input-error:focus {
-  border-color: #dc2626 !important;
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+  border-color: var(--error-text) !important;
+  box-shadow: 0 0 0 3px var(--error-bg) !important;
 }
 
 .error-message {
   display: block;
   margin-top: 0.25rem;
+  font-family: var(--font-body);
   font-size: 0.75rem;
-  color: #ef4444;
+  color: var(--error-text);
   font-weight: 500;
+}
+
+@media (max-width: 640px) {
+  .input-field {
+    font-size: 1rem;
+    padding: 0.875rem 1rem 0.875rem 2.75rem;
+  }
 }
 </style>

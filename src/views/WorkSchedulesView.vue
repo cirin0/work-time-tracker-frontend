@@ -161,11 +161,10 @@ async function handleAssign(userId: number, scheduleId: number) {
 
     <!-- Assign Modal -->
     <AssignScheduleModal
-      v-if="showAssignModal"
+      v-model="showAssignModal"
       :schedule="assigningSchedule"
       :employees="managerStore.employees"
       :is-saving="workScheduleStore.isSaving"
-      @close="showAssignModal = false"
       @assign="handleAssign"
     />
   </div>

@@ -48,13 +48,13 @@ const formattedTime = useDateFormat(() => props.message.created_at, 'HH:mm')
   max-width: 70%;
   padding: 0.75rem 1rem;
   border-radius: 1rem;
-  background-color: #f3f4f6;
-  color: #1f2937;
+  background-color: var(--sand-light);
+  color: var(--text);
 }
 
 .message-wrapper.own .message-bubble {
-  background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
-  color: white;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  color: var(--surface);
   border-bottom-right-radius: 0.25rem;
 }
 
@@ -65,12 +65,20 @@ const formattedTime = useDateFormat(() => props.message.created_at, 'HH:mm')
 .message-text {
   word-wrap: break-word;
   line-height: 1.5;
+  font-family: var(--font-body);
 }
 
 .message-time {
+  font-family: var(--font-mono);
   font-size: 0.75rem;
   opacity: 0.7;
   margin-top: 0.25rem;
   text-align: right;
+}
+
+@media (max-width: 640px) {
+  .message-bubble {
+    max-width: 85%;
+  }
 }
 </style>

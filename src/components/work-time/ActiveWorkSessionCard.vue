@@ -3,6 +3,9 @@ import { computed, ref } from 'vue'
 import type { TimeEntry } from '@/types/interfaces/timeEntry.interface'
 import { formatTime } from '@/core/utils/date'
 import { useWorkTimer } from '@/composables/useWorkTimer'
+import Card from '@/components/ui/Card.vue'
+import Modal from '@/components/ui/Modal.vue'
+import Badge from '@/components/ui/Badge.vue'
 
 interface Props {
   activeEntry: TimeEntry | null
@@ -55,7 +58,7 @@ function handleStop() {
 </script>
 
 <template>
-  <div class="active-session-card">
+  <Card :no-padding="true" class="active-session-card">
     <!-- Active Work Session -->
     <div v-if="activeEntry" class="session-active">
       <div class="session-header">
@@ -63,10 +66,7 @@ function handleStop() {
           <span class="pulse-dot"></span>
           <span class="status-text">Працюю зараз</span>
         </div>
-        <button class="btn-stop" :disabled="isStopping" @click="openStopModal">
-          <span class="btn-icon">⏹️</span>
-          <span>{{ isStopping ? 'Завершую...' : 'Завершити' }}</span>
-        </button>
+        <Badge variant="status-active" label="Активна" />
       </div>
 
       <div class="session-details">
@@ -90,6 +90,13 @@ function handleStop() {
         <p class="comment-label">Коментар:</p>
         <p class="comment-text">{{ activeEntry.start_comment }}</p>
       </div>
+
+      <div class="session-actions">
+        <button class="btn-stop" :disabled="isStopping" @click="openStopModal">
+          <span class="btn-icon">⏹️</span>
+          <span>{{ isStopping ? 'Завершую...' : 'Завершити' }}</span>
+        </button>
+      </div>
     </div>
 
     <!-- Start Work Button -->
@@ -103,47 +110,36 @@ function handleStop() {
         </button>
       </div>
     </div>
+  </Card>
 
-    <!-- Stop Work Modal -->
-    <div v-if="showStopModal" class="modal-overlay" @click.self="showStopModal = false">
-      <div class="modal-content">
-        <h3>Завершити роботу</h3>
-        <p class="modal-description">Введіть ваш PIN-код для підтвердження</p>
-        <input
-          v-model="stopPinCode"
-          type="password"
-          maxlength="4"
-          placeholder="0000"
-          class="pin-input"
-          @keyup.enter="handleStop"
-        />
-        <div class="modal-actions">
-          <button class="btn-cancel" @click="showStopModal = false">Скасувати</button>
-          <button
-            class="btn-confirm"
-            :disabled="stopPinCode.length !== 4 || isStopping"
-            @click="handleStop"
-          >
-            {{ isStopping ? 'Завершую...' : 'Підтвердити' }}
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- Stop Work Modal -->
+  <Modal v-model="showStopModal" title="Завершити роботу">
+    <p class="modal-description">Введіть ваш PIN-код для підтвердження</p>
+    <input
+      v-model="stopPinCode"
+      type="password"
+      maxlength="4"
+      placeholder="0000"
+      class="pin-input"
+      @keyup.enter="handleStop"
+    />
+    <template #footer>
+      <button class="btn-cancel" @click="showStopModal = false">Скасувати</button>
+      <button
+        class="btn-confirm"
+        :disabled="stopPinCode.length !== 4 || isStopping"
+        @click="handleStop"
+      >
+        {{ isStopping ? 'Завершую...' : 'Підтвердити' }}
+      </button>
+    </template>
+  </Modal>
 </template>
 
 <style scoped>
-.active-session-card {
-  background: white;
-  border-radius: 1rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-}
-
 /* Active Session */
 .session-active {
-  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-  color: white;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(22, 163, 74, 0.05) 100%);
   padding: 2rem;
 }
 
@@ -164,7 +160,7 @@ function handleStop() {
   display: block;
   width: 12px;
   height: 12px;
-  background: white;
+  background: var(--accent-2);
   border-radius: 50%;
   animation: pulse 2s infinite;
 }
@@ -182,37 +178,10 @@ function handleStop() {
 }
 
 .status-text {
+  font-family: var(--font-heading);
   font-size: 1.25rem;
   font-weight: 600;
-}
-
-.btn-stop {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1.25rem;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 0.5rem;
-  color: white;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-stop:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.3);
-  transform: translateY(-1px);
-}
-
-.btn-stop:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.btn-icon {
-  font-size: 1.1rem;
+  color: var(--text);
 }
 
 .session-details {
@@ -229,47 +198,94 @@ function handleStop() {
 }
 
 .detail-item.highlight {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--sand-light);
   padding: 1rem;
   border-radius: 0.5rem;
+  border: 1px solid var(--border);
 }
 
 .detail-label {
+  font-family: var(--font-body);
   font-size: 0.875rem;
-  opacity: 0.9;
+  color: var(--text-muted);
 }
 
 .detail-value {
+  font-family: var(--font-mono);
   font-size: 1.25rem;
   font-weight: 600;
+  color: var(--text);
 }
 
 .detail-value.large {
   font-size: 2rem;
+  color: var(--accent-2);
 }
 
 .session-comment {
-  margin-top: 1.5rem;
+  margin-top: 1rem;
   padding: 1rem;
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--sand-light);
   border-radius: 0.5rem;
+  border: 1px solid var(--border);
 }
 
 .comment-label {
+  font-family: var(--font-body);
   font-size: 0.875rem;
-  opacity: 0.9;
+  font-weight: 600;
+  color: var(--text);
   margin-bottom: 0.25rem;
 }
 
 .comment-text {
+  font-family: var(--font-body);
   font-size: 1rem;
+  color: var(--text-muted);
   margin: 0;
+}
+
+.session-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-stop {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  background: var(--accent-2);
+  color: var(--btn-on-accent);
+  border: none;
+  border-radius: 0.5rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-stop:hover:not(:disabled) {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 155, 81, 0.4);
+}
+
+.btn-stop:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-icon {
+  font-size: 1.1rem;
 }
 
 /* Idle State */
 .session-idle {
   padding: 3rem 2rem;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  background: var(--sand-light);
 }
 
 .idle-content {
@@ -284,133 +300,112 @@ function handleStop() {
 }
 
 .idle-title {
+  font-family: var(--font-heading);
   font-size: 1.75rem;
-  font-weight: 600;
-  color: #1f2937;
+  font-weight: 700;
+  color: var(--text);
   margin-bottom: 0.5rem;
 }
 
 .idle-subtitle {
+  font-family: var(--font-body);
   font-size: 1rem;
-  color: #6b7280;
+  color: var(--text-muted);
   margin-bottom: 2rem;
 }
 
 .btn-start {
   padding: 1rem 2.5rem;
-  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-  color: white;
+  background: var(--accent-2);
+  color: var(--btn-on-accent);
   border: none;
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
+  font-family: var(--font-body);
   font-size: 1.125rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 4px 6px rgba(34, 197, 94, 0.3);
 }
 
 .btn-start:hover:not(:disabled) {
+  filter: brightness(1.1);
   transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(34, 197, 94, 0.4);
+  box-shadow: 0 6px 12px rgba(255, 155, 81, 0.4);
 }
 
 .btn-start:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
-/* Modal */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background: white;
-  border-radius: 1rem;
-  padding: 2rem;
-  width: 100%;
-  max-width: 400px;
-  text-align: center;
-}
-
-.modal-content h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 0.5rem;
-}
-
+/* Modal Styles */
 .modal-description {
-  color: #6b7280;
+  color: var(--text-muted);
+  font-family: var(--font-body);
   font-size: 0.9rem;
   margin-bottom: 1.5rem;
+  text-align: center;
 }
 
 .pin-input {
   width: 100%;
   padding: 0.75rem 1rem;
+  font-family: var(--font-mono);
   font-size: 1.5rem;
   text-align: center;
   letter-spacing: 0.5rem;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--border);
   border-radius: 0.5rem;
+  background: var(--surface);
+  color: var(--text);
   outline: none;
   transition: border-color 0.2s;
   margin-bottom: 1.5rem;
 }
 
 .pin-input:focus {
-  border-color: #2563eb;
-}
-
-.modal-actions {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
+  border-color: var(--accent-2);
 }
 
 .btn-cancel {
-  padding: 0.625rem 1.5rem;
-  background: #f3f4f6;
-  color: #374151;
-  border: 1px solid #d1d5db;
+  padding: 0.6rem 1.25rem;
+  background: var(--sand-light);
+  color: var(--text);
+  border: 1.5px solid var(--border);
   border-radius: 0.5rem;
-  font-weight: 500;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .btn-cancel:hover {
-  background: #e5e7eb;
+  border-color: var(--accent-2);
+  color: var(--accent-2);
 }
 
 .btn-confirm {
-  padding: 0.625rem 1.5rem;
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  color: white;
+  padding: 0.6rem 1.25rem;
+  background: var(--accent-2);
+  color: var(--btn-on-accent);
   border: none;
   border-radius: 0.5rem;
-  font-weight: 500;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .btn-confirm:hover:not(:disabled) {
+  filter: brightness(1.1);
   transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3);
+  box-shadow: 0 4px 12px rgba(255, 155, 81, 0.4);
 }
 
 .btn-confirm:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
   cursor: not-allowed;
 }
 

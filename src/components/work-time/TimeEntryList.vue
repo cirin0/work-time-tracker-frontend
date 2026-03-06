@@ -54,14 +54,14 @@ function handleViewMore() {
   align-items: center;
   justify-content: center;
   padding: 3rem 1rem;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid #e5e7eb;
-  border-top-color: #2563eb;
+  border: 4px solid var(--border);
+  border-top-color: var(--accent-2);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   margin-bottom: 1rem;
@@ -75,6 +75,7 @@ function handleViewMore() {
 
 .loading-state p {
   margin: 0;
+  font-family: var(--font-body);
   font-size: 0.875rem;
 }
 
@@ -90,15 +91,17 @@ function handleViewMore() {
 }
 
 .empty-text {
+  font-family: var(--font-body);
   font-size: 1rem;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--text-muted);
   margin-bottom: 0.5rem;
 }
 
 .empty-hint {
+  font-family: var(--font-body);
   font-size: 0.875rem;
-  color: #9ca3af;
+  color: var(--text-muted);
   margin: 0;
 }
 
@@ -112,10 +115,11 @@ function handleViewMore() {
   width: 100%;
   padding: 0.875rem;
   margin-top: 0.5rem;
-  background: white;
-  border: 2px dashed #d1d5db;
+  background: var(--surface);
+  border: 2px dashed var(--border);
   border-radius: 0.75rem;
-  color: #6b7280;
+  color: var(--text-muted);
+  font-family: var(--font-body);
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -123,8 +127,8 @@ function handleViewMore() {
 }
 
 .btn-view-more:hover {
-  border-color: #2563eb;
-  color: #2563eb;
-  background: #f0f9ff;
+  border-color: var(--accent-2);
+  color: var(--accent-2);
+  background: var(--sand-light);
 }
 </style>

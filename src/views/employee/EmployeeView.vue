@@ -10,6 +10,7 @@ import TimeEntryList from '@/components/work-time/TimeEntryList.vue'
 import QRCodeDisplay from '@/components/qr-code/QRCodeDisplay.vue'
 import StatCard from '@/components/ui/StatCard.vue'
 import Pagination from '@/components/ui/Pagination.vue'
+import Card from '@/components/ui/Card.vue'
 
 const router = useRouter()
 const { currentUser, isManager } = useRoleGuard()
@@ -20,7 +21,7 @@ const employeeStore = useEmployeeStore()
 const todayStats = computed(() => {
   const hours = employeeStore.timeSummary?.summary.today.hours ?? 0
   const minutes = employeeStore.timeSummary?.summary.today.minutes ?? 0
-  return `${hours}г ${minutes.toString().padStart(2, '0')}хв`
+  return { hours, minutes }
 })
 
 const todayHours = computed(() => employeeStore.timeSummary?.summary.today.hours ?? 0)
@@ -30,14 +31,14 @@ const todayMinutes = computed(() => employeeStore.timeSummary?.summary.today.min
 const weekStats = computed(() => {
   const hours = employeeStore.timeSummary?.summary.week.hours ?? 0
   const minutes = employeeStore.timeSummary?.summary.week.minutes ?? 0
-  return `${hours}г ${minutes.toString().padStart(2, '0')}хв`
+  return { hours, minutes }
 })
 
 // Stats Card: Місяць
 const monthStats = computed(() => {
   const hours = employeeStore.timeSummary?.summary.month.hours ?? 0
   const minutes = employeeStore.timeSummary?.summary.month.minutes ?? 0
-  return `${hours}г ${minutes.toString().padStart(2, '0')}хв`
+  return { hours, minutes }
 })
 
 // Stats Card: Вчасно
@@ -112,39 +113,46 @@ function viewStatistics() {
 
       <!-- Stats Grid -->
       <div class="stats-grid">
-        <StatCard icon="📅" label="Сьогодні" :value="todayStats" />
-        <StatCard icon="📊" label="Тиждень" :value="weekStats" />
-        <StatCard icon="📈" label="Місяць" :value="monthStats" />
-        <StatCard
-          icon="✅"
-          label="Вчасно"
-          :value="attendanceStats.value"
-          :sub-text="attendanceStats.subText"
-        />
+        <StatCard icon="📅" label="Сьогодні">
+          <span class="stat-time">{{ todayStats.hours }}г {{ todayStats.minutes.toString().padStart(2, '0') }}хв</span>
+        </StatCard>
+        <StatCard icon="📊" label="Тиждень">
+          <span class="stat-time">{{ weekStats.hours }}г {{ weekStats.minutes.toString().padStart(2, '0') }}хв</span>
+        </StatCard>
+        <StatCard icon="📈" label="Місяць">
+          <span class="stat-time">{{ monthStats.hours }}г {{ monthStats.minutes.toString().padStart(2, '0') }}хв</span>
+        </StatCard>
+        <StatCard icon="✅" label="Вчасно" :sub-text="attendanceStats.subText">
+          <span class="stat-number">{{ attendanceStats.value }}</span>
+        </StatCard>
       </div>
 
       <!-- Quick Actions -->
-      <div class="quick-actions">
-        <button class="quick-action-btn" @click="viewCompany">
-          <span class="qa-icon">🏢</span>
-          <span class="qa-label">Компанія</span>
-        </button>
-        <button class="quick-action-btn" @click="viewStatistics">
-          <span class="qa-icon">📈</span>
-          <span class="qa-label">Розширена статистика</span>
-        </button>
-        <button class="quick-action-btn" @click="viewLeaveRequests">
-          <span class="qa-icon">📋</span>
-          <span class="qa-label">Запити на відпустку</span>
-        </button>
-      </div>
+      <Card>
+        <div class="quick-actions">
+          <button class="quick-action-btn" @click="viewCompany">
+            <span class="qa-icon">🏢</span>
+            <span class="qa-label">Компанія</span>
+          </button>
+          <button class="quick-action-btn" @click="viewStatistics">
+            <span class="qa-icon">📈</span>
+            <span class="qa-label">Розширена статистика</span>
+          </button>
+          <button class="quick-action-btn" @click="viewLeaveRequests">
+            <span class="qa-icon">📋</span>
+            <span class="qa-label">Запити на відпустку</span>
+          </button>
+        </div>
+      </Card>
 
       <!-- Two Column Layout -->
       <div class="two-column-layout">
         <div class="left-column">
           <!-- Recent Work Log -->
-          <div class="content-section">
-            <h2>📝 Історія робочого часу</h2>
+          <Card>
+            <template #header>
+              <h2>📝 Історія робочого часу</h2>
+            </template>
             <TimeEntryList
               :entries="employeeStore.recentEntries"
               :is-loading="employeeStore.isLoadingEntries"
@@ -155,18 +163,18 @@ function viewStatistics() {
               :meta="employeeStore.entriesMeta"
               @change-page="handlePageChange"
             />
-          </div>
+          </Card>
 
           <!-- QR Code for Managers -->
-          <div v-if="isManager" class="content-section">
-            <QRCodeDisplay />
-          </div>
+          <QRCodeDisplay v-if="isManager" />
 
           <!-- Error Banner -->
-          <div v-if="employeeStore.error" class="error-banner">
-            <p>{{ employeeStore.error }}</p>
-            <button @click="employeeStore.clearError()">Закрити</button>
-          </div>
+          <Card v-if="employeeStore.error" variant="highlighted">
+            <div class="error-banner">
+              <p>{{ employeeStore.error }}</p>
+              <button @click="employeeStore.clearError()">Закрити</button>
+            </div>
+          </Card>
         </div>
 
         <div class="right-column">
@@ -178,17 +186,21 @@ function viewStatistics() {
             :today-minutes="todayMinutes"
           />
 
-          <div v-else-if="authStore.isLoadingUser" class="content-section">
-            <h3>📅 Сьогоднішній графік</h3>
+          <Card v-else-if="authStore.isLoadingUser">
+            <template #header>
+              <h3>📅 Сьогоднішній графік</h3>
+            </template>
             <div class="loading-state">
               <div class="spinner"></div>
               <p>Завантаження графіку...</p>
             </div>
-          </div>
+          </Card>
 
           <!-- Attendance Stats -->
-          <div v-if="employeeStore.timeSummary" class="content-section">
-            <h3>📊 Статистика відвідуваності</h3>
+          <Card v-if="employeeStore.timeSummary">
+            <template #header>
+              <h3>📊 Статистика відвідуваності</h3>
+            </template>
             <div class="attendance-grid">
               <div class="attendance-item">
                 <span class="attendance-value on-time">{{
@@ -215,7 +227,7 @@ function viewStatistics() {
                 <span class="attendance-label">Понаднормових</span>
               </div>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
     </div>
@@ -224,7 +236,7 @@ function viewStatistics() {
 
 <style scoped>
 .employee-dashboard {
-  max-width: 1600px;
+  max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
 }
@@ -234,17 +246,16 @@ function viewStatistics() {
 }
 
 .dashboard-header h1 {
+  font-family: var(--font-heading);
   font-size: 2rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--text);
   margin-bottom: 0.5rem;
 }
 
 .subtitle {
-  color: #6b7280;
+  font-family: var(--font-body);
+  color: var(--text-muted);
   font-size: 1rem;
 }
 
@@ -261,6 +272,13 @@ function viewStatistics() {
   gap: 1.5rem;
 }
 
+.stat-time,
+.stat-number {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 2rem;
+}
+
 /* Quick Actions */
 .quick-actions {
   display: flex;
@@ -273,26 +291,25 @@ function viewStatistics() {
   align-items: center;
   gap: 0.5rem;
   padding: 0.65rem 1.25rem;
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 0.5rem;
+  font-family: var(--font-body);
   font-size: 0.9rem;
   font-weight: 500;
-  color: #374151;
+  color: var(--text);
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 .quick-action-btn:hover:not(:disabled) {
-  border-color: #2563eb;
-  color: #2563eb;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12);
+  border-color: var(--accent-2);
+  color: var(--accent-2);
   transform: translateY(-1px);
 }
 
 .quick-action-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
@@ -312,12 +329,6 @@ function viewStatistics() {
   align-items: start;
 }
 
-@media (max-width: 1024px) {
-  .two-column-layout {
-    grid-template-columns: 1fr;
-  }
-}
-
 .left-column {
   display: flex;
   flex-direction: column;
@@ -332,19 +343,14 @@ function viewStatistics() {
   top: 1rem;
 }
 
-.content-section {
-  background: white;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.content-section h2,
-.content-section h3 {
+/* Card Headers */
+.card-header h2,
+.card-header h3 {
+  font-family: var(--font-heading);
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 1.25rem;
+  color: var(--text);
+  margin: 0;
 }
 
 /* Attendance Grid */
@@ -360,58 +366,62 @@ function viewStatistics() {
   align-items: center;
   gap: 0.25rem;
   padding: 1rem;
-  background: #f9fafb;
+  background: var(--sand-light);
   border-radius: 0.5rem;
 }
 
 .attendance-value {
+  font-family: var(--font-mono);
   font-size: 1.75rem;
   font-weight: 700;
   line-height: 1;
 }
 
 .attendance-value.on-time {
-  color: #22c55e;
+  color: var(--pin-ok-color);
 }
 
 .attendance-value.late {
-  color: #ef4444;
+  color: var(--error-text);
 }
 
 .attendance-value.early {
-  color: #f59e0b;
+  color: var(--accent-2);
 }
 
 .attendance-value.overtime {
-  color: #3b82f6;
+  color: var(--accent-1);
 }
 
 .attendance-label {
+  font-family: var(--font-body);
   font-size: 0.8rem;
-  color: #6b7280;
+  color: var(--text-muted);
   text-align: center;
 }
 
 /* Error Banner */
 .error-banner {
-  background: #fee2e2;
-  border: 1px solid #fecaca;
-  border-radius: 0.75rem;
-  padding: 1rem 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 1rem;
+  background: var(--error-bg);
+  border: 1px solid var(--error-border);
+  border-radius: 0.5rem;
 }
 
 .error-banner p {
-  color: #991b1b;
+  font-family: var(--font-body);
+  color: var(--error-text);
   margin: 0;
 }
 
 .error-banner button {
   background: none;
   border: none;
-  color: #991b1b;
+  color: var(--error-text);
+  font-family: var(--font-body);
   font-weight: 600;
   cursor: pointer;
   padding: 0.25rem 0.5rem;
@@ -424,14 +434,14 @@ function viewStatistics() {
   align-items: center;
   justify-content: center;
   padding: 3rem 1rem;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid #e5e7eb;
-  border-top-color: #2563eb;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent-2);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   margin-bottom: 1rem;
@@ -444,11 +454,23 @@ function viewStatistics() {
 }
 
 .loading-state p {
+  font-family: var(--font-body);
   margin: 0;
   font-size: 0.875rem;
 }
 
-@media (max-width: 768px) {
+/* Responsive Design */
+@media (max-width: 900px) {
+  .two-column-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .right-column {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
   .employee-dashboard {
     padding: 1rem;
   }
@@ -467,10 +489,6 @@ function viewStatistics() {
 
   .quick-action-btn {
     justify-content: center;
-  }
-
-  .right-column {
-    position: static;
   }
 
   .attendance-grid {

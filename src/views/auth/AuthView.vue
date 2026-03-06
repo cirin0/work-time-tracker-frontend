@@ -28,7 +28,7 @@ const handleRegisterSuccess = () => {
 <style scoped>
 .app-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%);
+  background: var(--bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -39,12 +39,22 @@ const handleRegisterSuccess = () => {
   width: 100%;
   max-width: 28rem;
 }
+
 .form-card {
-  background: white;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 1rem;
-  box-shadow:
-    0 20px 25px -5px rgba(0, 0, 0, 0.1),
-    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 12px var(--shadow);
   padding: 2rem;
+}
+
+@media (max-width: 640px) {
+  .app-container {
+    padding: 0.5rem;
+  }
+
+  .form-card {
+    padding: 1.5rem;
+  }
 }
 </style>

@@ -22,12 +22,24 @@ const { values, errors, dayFieldsWithErrors, generalError, submit } = useWorkSch
   schedule: scheduleRef,
   onSubmit: (payload) => emit('submit', payload),
 })
+
+const DAY_LABELS: Record<string, string> = {
+  monday: 'Понеділок',
+  tuesday: 'Вівторок',
+  wednesday: 'Середа',
+  thursday: 'Четвер',
+  friday: 'П\'ятниця',
+  saturday: 'Субота',
+  sunday: 'Неділя',
+}
 </script>
 
 <template>
   <div class="schedule-form">
     <div class="form-section">
-      <label class="form-label">Назва розкладу <span class="required">*</span></label>
+      <label class="form-label">
+        Назва розкладу <span class="required">*</span>
+      </label>
       <input
         v-model="values.name"
         type="text"
@@ -59,7 +71,7 @@ const { values, errors, dayFieldsWithErrors, generalError, submit } = useWorkSch
           <div class="day-toggle">
             <label class="toggle-label">
               <input v-model="field.value.is_working_day" type="checkbox" class="checkbox-input" />
-              <span class="day-name">{{ label }}</span>
+              <span class="day-name">{{ DAY_LABELS[field.value.day_of_week] || label }}</span>
             </label>
           </div>
 
@@ -104,8 +116,8 @@ const { values, errors, dayFieldsWithErrors, generalError, submit } = useWorkSch
     <div v-if="generalError" class="error-message">{{ generalError }}</div>
 
     <div class="form-actions">
-      <button type="button" class="btn-cancel" @click="emit('cancel')">Скасувати</button>
-      <button type="button" class="btn-submit" :disabled="isSaving" @click="submit">
+      <button type="button" class="btn-secondary" @click="emit('cancel')">Скасувати</button>
+      <button type="button" class="btn-primary" :disabled="isSaving" @click="submit">
         <span v-if="isSaving">Збереження...</span>
         <span v-else>{{ schedule ? 'Зберегти зміни' : 'Створити розклад' }}</span>
       </button>
@@ -117,231 +129,287 @@ const { values, errors, dayFieldsWithErrors, generalError, submit } = useWorkSch
 .schedule-form {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.5rem;
 }
 
 .form-section {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.5rem;
 }
 
 .form-label {
+  font-family: var(--font-body);
   font-size: 0.9rem;
   font-weight: 600;
-  color: #374151;
+  color: var(--text);
 }
 
 .required {
-  color: #ef4444;
+  color: var(--error-text);
 }
 
 .form-input {
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  padding: 0.6rem 0.85rem;
+  border: 1.5px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-family: var(--font-body);
   font-size: 0.9rem;
-  color: #1f2937;
+  color: var(--text);
+  background: var(--surface);
   outline: none;
-  transition: border-color 0.2s;
+  transition: all 0.2s;
 }
 
 .form-input:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  border-color: var(--accent-2);
+  box-shadow: 0 0 0 3px rgba(255, 155, 81, 0.1);
 }
 
 .input-error {
-  border-color: #ef4444 !important;
+  border-color: var(--error-border) !important;
 }
 
 .input-error:focus {
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+  box-shadow: 0 0 0 3px var(--error-bg) !important;
 }
 
 .field-error {
-  font-size: 0.78rem;
-  color: #dc2626;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--error-text);
+  font-weight: 500;
 }
 
 .checkbox-label {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
   cursor: pointer;
+  font-family: var(--font-body);
   font-size: 0.9rem;
   font-weight: 500;
-  color: #374151;
+  color: var(--text);
 }
 
 .checkbox-input {
-  width: 16px;
-  height: 16px;
-  accent-color: #2563eb;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent-2);
   cursor: pointer;
 }
 
 .hint {
-  font-size: 0.78rem;
-  color: #9ca3af;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--text-muted);
   margin: 0;
 }
 
 .section-title {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #374151;
-  margin: 0 0 0.5rem 0;
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 0.75rem 0;
 }
 
 .days-list {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
 .day-row {
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 0.75rem 1rem;
+  border: 1.5px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.25rem;
   flex-wrap: wrap;
-  background: #fafafa;
-  transition:
-    background 0.15s,
-    border-color 0.15s;
+  background: var(--surface);
+  transition: all 0.2s;
 }
 
 .day-active {
-  background: #eff6ff;
-  border-color: #bfdbfe;
+  background: var(--sand-light);
+  border-color: var(--accent-2);
 }
 
 .day-has-error {
-  border-color: #fca5a5;
-  background: #fff5f5;
+  border-color: var(--error-border);
+  background: var(--error-bg);
 }
 
 .day-toggle {
-  min-width: 130px;
+  min-width: 140px;
 }
 
 .toggle-label {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
   cursor: pointer;
 }
 
 .day-name {
-  font-size: 0.88rem;
-  font-weight: 500;
-  color: #374151;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
 }
 
 .day-fields {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
   flex-wrap: wrap;
 }
 
 .time-group {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.25rem;
 }
 
 .time-label {
-  font-size: 0.72rem;
-  color: #6b7280;
-  font-weight: 500;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 600;
 }
 
 .time-input,
 .number-input {
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  padding: 0.35rem 0.5rem;
-  font-size: 0.85rem;
-  color: #1f2937;
+  border: 1.5px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  color: var(--text);
+  background: var(--surface);
   outline: none;
-  background: white;
+  transition: all 0.2s;
 }
 
 .time-input:focus,
 .number-input:focus {
-  border-color: #2563eb;
+  border-color: var(--accent-2);
+  box-shadow: 0 0 0 2px rgba(255, 155, 81, 0.1);
 }
 
 .number-input {
-  width: 70px;
+  width: 80px;
 }
 
 .day-off-indicator {
-  font-size: 0.8rem;
-  color: #9ca3af;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--text-muted);
   font-style: italic;
 }
 
 .day-error {
+  font-family: var(--font-body);
   font-size: 0.75rem;
-  color: #dc2626;
+  color: var(--error-text);
   width: 100%;
-  margin-top: 0.15rem;
+  margin-top: 0.25rem;
+  font-weight: 500;
 }
 
 .error-message {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 8px;
-  padding: 0.6rem 0.875rem;
-  color: #dc2626;
-  font-size: 0.85rem;
+  background: var(--error-bg);
+  border: 1.5px solid var(--error-border);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  color: var(--error-text);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 .form-actions {
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
-  padding-top: 0.5rem;
+  padding-top: 0.75rem;
 }
 
-.btn-cancel {
-  padding: 0.55rem 1.25rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  background: white;
-  color: #374151;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.btn-cancel:hover {
-  background: #f9fafb;
-}
-
-.btn-submit {
-  padding: 0.55rem 1.5rem;
-  background: linear-gradient(135deg, #2563eb, #9333ea);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.9rem;
+.btn-secondary {
+  padding: 0.6rem 1.25rem;
+  border: 1.5px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: all 0.2s;
+  min-height: 44px;
 }
 
-.btn-submit:disabled {
-  opacity: 0.6;
+.btn-secondary:hover {
+  border-color: var(--accent-2);
+  color: var(--accent-2);
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  padding: 0.6rem 1.5rem;
+  background: var(--accent-2);
+  color: var(--btn-on-accent);
+  border: none;
+  border-radius: 0.5rem;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 44px;
+}
+
+.btn-primary:disabled {
+  opacity: 0.55;
   cursor: not-allowed;
+  transform: none;
 }
 
-.btn-submit:not(:disabled):hover {
-  opacity: 0.9;
+.btn-primary:not(:disabled):hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 155, 81, 0.4);
+}
+
+@media (max-width: 900px) {
+  .day-fields {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .day-row {
+    padding: 0.75rem 1rem;
+  }
+
+  .day-toggle {
+    min-width: 120px;
+  }
+
+  .time-group {
+    flex: 1;
+    min-width: 100px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .btn-secondary,
+  .btn-primary {
+    width: 100%;
+  }
 }
 </style>
