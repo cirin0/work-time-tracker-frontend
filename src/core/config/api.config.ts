@@ -34,7 +34,9 @@ export const API_ROUTES = {
     show: (id: number | string) => `/leave-requests/${id}`,
   },
   manager: {
-    statistics: '/managers/statistics',
+    company: {
+      statistics: '/managers/company/statistics',
+    },
     users: {
       index: '/managers/users',
       show: (userId: number | string) => `/managers/users/${userId}`,
