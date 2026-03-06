@@ -62,11 +62,27 @@ defineExpose({
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #6b7280;
+  color: var(--text-muted);
+  font-family: var(--font-body);
 }
 
 .empty-icon {
   font-size: 4rem;
   margin-bottom: 1rem;
+}
+
+@media (max-width: 640px) {
+  .empty-state {
+    padding: 1rem;
+  }
+
+  .empty-icon {
+    font-size: 3rem;
+  }
+
+  .empty-state p {
+    font-size: 0.9375rem;
+    text-align: center;
+  }
 }
 </style>

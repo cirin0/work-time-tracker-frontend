@@ -52,13 +52,20 @@ defineExpose({
   flex: 1;
   overflow-y: auto;
   padding: 1.5rem;
-  background-color: #f9fafb;
+  background-color: var(--bg);
 }
 
 .loading,
 .no-messages {
   text-align: center;
-  color: #6b7280;
+  color: var(--text-muted);
   padding: 2rem;
+  font-family: var(--font-body);
+}
+
+@media (max-width: 640px) {
+  .messages-container {
+    padding: 1rem;
+  }
 }
 </style>
