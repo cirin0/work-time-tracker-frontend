@@ -128,20 +128,21 @@ const isActive = computed(() => !props.entry.stop_time)
 <style scoped>
 .entry-item {
   padding: 1rem;
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 0.75rem;
   transition: all 0.2s;
 }
 
 .entry-item:hover {
-  border-color: #d1d5db;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-color: var(--accent-2);
+  box-shadow: 0 2px 8px var(--shadow);
 }
 
 .entry-item.active {
-  border-color: #22c55e;
-  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-color: var(--accent-2);
+  border-width: 2px;
+  background: var(--sand-light);
 }
 
 .entry-header {
@@ -158,17 +159,19 @@ const isActive = computed(() => !props.entry.stop_time)
 }
 
 .entry-date {
+  font-family: var(--font-body);
   font-size: 0.875rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
 }
 
 .entry-type {
   display: flex;
   align-items: center;
   gap: 0.375rem;
+  font-family: var(--font-body);
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .type-icon {
@@ -176,9 +179,10 @@ const isActive = computed(() => !props.entry.stop_time)
 }
 
 .entry-duration {
+  font-family: var(--font-mono);
   font-size: 1rem;
   font-weight: 700;
-  color: #2563eb;
+  color: var(--accent-2);
 }
 
 .entry-time {
@@ -190,12 +194,13 @@ const isActive = computed(() => !props.entry.stop_time)
 }
 
 .time-value {
+  font-family: var(--font-mono);
   font-weight: 600;
-  color: #374151;
+  color: var(--text);
 }
 
 .time-arrow {
-  color: #9ca3af;
+  color: var(--text-muted);
 }
 
 .entry-badges {
@@ -211,6 +216,7 @@ const isActive = computed(() => !props.entry.stop_time)
   gap: 0.25rem;
   padding: 0.25rem 0.625rem;
   border-radius: 9999px;
+  font-family: var(--font-body);
   font-size: 0.75rem;
   font-weight: 500;
 }
@@ -220,39 +226,65 @@ const isActive = computed(() => !props.entry.stop_time)
 }
 
 .badge-late {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--error-bg);
+  color: var(--error-text);
+  border: 1px solid var(--error-border);
 }
 
 .badge-early {
-  background: #dbeafe;
+  background: rgba(59, 130, 246, 0.15);
   color: #1e40af;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+[data-theme='dark'] .badge-early {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
 }
 
 .badge-early-leave {
-  background: #fef3c7;
-  color: #92400e;
+  background: rgba(251, 191, 36, 0.15);
+  color: #d97706;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+[data-theme='dark'] .badge-early-leave {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
 }
 
 .badge-overtime {
-  background: #fef3c7;
-  color: #92400e;
+  background: rgba(251, 191, 36, 0.15);
+  color: #d97706;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+[data-theme='dark'] .badge-overtime {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
 }
 
 .badge-on-time {
-  background: #dcfce7;
-  color: #166534;
+  background: rgba(34, 197, 94, 0.15);
+  color: #16a34a;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+[data-theme='dark'] .badge-on-time {
+  background: rgba(34, 197, 94, 0.2);
+  color: #4ade80;
 }
 
 .entry-comments {
   padding-top: 0.75rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--border);
 }
 
 .comment {
   margin: 0;
+  font-family: var(--font-body);
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--text-muted);
   line-height: 1.5;
 }
 
@@ -262,7 +294,7 @@ const isActive = computed(() => !props.entry.stop_time)
 
 .comment-label {
   font-weight: 600;
-  color: #374151;
+  color: var(--text);
 }
 
 @media (max-width: 768px) {

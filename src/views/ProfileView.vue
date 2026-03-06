@@ -5,6 +5,10 @@ import { useProfileStore } from '@/stores/profile.store'
 import { getAvatarUrl } from '@/core/utils/url'
 import { formatDate } from '@/core/utils/date'
 import InputField from '@/components/ui/InputField.vue'
+import Badge from '@/components/ui/Badge.vue'
+import Modal from '@/components/ui/Modal.vue'
+import Card from '@/components/ui/Card.vue'
+import Avatar from '@/components/ui/Avatar.vue'
 import type {
   UpdateProfileRequest,
   ChangePasswordRequest,
@@ -215,157 +219,137 @@ function getWorkModeLabel(mode?: string): string {
 <template>
   <div class="profile-page">
     <!-- Modals -->
-    <div v-if="isEditMode" class="modal-overlay" @click.self="cancelEdit">
-      <div class="modal">
-        <div class="modal-header"><h2>Редагувати профіль</h2></div>
-        <div class="modal-body">
-          <div v-if="formError" class="modal-error">{{ formError }}</div>
-          <div class="form-field">
-            <InputField
-              name="name"
-              label="Ім'я"
-              v-model="editForm.name"
-              type="text"
-              placeholder="Введіть ім'я"
-            />
-          </div>
-          <div class="form-field">
-            <InputField
-              name="email"
-              label="Email"
-              v-model="editForm.email"
-              type="email"
-              placeholder="Введіть email"
-            />
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn-secondary" @click="cancelEdit" :disabled="store.isSaving">
-            Скасувати
-          </button>
-          <button class="btn-primary" @click="saveProfile" :disabled="store.isSaving">
-            {{ store.isSaving ? 'Збереження...' : 'Зберегти' }}
-          </button>
-        </div>
+    <Modal v-model="isEditMode" title="Редагувати профіль">
+      <div v-if="formError" class="modal-error">{{ formError }}</div>
+      <div class="form-field">
+        <InputField
+          name="name"
+          label="Ім'я"
+          v-model="editForm.name"
+          type="text"
+          placeholder="Введіть ім'я"
+        />
       </div>
-    </div>
+      <div class="form-field">
+        <InputField
+          name="email"
+          label="Email"
+          v-model="editForm.email"
+          type="email"
+          placeholder="Введіть email"
+        />
+      </div>
+      <template #footer>
+        <button class="btn-secondary" @click="cancelEdit" :disabled="store.isSaving">
+          Скасувати
+        </button>
+        <button class="btn-primary" @click="saveProfile" :disabled="store.isSaving">
+          {{ store.isSaving ? 'Збереження...' : 'Зберегти' }}
+        </button>
+      </template>
+    </Modal>
 
-    <div v-if="isPasswordModalOpen" class="modal-overlay" @click.self="cancelPasswordChange">
-      <div class="modal">
-        <div class="modal-header"><h2>Зміна пароля</h2></div>
-        <div class="modal-body">
-          <div v-if="passwordError" class="modal-error">{{ passwordError }}</div>
-          <div class="form-field">
-            <InputField
-              name="code"
-              label="Код підтвердження (якщо увімкнено 2FA)"
-              v-model="passwordForm.code"
-              type="text"
-              placeholder="Введіть код підтвердження"
-            />
-          </div>
-          <div class="form-field">
-            <InputField
-              name="current_password"
-              label="Поточний пароль"
-              v-model="passwordForm.current_password"
-              type="password"
-              placeholder="Поточний пароль"
-            />
-          </div>
-          <div class="form-field">
-            <InputField
-              name="new_password"
-              label="Новий пароль"
-              v-model="passwordForm.new_password"
-              type="password"
-              placeholder="Мінімум 8 символів"
-            />
-          </div>
-          <div class="form-field">
-            <InputField
-              name="new_password_confirmation"
-              label="Підтвердження пароля"
-              v-model="passwordForm.new_password_confirmation"
-              type="password"
-              placeholder="Повторіть новий пароль"
-            />
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn-secondary" @click="cancelPasswordChange" :disabled="store.isSaving">
-            Скасувати
-          </button>
-          <button class="btn-primary" @click="changePassword" :disabled="store.isSaving">
-            {{ store.isSaving ? 'Збереження...' : 'Змінити пароль' }}
-          </button>
-        </div>
+    <Modal v-model="isPasswordModalOpen" title="Зміна пароля">
+      <div v-if="passwordError" class="modal-error">{{ passwordError }}</div>
+      <div class="form-field">
+        <InputField
+          name="code"
+          label="Код підтвердження (якщо увімкнено 2FA)"
+          v-model="passwordForm.code"
+          type="text"
+          placeholder="Введіть код підтвердження"
+        />
       </div>
-    </div>
+      <div class="form-field">
+        <InputField
+          name="current_password"
+          label="Поточний пароль"
+          v-model="passwordForm.current_password"
+          type="password"
+          placeholder="Поточний пароль"
+        />
+      </div>
+      <div class="form-field">
+        <InputField
+          name="new_password"
+          label="Новий пароль"
+          v-model="passwordForm.new_password"
+          type="password"
+          placeholder="Мінімум 8 символів"
+        />
+      </div>
+      <div class="form-field">
+        <InputField
+          name="new_password_confirmation"
+          label="Підтвердження пароля"
+          v-model="passwordForm.new_password_confirmation"
+          type="password"
+          placeholder="Повторіть новий пароль"
+        />
+      </div>
+      <template #footer>
+        <button class="btn-secondary" @click="cancelPasswordChange" :disabled="store.isSaving">
+          Скасувати
+        </button>
+        <button class="btn-primary" @click="changePassword" :disabled="store.isSaving">
+          {{ store.isSaving ? 'Збереження...' : 'Змінити пароль' }}
+        </button>
+      </template>
+    </Modal>
 
-    <div v-if="isPinSetupModalOpen" class="modal-overlay" @click.self="cancelPinSetup">
-      <div class="modal">
-        <div class="modal-header"><h2>Налаштування PIN коду</h2></div>
-        <div class="modal-body">
-          <div v-if="pinError" class="modal-error">{{ pinError }}</div>
-          <div class="form-field">
-            <InputField
-              name="pin_code"
-              label="PIN код (4 цифри)"
-              v-model="pinSetupForm.pin_code"
-              type="password"
-              placeholder="0000"
-              maxlength="4"
-            />
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn-secondary" @click="cancelPinSetup" :disabled="store.isSaving">
-            Скасувати
-          </button>
-          <button class="btn-primary" @click="setupPinCode" :disabled="store.isSaving">
-            {{ store.isSaving ? 'Збереження...' : 'Налаштувати' }}
-          </button>
-        </div>
+    <Modal v-model="isPinSetupModalOpen" title="Налаштування PIN коду">
+      <div v-if="pinError" class="modal-error">{{ pinError }}</div>
+      <div class="form-field">
+        <InputField
+          name="pin_code"
+          label="PIN код (4 цифри)"
+          v-model="pinSetupForm.pin_code"
+          type="password"
+          placeholder="0000"
+          maxlength="4"
+        />
       </div>
-    </div>
+      <template #footer>
+        <button class="btn-secondary" @click="cancelPinSetup" :disabled="store.isSaving">
+          Скасувати
+        </button>
+        <button class="btn-primary" @click="setupPinCode" :disabled="store.isSaving">
+          {{ store.isSaving ? 'Збереження...' : 'Налаштувати' }}
+        </button>
+      </template>
+    </Modal>
 
-    <div v-if="isPinChangeModalOpen" class="modal-overlay" @click.self="cancelPinChange">
-      <div class="modal">
-        <div class="modal-header"><h2>Зміна PIN коду</h2></div>
-        <div class="modal-body">
-          <div v-if="pinError" class="modal-error">{{ pinError }}</div>
-          <div class="form-field">
-            <InputField
-              name="current_pin_code"
-              label="Поточний PIN"
-              v-model="pinChangeForm.current_pin_code"
-              type="password"
-              placeholder="0000"
-              maxlength="4"
-            />
-          </div>
-          <div class="form-field">
-            <InputField
-              name="new_pin_code"
-              label="Новий PIN"
-              v-model="pinChangeForm.new_pin_code"
-              type="password"
-              placeholder="0000"
-              maxlength="4"
-            />
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn-secondary" @click="cancelPinChange" :disabled="store.isSaving">
-            Скасувати
-          </button>
-          <button class="btn-primary" @click="changePinCode" :disabled="store.isSaving">
-            {{ store.isSaving ? 'Збереження...' : 'Змінити PIN' }}
-          </button>
-        </div>
+    <Modal v-model="isPinChangeModalOpen" title="Зміна PIN коду">
+      <div v-if="pinError" class="modal-error">{{ pinError }}</div>
+      <div class="form-field">
+        <InputField
+          name="current_pin_code"
+          label="Поточний PIN"
+          v-model="pinChangeForm.current_pin_code"
+          type="password"
+          placeholder="0000"
+          maxlength="4"
+        />
       </div>
-    </div>
+      <div class="form-field">
+        <InputField
+          name="new_pin_code"
+          label="Новий PIN"
+          v-model="pinChangeForm.new_pin_code"
+          type="password"
+          placeholder="0000"
+          maxlength="4"
+        />
+      </div>
+      <template #footer>
+        <button class="btn-secondary" @click="cancelPinChange" :disabled="store.isSaving">
+          Скасувати
+        </button>
+        <button class="btn-primary" @click="changePinCode" :disabled="store.isSaving">
+          {{ store.isSaving ? 'Збереження...' : 'Змінити PIN' }}
+        </button>
+      </template>
+    </Modal>
 
     <!-- Page content -->
     <div v-if="store.isLoading" class="state-center">
@@ -380,21 +364,16 @@ function getWorkModeLabel(mode?: string): string {
 
     <div v-else-if="store.displayProfile" class="profile-layout">
       <!-- Left Sidebar -->
-      <aside class="profile-sidebar">
+      <Card class="profile-sidebar">
         <div class="sidebar-avatar-wrap">
-          <div class="sidebar-avatar">
-            <img
-              v-if="avatarUrl"
-              :key="imageKey"
-              :src="avatarUrl"
-              alt="avatar"
-              class="avatar-img"
-            />
-            <div v-else class="avatar-fallback">
-              {{ store.displayProfile.name?.charAt(0)?.toUpperCase() || '?' }}
-            </div>
-            <div v-if="isUploadingAvatar" class="avatar-uploading">...</div>
-          </div>
+          <Avatar
+            :src="avatarUrl || undefined"
+            :fallback-text="store.displayProfile.name"
+            size="large"
+            bordered
+            :key="imageKey"
+          />
+          <div v-if="isUploadingAvatar" class="avatar-uploading">...</div>
         </div>
         <input
           ref="avatarInput"
@@ -406,9 +385,10 @@ function getWorkModeLabel(mode?: string): string {
 
         <h2 class="sidebar-name">{{ store.displayProfile.name }}</h2>
         <p class="sidebar-email">{{ store.displayProfile.email }}</p>
-        <span class="role-chip" :class="`role-${store.displayProfile.role}`">{{
-          store.displayProfile.role
-        }}</span>
+        <Badge
+          :variant="`role-${store.displayProfile.role}` as any"
+          :label="store.displayProfile.role"
+        />
 
         <div class="sidebar-divider"></div>
 
@@ -452,15 +432,15 @@ function getWorkModeLabel(mode?: string): string {
         >
           {{ isUploadingAvatar ? 'Завантаження...' : 'Змінити фото' }}
         </button>
-      </aside>
+      </Card>
 
       <!-- Right Main -->
       <div class="profile-main">
-        <div class="main-card">
-          <div class="main-card-header">
+        <Card>
+          <template #header>
             <h2>Деталі профілю</h2>
             <button class="btn-primary" @click="openEditMode">Редагувати</button>
-          </div>
+          </template>
 
           <div class="detail-grid">
             <div class="detail-item">
@@ -483,32 +463,29 @@ function getWorkModeLabel(mode?: string): string {
             </div>
           </div>
 
-          <div v-if="store.displayProfile.manager" class="manager-section">
-            <div class="manager-label">Безпосередній менеджер</div>
-            <div class="manager-card">
-              <div class="manager-avatar-wrap">
-                <img
-                  v-if="managerAvatarUrl"
-                  :src="managerAvatarUrl"
-                  alt="avatar"
-                  class="manager-avatar-img"
+          <template #footer>
+            <div v-if="store.displayProfile.manager" class="manager-section">
+              <div class="manager-label">Безпосередній менеджер</div>
+              <div class="manager-card">
+                <Avatar
+                  :src="managerAvatarUrl || undefined"
+                  :fallback-text="store.displayProfile.manager.name"
+                  size="medium"
+                  bordered
                 />
-                <div v-else class="manager-avatar">
-                  {{ store.displayProfile.manager.name.charAt(0).toUpperCase() }}
+                <div>
+                  <div class="manager-name">{{ store.displayProfile.manager.name }}</div>
+                  <div class="manager-email">{{ store.displayProfile.manager.email }}</div>
                 </div>
               </div>
-              <div>
-                <div class="manager-name">{{ store.displayProfile.manager.name }}</div>
-                <div class="manager-email">{{ store.displayProfile.manager.email }}</div>
-              </div>
             </div>
-          </div>
-        </div>
+          </template>
+        </Card>
 
-        <div class="main-card security-card">
-          <div class="main-card-header">
+        <Card class="security-card">
+          <template #header>
             <h2>Безпека</h2>
-          </div>
+          </template>
           <div class="security-actions">
             <div class="security-item">
               <div class="security-info">
@@ -545,7 +522,7 @@ function getWorkModeLabel(mode?: string): string {
               </button>
             </div>
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   </div>
@@ -594,44 +571,15 @@ function getWorkModeLabel(mode?: string): string {
 
 /* ── Sidebar ────────────────────────────────────────────────────────────── */
 .profile-sidebar {
-  background: var(--sidebar-bg);
-  border-radius: 1rem;
-  border: 1px solid var(--border);
-  box-shadow: 0 2px 12px var(--shadow);
-  padding: 2rem 1.5rem;
   text-align: center;
   position: sticky;
   top: 100px;
 }
 .sidebar-avatar-wrap {
   margin-bottom: 1.25rem;
-}
-.sidebar-avatar {
-  width: 96px;
-  height: 96px;
-  border-radius: 50%;
-  overflow: hidden;
-  margin: 0 auto;
-  box-shadow:
-    0 0 0 3px rgba(255, 155, 81, 0.3),
-    0 4px 16px var(--shadow);
   position: relative;
-}
-.avatar-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.avatar-fallback {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, var(--avatar-gradient-from), var(--avatar-gradient-to));
   display: flex;
-  align-items: center;
   justify-content: center;
-  color: var(--accent-2);
-  font-size: 2.5rem;
-  font-weight: 700;
 }
 .avatar-uploading {
   position: absolute;
@@ -643,6 +591,9 @@ function getWorkModeLabel(mode?: string): string {
   color: white;
   font-size: 0.75rem;
   border-radius: 50%;
+  width: 96px;
+  height: 96px;
+  margin: 0 auto;
 }
 .sidebar-name {
   font-size: 1.2rem;
@@ -654,30 +605,6 @@ function getWorkModeLabel(mode?: string): string {
   font-size: 0.85rem;
   color: var(--text-muted);
   margin: 0 0 0.75rem;
-}
-.role-chip {
-  display: inline-block;
-  padding: 0.25rem 0.875rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-.role-admin {
-  background: var(--role-admin-bg);
-  color: var(--role-admin-color);
-  border: 1px solid var(--role-admin-border);
-}
-.role-manager {
-  background: var(--role-manager-bg);
-  color: var(--role-manager-color);
-  border: 1px solid var(--role-manager-border);
-}
-.role-employee {
-  background: var(--role-employee-bg);
-  color: var(--role-employee-color);
-  border: 1px solid var(--role-employee-border);
 }
 .sidebar-divider {
   border: none;
@@ -745,22 +672,7 @@ function getWorkModeLabel(mode?: string): string {
   flex-direction: column;
   gap: 1.25rem;
 }
-.main-card {
-  background: var(--surface);
-  border-radius: 1rem;
-  border: 1px solid var(--border);
-  box-shadow: 0 2px 12px var(--shadow);
-  overflow: hidden;
-}
-.main-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.25rem 1.75rem;
-  border-bottom: 1px solid var(--border);
-  background: var(--sand-light);
-}
-.main-card-header h2 {
+.profile-main :deep(.card-header) h2 {
   font-size: 1rem;
   font-weight: 700;
   color: var(--text);
@@ -769,10 +681,10 @@ function getWorkModeLabel(mode?: string): string {
   letter-spacing: 0.05em;
 }
 .detail-grid {
-  padding: 1.5rem 1.75rem;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0;
+  padding: 0;
 }
 .detail-item {
   padding: 1rem 0;
@@ -816,9 +728,7 @@ function getWorkModeLabel(mode?: string): string {
 
 /* ── Manager section ────────────────────────────────────────────────────── */
 .manager-section {
-  padding: 1.25rem 1.75rem;
-  border-top: 1px solid var(--border);
-  background: var(--sand-light);
+  padding: 0;
 }
 .manager-label {
   font-size: 0.7rem;
@@ -833,30 +743,6 @@ function getWorkModeLabel(mode?: string): string {
   align-items: center;
   gap: 0.875rem;
 }
-.manager-avatar-wrap {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  overflow: hidden;
-  flex-shrink: 0;
-  border: 2px solid var(--accent-2);
-}
-.manager-avatar-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.manager-avatar {
-  width: 100%;
-  height: 100%;
-  background: var(--manager-avatar-bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--accent-2);
-  font-weight: 700;
-  font-size: 1.1rem;
-}
 .manager-name {
   font-weight: 600;
   font-size: 0.95rem;
@@ -868,8 +754,11 @@ function getWorkModeLabel(mode?: string): string {
 }
 
 /* ── Security card ──────────────────────────────────────────────────────── */
-.security-card .main-card-header {
+.security-card :deep(.card-header) {
   background: transparent;
+}
+.security-card :deep(.card-body) {
+  padding: 0;
 }
 .security-actions {
   padding: 0.5rem 0;
@@ -941,46 +830,6 @@ function getWorkModeLabel(mode?: string): string {
 }
 
 /* ── Modals ─────────────────────────────────────────────────────────────── */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 200;
-  padding: 1rem;
-}
-.modal {
-  background: var(--surface);
-  border-radius: 1rem;
-  border-top: 4px solid var(--accent-2);
-  box-shadow: var(--modal-shadow);
-  width: 100%;
-  max-width: 480px;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-.modal-header {
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--border);
-}
-.modal-header h2 {
-  margin: 0;
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--text);
-}
-.modal-body {
-  padding: 1.5rem;
-}
-.modal-footer {
-  padding: 1.25rem 1.5rem;
-  border-top: 1px solid var(--border);
-  display: flex;
-  gap: 0.75rem;
-  justify-content: flex-end;
-}
 .form-field {
   margin-bottom: 1.25rem;
 }

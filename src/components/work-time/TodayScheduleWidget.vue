@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import type { User } from '@/types/interfaces/user.interface'
 import type { DailySchedule } from '@/types/interfaces/dailySchedule.interface'
+import Card from '@/components/ui/Card.vue'
 
 interface Props {
   currentUser: User | null
@@ -81,8 +82,10 @@ const statusColor = computed(() => {
 </script>
 
 <template>
-  <div class="schedule-widget">
-    <h3 class="widget-title">📅 Сьогоднішній графік</h3>
+  <Card>
+    <template #header>
+      <h3 class="widget-title">📅 Сьогоднішній графік</h3>
+    </template>
 
     <div v-if="todaySchedule" class="schedule-content">
       <div class="schedule-time">
@@ -135,22 +138,16 @@ const statusColor = computed(() => {
       <p class="empty-text">Графік роботи не налаштовано</p>
       <p class="empty-hint">Зверніться до вашого менеджера для налаштування графіку</p>
     </div>
-  </div>
+  </Card>
 </template>
 
 <style scoped>
-.schedule-widget {
-  background: white;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
 .widget-title {
+  font-family: var(--font-heading);
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 1.25rem;
+  color: var(--text);
+  margin: 0;
 }
 
 .schedule-content {
@@ -165,8 +162,9 @@ const statusColor = computed(() => {
   justify-content: center;
   gap: 1rem;
   padding: 1rem;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  background: var(--sand-light);
   border-radius: 0.5rem;
+  border: 1px solid var(--border);
 }
 
 .time-item {
@@ -177,21 +175,23 @@ const statusColor = computed(() => {
 }
 
 .time-label {
+  font-family: var(--font-body);
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .time-value {
+  font-family: var(--font-mono);
   font-size: 1.5rem;
   font-weight: 700;
-  color: #2563eb;
+  color: var(--accent-2);
 }
 
 .time-divider {
   font-size: 1.5rem;
-  color: #94a3b8;
+  color: var(--text-muted);
   font-weight: 300;
 }
 
@@ -201,10 +201,17 @@ const statusColor = computed(() => {
   justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem;
-  background: #fef3c7;
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.3);
   border-radius: 0.5rem;
+  font-family: var(--font-body);
   font-size: 0.875rem;
-  color: #92400e;
+  color: #d97706;
+}
+
+[data-theme='dark'] .break-info {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
 }
 
 .break-icon {
@@ -224,20 +231,22 @@ const statusColor = computed(() => {
 }
 
 .progress-label {
+  font-family: var(--font-body);
   font-size: 0.875rem;
   font-weight: 500;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .progress-value {
+  font-family: var(--font-mono);
   font-size: 1rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
 }
 
 .progress-bar-container {
   height: 12px;
-  background: #e5e7eb;
+  background: var(--border);
   border-radius: 9999px;
   overflow: hidden;
   position: relative;
@@ -245,7 +254,6 @@ const statusColor = computed(() => {
 
 .progress-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
   border-radius: 9999px;
   transition: all 0.3s ease;
   position: relative;
@@ -278,6 +286,7 @@ const statusColor = computed(() => {
 
 .progress-percentage {
   text-align: center;
+  font-family: var(--font-mono);
   font-size: 1.125rem;
   font-weight: 700;
   transition: color 0.3s ease;
@@ -286,19 +295,32 @@ const statusColor = computed(() => {
 .status-message {
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
+  font-family: var(--font-body);
   font-size: 0.875rem;
   font-weight: 500;
   text-align: center;
 }
 
 .status-message.success {
-  background: #dcfce7;
-  color: #166534;
+  background: rgba(34, 197, 94, 0.15);
+  color: #16a34a;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+[data-theme='dark'] .status-message.success {
+  background: rgba(34, 197, 94, 0.2);
+  color: #4ade80;
 }
 
 .status-message.warning {
-  background: #fef3c7;
-  color: #92400e;
+  background: rgba(251, 191, 36, 0.15);
+  color: #d97706;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+[data-theme='dark'] .status-message.warning {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
 }
 
 /* Empty State */
@@ -314,23 +336,21 @@ const statusColor = computed(() => {
 }
 
 .empty-text {
+  font-family: var(--font-body);
   font-size: 1rem;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--text-muted);
   margin-bottom: 0.5rem;
 }
 
 .empty-hint {
+  font-family: var(--font-body);
   font-size: 0.875rem;
-  color: #9ca3af;
+  color: var(--text-muted);
   margin: 0;
 }
 
 @media (max-width: 768px) {
-  .schedule-widget {
-    padding: 1.25rem;
-  }
-
   .time-value {
     font-size: 1.25rem;
   }
