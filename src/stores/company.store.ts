@@ -90,7 +90,7 @@ export const useCompanyStore = defineStore('company', () => {
 
   async function updateCompany(id: number | string, payload: UpdateCompanyRequest) {
     return request(async () => {
-      const { data } = await apiClient.put<ApiResponse<Company>>(
+      const { data } = await apiClient.patch<ApiResponse<Company>>(
         API_ROUTES.admin.companies.update(id),
         payload,
       )
