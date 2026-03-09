@@ -22,7 +22,7 @@ const dayNames: Record<number, string> = {
   6: 'saturday',
 }
 
-const todaySchedule = computed<DailySchedule | null>(() => {
+const todayScheduleEntry = computed<DailySchedule | null>(() => {
   if (!props.currentUser?.work_schedule?.daily_schedules) return null
 
   const today = new Date().getDay()
@@ -30,9 +30,18 @@ const todaySchedule = computed<DailySchedule | null>(() => {
 
   return (
     props.currentUser.work_schedule.daily_schedules.find(
-      (schedule) => schedule.day_of_week === todayName && schedule.is_working_day,
+      (schedule) => schedule.day_of_week === todayName,
     ) || null
   )
+})
+
+const hasConfiguredSchedule = computed(
+  () => (props.currentUser?.work_schedule?.daily_schedules?.length ?? 0) > 0,
+)
+
+const todaySchedule = computed<DailySchedule | null>(() => {
+  if (!todayScheduleEntry.value?.is_working_day) return null
+  return todayScheduleEntry.value
 })
 
 const expectedHours = computed(() => {
@@ -131,6 +140,12 @@ const statusColor = computed(() => {
       <div v-else-if="progressStatus === 'overtime'" class="status-message warning">
         ⚡ Понаднормова робота
       </div>
+    </div>
+
+    <div v-else-if="hasConfiguredSchedule && todayScheduleEntry" class="schedule-empty">
+      <div class="empty-icon">🌙</div>
+      <p class="empty-text">Сьогодні вихідний день</p>
+      <p class="empty-hint">У графіку цей день позначено як неробочий</p>
     </div>
 
     <div v-else class="schedule-empty">

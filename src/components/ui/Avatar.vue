@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
+defineOptions({
+  name: 'AvatarComponent',
+})
+
 interface Props {
   src?: string
   alt?: string

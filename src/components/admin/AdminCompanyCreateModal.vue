@@ -100,17 +100,47 @@ defineExpose({ setError })
     <div v-if="error" class="error-banner">{{ error }}</div>
 
     <form class="modal-form" @submit.prevent="onSubmit">
-      <InputField v-model="form.name" name="name" label="Назва" type="text" placeholder="Назва компанії" required />
+      <InputField
+        v-model="form.name"
+        name="name"
+        label="Назва"
+        type="text"
+        placeholder="Назва компанії"
+        required
+      />
 
-      <InputField v-model="form.email" name="email" label="Email" type="email" placeholder="company@example.com" />
+      <InputField
+        v-model="form.email"
+        name="email"
+        label="Email"
+        type="email"
+        placeholder="company@example.com"
+      />
 
-      <InputField v-model="form.phone" name="phone" label="Телефон" type="text" placeholder="+380..." />
+      <InputField
+        v-model="form.phone"
+        name="phone"
+        label="Телефон"
+        type="text"
+        placeholder="+380..."
+      />
 
-      <InputField v-model="form.address" name="address" label="Адреса" type="text" placeholder="вул. ..." />
+      <InputField
+        v-model="form.address"
+        name="address"
+        label="Адреса"
+        type="text"
+        placeholder="вул. ..."
+      />
 
       <div class="field">
         <label class="form-label">Опис</label>
-        <textarea v-model="form.description" rows="3" placeholder="Опис компанії..." class="form-textarea" />
+        <textarea
+          v-model="form.description"
+          rows="3"
+          placeholder="Опис компанії..."
+          class="form-textarea"
+        />
       </div>
 
       <div class="row">

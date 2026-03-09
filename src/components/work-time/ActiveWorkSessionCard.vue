@@ -282,9 +282,8 @@ function handleStop() {
   font-size: 1.1rem;
 }
 
-/* Idle State */
 .session-idle {
-  padding: 3rem 2rem;
+  padding: 1rem;
   background: var(--sand-light);
 }
 
@@ -295,13 +294,13 @@ function handleStop() {
 }
 
 .idle-icon {
-  font-size: 4rem;
+  font-size: 3rem;
   margin-bottom: 1rem;
 }
 
 .idle-title {
   font-family: var(--font-heading);
-  font-size: 1.75rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: var(--text);
   margin-bottom: 0.5rem;

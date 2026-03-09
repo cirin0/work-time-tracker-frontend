@@ -45,7 +45,12 @@ function close() {
 </script>
 
 <template>
-  <Modal :model-value="modelValue" @update:model-value="emit('update:modelValue', $event)" title="Призначити розклад" max-width="520px">
+  <Modal
+    :model-value="modelValue"
+    @update:model-value="emit('update:modelValue', $event)"
+    title="Призначити розклад"
+    max-width="520px"
+  >
     <div class="modal-content">
       <div v-if="schedule" class="schedule-preview">
         <span class="label">Розклад:</span>
@@ -62,9 +67,7 @@ function close() {
       </div>
 
       <div class="employees-list">
-        <div v-if="filteredEmployees.length === 0" class="empty">
-          Співробітників не знайдено
-        </div>
+        <div v-if="filteredEmployees.length === 0" class="empty">Співробітників не знайдено</div>
         <div
           v-for="emp in filteredEmployees"
           :key="emp.id"
@@ -87,11 +90,7 @@ function close() {
 
     <template #footer>
       <button class="btn-secondary" @click="close">Скасувати</button>
-      <button
-        class="btn-primary"
-        :disabled="!selectedEmployeeId || isSaving"
-        @click="handleAssign"
-      >
+      <button class="btn-primary" :disabled="!selectedEmployeeId || isSaving" @click="handleAssign">
         <span v-if="isSaving">Призначення...</span>
         <span v-else>Призначити</span>
       </button>

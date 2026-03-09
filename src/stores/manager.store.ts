@@ -62,7 +62,9 @@ export const useManagerStore = defineStore('manager', () => {
   async function fetchCompanyStatistics() {
     isLoadingStats.value = true
     try {
-      const { data } = await apiClient.get<CompanyStatisticsResponse>(API_ROUTES.manager.company.statistics)
+      const { data } = await apiClient.get<CompanyStatisticsResponse>(
+        API_ROUTES.manager.company.statistics,
+      )
       companyStats.value = data.data
     } catch (err: unknown) {
       const errorMessage =

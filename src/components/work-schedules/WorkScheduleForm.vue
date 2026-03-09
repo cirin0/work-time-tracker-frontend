@@ -18,7 +18,16 @@ const emit = defineEmits<{
 
 const scheduleRef = computed(() => props.schedule)
 
-const { values, errors, dayFieldsWithErrors, generalError, submit } = useWorkScheduleForm({
+const {
+  values,
+  errors,
+  generalError,
+  submit,
+  getDayError,
+  updateName,
+  updateIsDefault,
+  updateDayField,
+} = useWorkScheduleForm({
   schedule: scheduleRef,
   onSubmit: (payload) => emit('submit', payload),
 })
@@ -28,7 +37,7 @@ const DAY_LABELS: Record<string, string> = {
   tuesday: 'Вівторок',
   wednesday: 'Середа',
   thursday: 'Четвер',
-  friday: 'П\'ятниця',
+  friday: "П'ятниця",
   saturday: 'Субота',
   sunday: 'Неділя',
 }
@@ -37,11 +46,10 @@ const DAY_LABELS: Record<string, string> = {
 <template>
   <div class="schedule-form">
     <div class="form-section">
-      <label class="form-label">
-        Назва розкладу <span class="required">*</span>
-      </label>
+      <label class="form-label"> Назва розкладу <span class="required">*</span> </label>
       <input
-        v-model="values.name"
+        :value="values.name"
+        @input="updateName(($event.target as HTMLInputElement).value)"
         type="text"
         class="form-input"
         :class="{ 'input-error': errors.name }"
@@ -53,7 +61,12 @@ const DAY_LABELS: Record<string, string> = {
 
     <div class="form-section">
       <label class="checkbox-label">
-        <input v-model="values.is_default" type="checkbox" class="checkbox-input" />
+        <input
+          :checked="values.is_default"
+          @change="updateIsDefault(($event.target as HTMLInputElement).checked)"
+          type="checkbox"
+          class="checkbox-input"
+        />
         <span>Розклад за замовчуванням</span>
       </label>
       <p class="hint">Цей розклад буде автоматично призначений новим співробітникам</p>
@@ -63,41 +76,65 @@ const DAY_LABELS: Record<string, string> = {
       <h4 class="section-title">Розклад по днях</h4>
       <div class="days-list">
         <div
-          v-for="{ field, error, label } in dayFieldsWithErrors"
-          :key="field.value.day_of_week"
+          v-for="(day, index) in values.daily_schedules"
+          :key="day.day_of_week"
           class="day-row"
-          :class="{ 'day-active': field.value.is_working_day, 'day-has-error': !!error }"
+          :class="{ 'day-active': day.is_working_day, 'day-has-error': !!getDayError(index) }"
         >
           <div class="day-toggle">
             <label class="toggle-label">
-              <input v-model="field.value.is_working_day" type="checkbox" class="checkbox-input" />
-              <span class="day-name">{{ DAY_LABELS[field.value.day_of_week] || label }}</span>
+              <input
+                :checked="day.is_working_day"
+                @change="
+                  updateDayField(
+                    index,
+                    'is_working_day',
+                    ($event.target as HTMLInputElement).checked,
+                  )
+                "
+                type="checkbox"
+                class="checkbox-input"
+              />
+              <span class="day-name">{{ DAY_LABELS[day.day_of_week] || day.day_of_week }}</span>
             </label>
           </div>
 
-          <div v-if="field.value.is_working_day" class="day-fields">
+          <div v-if="day.is_working_day" class="day-fields">
             <div class="time-group">
               <label class="time-label">Початок</label>
               <input
-                v-model="field.value.start_time"
+                :value="day.start_time"
+                @input="
+                  updateDayField(index, 'start_time', ($event.target as HTMLInputElement).value)
+                "
                 type="time"
                 class="time-input"
-                :class="{ 'input-error': !!error }"
+                :class="{ 'input-error': !!getDayError(index) }"
               />
             </div>
             <div class="time-group">
               <label class="time-label">Кінець</label>
               <input
-                v-model="field.value.end_time"
+                :value="day.end_time"
+                @input="
+                  updateDayField(index, 'end_time', ($event.target as HTMLInputElement).value)
+                "
                 type="time"
                 class="time-input"
-                :class="{ 'input-error': !!error }"
+                :class="{ 'input-error': !!getDayError(index) }"
               />
             </div>
             <div class="time-group">
               <label class="time-label">Перерва (хв)</label>
               <input
-                v-model.number="field.value.break_duration"
+                :value="day.break_duration"
+                @input="
+                  updateDayField(
+                    index,
+                    'break_duration',
+                    Number(($event.target as HTMLInputElement).value || 0),
+                  )
+                "
                 type="number"
                 min="0"
                 max="240"
@@ -105,7 +142,7 @@ const DAY_LABELS: Record<string, string> = {
                 placeholder="60"
               />
             </div>
-            <span v-if="error" class="day-error">{{ error }}</span>
+            <span v-if="getDayError(index)" class="day-error">{{ getDayError(index) }}</span>
           </div>
 
           <div v-else class="day-off-indicator">Вихідний день</div>

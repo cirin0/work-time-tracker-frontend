@@ -44,37 +44,37 @@ const avatarUrl = computed(() => getAvatarUrl(props.user.avatar))
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 0.5rem;
+  padding: 0.4rem;
+  border-radius: 0.5rem;
+  border: 1px solid transparent;
   cursor: pointer;
+  transition: all 0.2s;
 }
 
-.user-item:hover {
-  background-color: #f3f4f6;
-}
-
-.user-item.active {
-  background-color: #eff6ff;
-  border-left: 3px solid #2563eb;
+.user.active {
+  background-color: var(--sand);
+  border-color: var(--accent-2);
 }
 
 .user-avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
-  color: white;
+  background: var(--accent-2);
+  color: var(--btn-on-accent);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
   font-size: 1.125rem;
+  border: 1px solid var(--border);
+}
 
-  img {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-  }
+.user-avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .user-info {
@@ -83,8 +83,7 @@ const avatarUrl = computed(() => getAvatarUrl(props.user.avatar))
 }
 
 .user-name {
-  font-weight: 500;
-  color: white;
+  font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

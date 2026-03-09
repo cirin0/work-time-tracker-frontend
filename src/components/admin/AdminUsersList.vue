@@ -161,7 +161,7 @@ onMounted(() => loadPage(1))
   <div class="users-manager">
     <Card>
       <template #header>
-        <h2>Працівники компанії</h2>
+        <h2>Користувачі системи</h2>
         <span v-if="store.pagination" class="total-badge">
           Всього: {{ store.pagination.total > 1 ? store.pagination.total : '-' }}
         </span>
@@ -203,7 +203,9 @@ onMounted(() => loadPage(1))
               <button class="action-btn" @click="openRoleChange(user)" title="Роль">👤</button>
               <button class="action-btn" @click="openWorkModeChange(user)" title="Режим">💼</button>
               <button class="action-btn" @click="openPasswordReset(user)" title="Пароль">🔑</button>
-              <button class="action-btn danger" @click="handleDelete(user)" title="Видалити">🗑️</button>
+              <button class="action-btn danger" @click="handleDelete(user)" title="Видалити">
+                🗑️
+              </button>
             </div>
           </div>
         </div>

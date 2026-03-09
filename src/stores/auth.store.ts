@@ -40,6 +40,9 @@ export const useAuthStore = defineStore('auth', () => {
     })
     setToken(data.access_token)
     user.value = data.user
+
+    await getCurrentUser()
+
     return data
   }
 

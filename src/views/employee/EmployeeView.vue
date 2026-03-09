@@ -7,13 +7,12 @@ import { useAuthStore } from '@/stores/auth.store.ts'
 import ActiveWorkSessionCard from '@/components/work-time/ActiveWorkSessionCard.vue'
 import TodayScheduleWidget from '@/components/work-time/TodayScheduleWidget.vue'
 import TimeEntryList from '@/components/work-time/TimeEntryList.vue'
-import QRCodeDisplay from '@/components/qr-code/QRCodeDisplay.vue'
 import StatCard from '@/components/ui/StatCard.vue'
 import Pagination from '@/components/ui/Pagination.vue'
 import Card from '@/components/ui/Card.vue'
 
 const router = useRouter()
-const { currentUser, isManager } = useRoleGuard()
+const { currentUser } = useRoleGuard()
 const authStore = useAuthStore()
 const employeeStore = useEmployeeStore()
 
@@ -114,13 +113,19 @@ function viewStatistics() {
       <!-- Stats Grid -->
       <div class="stats-grid">
         <StatCard icon="📅" label="Сьогодні">
-          <span class="stat-time">{{ todayStats.hours }}г {{ todayStats.minutes.toString().padStart(2, '0') }}хв</span>
+          <span class="stat-time"
+            >{{ todayStats.hours }}г {{ todayStats.minutes.toString().padStart(2, '0') }}хв</span
+          >
         </StatCard>
         <StatCard icon="📊" label="Тиждень">
-          <span class="stat-time">{{ weekStats.hours }}г {{ weekStats.minutes.toString().padStart(2, '0') }}хв</span>
+          <span class="stat-time"
+            >{{ weekStats.hours }}г {{ weekStats.minutes.toString().padStart(2, '0') }}хв</span
+          >
         </StatCard>
         <StatCard icon="📈" label="Місяць">
-          <span class="stat-time">{{ monthStats.hours }}г {{ monthStats.minutes.toString().padStart(2, '0') }}хв</span>
+          <span class="stat-time"
+            >{{ monthStats.hours }}г {{ monthStats.minutes.toString().padStart(2, '0') }}хв</span
+          >
         </StatCard>
         <StatCard icon="✅" label="Вчасно" :sub-text="attendanceStats.subText">
           <span class="stat-number">{{ attendanceStats.value }}</span>
@@ -165,10 +170,6 @@ function viewStatistics() {
             />
           </Card>
 
-          <!-- QR Code for Managers -->
-          <QRCodeDisplay v-if="isManager" />
-
-          <!-- Error Banner -->
           <Card v-if="employeeStore.error" variant="highlighted">
             <div class="error-banner">
               <p>{{ employeeStore.error }}</p>

@@ -97,7 +97,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <Card>
+  <Card no-padding>
     <template #header>
       <h3 class="card-title">QR-код для відмітки часу</h3>
       <div class="header-actions">
@@ -191,7 +191,6 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
 }
 
 .qr-canvas-wrapper {
@@ -199,7 +198,6 @@ onUnmounted(() => {
   justify-content: center;
   align-items: center;
   min-height: 300px;
-  background: var(--sand-light);
   border-radius: 0.5rem;
   padding: 1rem;
   width: 100%;
@@ -234,10 +232,8 @@ canvas {
 }
 
 .usage-info {
-  margin: 0;
-  font-family: var(--font-body);
+  margin-bottom: 1rem;
   font-size: 0.875rem;
-  color: var(--text-secondary);
   line-height: 1.5;
 }
 

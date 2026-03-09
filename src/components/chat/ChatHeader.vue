@@ -9,7 +9,7 @@ const props = defineProps<{
 }>()
 
 const avatarUrl = computed(() => {
- return getAvatarUrl(props.selectedUser?.avatar) ?? undefined
+  return getAvatarUrl(props.selectedUser?.avatar) ?? undefined
 })
 
 const chatTitle = computed(() => {

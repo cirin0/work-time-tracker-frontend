@@ -123,16 +123,17 @@ defineExpose({ setError })
         :class="{ selected: selectedManagerId === user.id }"
       >
         <input v-model="selectedManagerId" type="radio" :value="user.id" class="radio-input" />
-        <Avatar :src="user.avatar || undefined" :alt="user.name" :fallback-text="user.name" size="medium" />
+        <Avatar
+          :src="user.avatar || undefined"
+          :alt="user.name"
+          :fallback-text="user.name"
+          size="medium"
+        />
         <div class="user-details">
           <div class="user-name">{{ user.name }}</div>
           <div class="user-email">{{ user.email }}</div>
           <div class="user-role">
-            <Badge
-              v-if="user.role === UserRole.MANAGER"
-              variant="role-manager"
-              label="Менеджер"
-            />
+            <Badge v-if="user.role === UserRole.MANAGER" variant="role-manager" label="Менеджер" />
             <Badge v-else variant="role-employee" label="Співробітник" />
           </div>
         </div>

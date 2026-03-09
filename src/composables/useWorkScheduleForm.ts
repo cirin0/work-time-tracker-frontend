@@ -1,5 +1,5 @@
-import { ref, computed, watch } from 'vue'
-import { useForm, useFieldArray } from 'vee-validate'
+import { ref, watch } from 'vue'
+import { useForm } from 'vee-validate'
 import * as yup from 'yup'
 import type { Ref } from 'vue'
 import type { WorkSchedule } from '@/types/interfaces/workSchedule.interface'
@@ -110,7 +110,7 @@ export interface UseWorkScheduleFormOptions {
 export function useWorkScheduleForm({ schedule, onSubmit }: UseWorkScheduleFormOptions) {
   const generalError = ref<string>('')
 
-  const { handleSubmit, resetForm, errors, values } = useForm<{
+  const { handleSubmit, resetForm, errors, values, setFieldValue } = useForm<{
     name: string
     is_default: boolean
     daily_schedules: DailyScheduleInput[]
@@ -122,8 +122,6 @@ export function useWorkScheduleForm({ schedule, onSubmit }: UseWorkScheduleFormO
       daily_schedules: buildDefaultDays(),
     },
   })
-
-  const { fields: dayFields } = useFieldArray<DailyScheduleInput>('daily_schedules')
 
   // Re-initialize form when schedule prop changes (edit vs create)
   watch(
@@ -175,26 +173,38 @@ export function useWorkScheduleForm({ schedule, onSubmit }: UseWorkScheduleFormO
     generalError.value = ''
   }
 
-  // Computed: which days have time-order errors (for per-day visual feedback)
-  const dayFieldsWithErrors = computed(() =>
-    dayFields.value.map((field, index) => ({
-      field,
-      error: getDayError(index),
-      label: getDayLabel(field.value.day_of_week),
-    })),
-  )
+  function updateName(name: string) {
+    setFieldValue('name', name)
+  }
+
+  function updateIsDefault(isDefault: boolean) {
+    setFieldValue('is_default', isDefault)
+  }
+
+  function updateDayField<K extends keyof DailyScheduleInput>(
+    index: number,
+    key: K,
+    value: DailyScheduleInput[K],
+  ) {
+    const nextDays = values.daily_schedules.map((day, i) =>
+      i === index ? { ...day, [key]: value } : day,
+    )
+    setFieldValue('daily_schedules', nextDays)
+  }
 
   return {
     // form values (reactive — bind directly with v-model on values.name etc.)
     values,
     errors,
-    dayFields,
-    dayFieldsWithErrors,
     // error state
     generalError,
     // methods
     submit,
     clearErrors,
     getDayLabel,
+    getDayError,
+    updateName,
+    updateIsDefault,
+    updateDayField,
   }
 }
