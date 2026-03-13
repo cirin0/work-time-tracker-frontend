@@ -24,29 +24,40 @@ const buttonClass = (isLoginButton: boolean) => {
 <style scoped>
 .toggle-container {
   display: flex;
-  gap: 8px;
-  margin-bottom: 24px;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .toggle-button {
   flex: 1;
-  padding: 12px 16px;
-  border-radius: 12px;
-  font-weight: 500;
-  transition: all 0.3s;
-  background-color: #f3f4f6;
-  color: #4b5563;
-  border: 1px solid;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  background-color: var(--sand-light);
+  color: var(--text);
+  border: 1.5px solid var(--border);
   cursor: pointer;
 }
 
-button:hover {
-  background-color: #e5e7eb;
+.toggle-button:hover {
+  border-color: var(--accent-2);
+  color: var(--accent-2);
 }
 
-button.active {
-  background: linear-gradient(to right, #2563eb, #9333ea);
-  color: white;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+.toggle-button.active {
+  background: var(--accent-2);
+  color: var(--btn-on-accent);
+  border-color: var(--accent-2);
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+@media (max-width: 640px) {
+  .toggle-button {
+    padding: 0.875rem 1rem;
+    font-size: 0.875rem;
+  }
 }
 </style>

@@ -1,8 +1,8 @@
 import { API_ROUTES, apiClient } from '@/core/api'
+import { tokenService } from '@/core/api/token.service'
 import type { User } from '@/types/interfaces/user.interface'
 import type { LoginResponse, RefreshResponse } from '@/types/responses/auth.interface'
-import type { UserApiResponse } from '@/types/responses/user.api'
-import { transformUserFromApi } from '@/types/responses/user.api'
+import type { UserWorkScheduleResponse } from '@/types/responses/profile.api'
 import { useLocalStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
@@ -12,24 +12,24 @@ const TOKEN_STORE_KEY = 'token-store'
 export const useAuthStore = defineStore('auth', () => {
   const token = useLocalStorage<string | undefined>(TOKEN_STORE_KEY, undefined)
   const user = ref<User | null>(null)
-
-  const initialValue = localStorage.getItem(TOKEN_STORE_KEY)
-  if (initialValue) {
-    token.value = initialValue
-  }
+  const isLoadingUser = ref(false)
 
   function setToken(newToken: string) {
     token.value = newToken
-    localStorage.setItem(TOKEN_STORE_KEY, newToken)
   }
 
   function clearToken() {
     token.value = undefined
     user.value = null
-    localStorage.removeItem(TOKEN_STORE_KEY)
+    isLoadingUser.value = false
   }
 
-  const getToken = computed(() => token.value)
+  tokenService.register({
+    get: () => token.value,
+    set: setToken,
+    clear: clearToken,
+  })
+
   const isAuthenticated = computed(() => !!token.value)
   const currentUser = computed(() => user.value)
 
@@ -39,23 +39,26 @@ export const useAuthStore = defineStore('auth', () => {
       password,
     })
     setToken(data.access_token)
-    user.value = transformUserFromApi(data.user)
+    user.value = data.user
+
+    await getCurrentUser()
+
     return data
   }
 
   async function register(name: string, email: string, password: string) {
-    const { data } = await apiClient.post<UserApiResponse>(API_ROUTES.auth.register, {
+    const { data } = await apiClient.post<User>(API_ROUTES.auth.register, {
       name,
       email,
       password,
     })
-    return transformUserFromApi(data)
+    return data
   }
 
   async function refreshToken(): Promise<string> {
     const { data } = await apiClient.post<RefreshResponse>(API_ROUTES.auth.refresh)
     setToken(data.access_token)
-    user.value = transformUserFromApi(data.user)
+    user.value = data.user
     return data.access_token
   }
 
@@ -72,25 +75,53 @@ export const useAuthStore = defineStore('auth', () => {
   async function getCurrentUser() {
     if (!token.value) return null
 
+    isLoadingUser.value = true
     try {
-      const { data } = await apiClient.get<UserApiResponse>(API_ROUTES.me.show)
-      user.value = transformUserFromApi(data)
+      const { data } = await apiClient.get<User>(API_ROUTES.me.show)
+      user.value = data
       return user.value
     } catch (error) {
       console.error('Failed to get current user:', error)
       return null
+    } finally {
+      isLoadingUser.value = false
+    }
+  }
+
+  async function fetchMyWorkSchedule() {
+    if (!token.value || !user.value) return
+
+    try {
+      const { data: responseData } = await apiClient.get<UserWorkScheduleResponse>(
+        API_ROUTES.me.getWorkSchedule,
+      )
+      if (user.value && responseData.data) {
+        user.value = {
+          ...user.value,
+          work_schedule: {
+            id: responseData.data.id,
+            name: responseData.data.name,
+            is_default: responseData.data.is_default,
+            daily_schedules: responseData.data.daily_schedules,
+          },
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch work schedule details:', error)
     }
   }
 
   return {
-    getToken,
+    token,
     isAuthenticated,
     currentUser,
+    isLoadingUser,
     register,
     login,
     logout,
     refreshToken,
     getCurrentUser,
+    fetchMyWorkSchedule,
     setToken,
     clearToken,
   }

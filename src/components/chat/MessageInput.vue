@@ -39,44 +39,69 @@ function handleKeyUp(event: KeyboardEvent) {
 <style scoped>
 .message-input-container {
   padding: 1.5rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--border);
   display: flex;
   gap: 1rem;
-  background-color: white;
+  background-color: var(--surface);
 }
 
 .message-input {
   flex: 1;
   padding: 0.75rem 1rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border);
   border-radius: 0.5rem;
   font-size: 1rem;
+  font-family: var(--font-body);
+  background-color: var(--surface);
+  color: var(--text);
   outline: none;
   transition: border-color 0.2s;
 }
 
 .message-input:focus {
-  border-color: #2563eb;
+  border-color: var(--accent-2);
+}
+
+.message-input::placeholder {
+  color: var(--text-muted);
 }
 
 .send-button {
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
-  color: white;
+  background: var(--accent-2);
+  color: var(--btn-on-accent);
   border: none;
   border-radius: 0.5rem;
-  font-weight: 500;
+  font-weight: 600;
+  font-family: var(--font-body);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .send-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  background: var(--accent-2-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--shadow);
 }
 
 .send-button:disabled {
-  opacity: 0.5;
+  opacity: 0.55;
   cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .message-input-container {
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+
+  .message-input {
+    font-size: 0.9375rem;
+  }
+
+  .send-button {
+    padding: 0.75rem 1rem;
+    font-size: 0.9375rem;
+  }
 }
 </style>

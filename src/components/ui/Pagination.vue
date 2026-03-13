@@ -20,6 +20,11 @@ function handlePageChange(page: number | null) {
     emit('changePage', page)
   }
 }
+
+function parsePage(label: string): number | null {
+  const n = parseInt(label, 10)
+  return isNaN(n) ? null : n
+}
 </script>
 
 <template>
@@ -44,18 +49,11 @@ function handlePageChange(page: number | null) {
 
     <div class="pagination-pages">
       <button
-        v-for="(link, index) in meta.links.filter(
-          (l) =>
-            l.page !== null &&
-            !l.label.includes('Previous') &&
-            !l.label.includes('Next') &&
-            !l.label.includes('laquo') &&
-            !l.label.includes('raquo'),
-        )"
+        v-for="(link, index) in meta.links.filter((l) => parsePage(l.label) !== null)"
         :key="index"
         class="pagination-page"
         :class="{ active: link.active }"
-        @click="handlePageChange(link.page)"
+        @click="handlePageChange(parsePage(link.label))"
       >
         {{ link.label }}
       </button>
@@ -90,29 +88,30 @@ function handlePageChange(page: number | null) {
   gap: 0.5rem;
   margin-top: 1.5rem;
   padding-top: 1.5rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--border);
 }
 
 .pagination-btn {
   padding: 0.5rem 1rem;
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--sand-light);
+  border: 1.5px solid var(--border);
   border-radius: 0.5rem;
   font-size: 0.875rem;
-  font-weight: 500;
-  color: #374151;
+  font-weight: 600;
+  color: var(--text);
   cursor: pointer;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .pagination-btn:hover:not(:disabled) {
-  background: #f9fafb;
-  border-color: #9333ea;
-  color: #9333ea;
+  border-color: var(--accent-2);
+  color: var(--accent-2);
+  transform: translateY(-1px);
 }
 
 .pagination-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
@@ -124,32 +123,33 @@ function handlePageChange(page: number | null) {
 
 .pagination-pages {
   display: flex;
-  gap: 0.25rem;
+  gap: 0.35rem;
 }
 
 .pagination-page {
   min-width: 2.5rem;
   padding: 0.5rem 0.75rem;
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--surface, #fff);
+  border: 1px solid var(--border);
   border-radius: 0.5rem;
   font-size: 0.875rem;
-  font-weight: 500;
-  color: #374151;
+  font-weight: 600;
+  color: var(--text);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .pagination-page:hover {
-  background: #f9fafb;
-  border-color: #9333ea;
-  color: #9333ea;
+  border-color: var(--accent-2);
+  color: var(--accent-2);
+  transform: translateY(-1px);
 }
 
 .pagination-page.active {
-  background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
-  border-color: #9333ea;
-  color: white;
+  background: var(--accent-2);
+  border-color: var(--accent-2);
+  color: var(--btn-on-accent);
+  box-shadow: 0 4px 12px rgba(255, 155, 81, 0.35);
 }
 
 @media (max-width: 640px) {

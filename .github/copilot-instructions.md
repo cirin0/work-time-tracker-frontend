@@ -5,16 +5,21 @@
 
 ## Architecture Overview
 
-**Stack**: Vue 3 (Composition API) + TypeScript + Vite + Pinia + Vue Router  
+**Stack**: Vue 3 (Composition API) + TypeScript + Vite + Pinia + Vue Router + VueUse  
 **Backend**: Laravel API at `http://localhost:8000/api` with Laravel Echo (Reverb) WebSockets
 
 ### Core Structure
 
-- **State Management**: Pinia stores in `src/stores/` (auth, chat, profile)
+- **State Management**: Pinia stores in `src/stores/` (auth, profile, chat, ui)
+  - `auth.store` — authentication, token management, currentUser
+  - `profile.store` — extended user profile with cache (5 min), `displayProfile` getter
+  - `ui.store` — global UI state, loading indicators, lock mechanisms for deduplication
 - **API Layer**: Centralized in `src/core/api/` with Axios interceptors for auto-token refresh
 - **WebSocket**: Laravel Echo client in `src/core/websocket/` for real-time chat
 - **Routing**: Vue Router with role-based guards in `src/router/`
-- **Type System**: All domain models extend `BaseModel` interface (id, createdAt, updatedAt)
+- **Type System**: All domain models extend `BaseModel` interface (id, created_at, updated_at)
+- **Utility Helpers**: `src/core/utils/date.ts` — date formatting; `src/core/utils/url.ts` — avatar/logo URL resolution
+- **VueUse**: `@vueuse/core` composables used throughout (e.g. `useLocalStorage` in auth store)
 
 ## Critical Patterns
 
@@ -34,14 +39,20 @@
 - Auth logic in `src/stores/auth.store.ts` using Pinia's `defineStore` with setup syntax
 - Token persisted via `useLocalStorage` from `@vueuse/core`
 - Login response includes both `access_token` and `user` object
-- Router guard fetches `currentUser` if missing before protected route access
+- **Router guard** is the single source for loading `currentUser` - components should NOT call `getCurrentUser()` directly
+- **Profile Store** has `displayProfile` computed getter that falls back to `authStore.currentUser`
+- **Lock mechanism** in `ui.store.lockMeEndpoint()` ensures only one `/api/me` request happens at a time
+- Components should use `profileStore.displayProfile` instead of direct `profileStore.profile` to guarantee data availability
 
 ### 3. Form Validation
 
-- Use **vee-validate** with **Yup** schemas (see `src/composables/useAuthForm.ts`)
-- Ukrainian error messages defined in `VALIDATION_MESSAGES` constants
-- Frontend validation runs before API calls - display first error in `generalError`
-- Backend 422 errors mapped to field-specific errors via `setErrors()`
+- Use **vee-validate** (`useForm`, `useFieldArray`) with **Yup** object schemas
+- Schema and `VALIDATION_MESSAGES` constants are defined at the top of the composable file (not in the component)
+- Ukrainian error messages — all validation text must be in Ukrainian
+- `useForm({ validationSchema })` returns `handleSubmit`, `setErrors`, `resetForm`
+- Frontend validation runs before API calls; show the first error in a `generalError` ref
+- Backend 422 errors are mapped to field-specific errors via `setErrors()`
+- See `src/composables/useAuthForm.ts` and `src/composables/useWorkScheduleForm.ts` for real examples
 
 ### 4. Role-Based Access Control
 
@@ -63,10 +74,13 @@
 - Routes specify layout via `meta.layout: 'main'`
 - `MainLayout.vue` wraps authenticated views
 - Auth routes have no layout (handled in view directly)
-- **Navigation**: Do NOT add new links to `AppHeader.vue` navigation. Instead, add navigation buttons/links within role-specific views:
-  - `EmployeeView.vue` - for employee-specific features
-  - `ManagerView.vue` - for manager-specific features
-  - `AdminView.vue` - for admin-specific features
+- **Home Page Philosophy**: All users in the system are employees. The main route (`/`) displays `EmployeeView.vue` for everyone, regardless of role
+- **Navigation**: `AppHeader.vue` contains core navigation links accessible to all users:
+  - **Home** (`/`) — employee dashboard (visible to all)
+  - **Chat** (`/chat`) — messaging system (visible to all)
+  - **Admin Panel** (`/admin`) — visible only to users with `ADMIN` role
+  - **Manager Panel** (`/manager`) — visible only to users with `MANAGER` role (hidden for admins who have their own panel)
+- **Management Panels**: Admins and managers access their management functionality through dedicated panel routes, not through the home page
 - **View Structure**: All views (except AuthView) must be styled to work within `MainLayout.vue` wrapper. Use consistent padding and max-width patterns across views.
 
 ## Development Workflow
@@ -91,15 +105,78 @@ npm run format      # Prettier formatting
 6. **Navigation**: Add feature access via quick actions or buttons in role-specific dashboard views, NOT in the header
 7. **View Design**: Follow existing view patterns - max-width container, consistent padding, card-based layouts
 
+### Utility Helpers
+
+#### `src/core/utils/date.ts`
+
+All date formatting goes through these helpers — do **not** call `toLocaleDateString` directly in components:
+
+| Function               | Description                                                              |
+| ---------------------- | ------------------------------------------------------------------------ |
+| `parseDate(str)`       | Parses ISO string → `Date` (falls back to `new Date()` on invalid input) |
+| `formatDate(date)`     | `DD.MM.YYYY` Ukrainian locale string                                     |
+| `formatDateTime(date)` | `DD.MM.YYYY HH:MM` Ukrainian locale string                               |
+| `formatTime(date)`     | `HH:MM` Ukrainian locale string                                          |
+| `todayAsInputDate()`   | `YYYY-MM-DD` string for HTML `<input type="date" min="...">`             |
+
+```typescript
+import { formatDate, formatDateTime, formatTime, todayAsInputDate } from '@/core/utils/date'
+```
+
+#### `src/core/utils/url.ts`
+
+Use for resolving avatar and logo URLs — handles both relative paths (prefixes with `API_BASE_URL`) and absolute URLs transparently:
+
+```typescript
+import { getAvatarUrl } from '@/core/utils/url'
+
+// Returns null if path is empty, full URL otherwise
+const src = getAvatarUrl(user.avatar) // static
+const src = getAvatarUrl(user.avatar, Date.now()) // with cache-bust timestamp
+```
+
+### VueUse (`@vueuse/core`)
+
+Prefer VueUse composables over hand-rolling common reactive utilities:
+
+- `useLocalStorage` — reactive localStorage (used in auth store for token persistence)
+- Other VueUse composables can be introduced as needed; import from `@vueuse/core`
+
 ### UI/UX Guidelines
 
-- **Header Navigation**: Keep minimal - only core features (Home, Chat). Role-specific features go in dashboard views.
-- **Dashboard Pattern**: Each role has a dedicated dashboard view with:
+- **Header Navigation**: Contains links to:
+  - Home (visible to all) - employee dashboard showing work time tracking
+  - Chat (visible to all) - real-time messaging
+  - Admin Panel (visible only to admins) - user management, company management, system settings
+  - Manager Panel (visible only to managers, hidden for admins) - team management, leave requests, schedules
+- **Dashboard Pattern**: `EmployeeView.vue` is the universal home page for all users, containing:
   - Welcome card with user name
-  - Statistics cards for key metrics
-  - Quick actions section with feature navigation
-  - Role-specific content sections
+  - Statistics cards for key metrics (hours worked, etc.)
+  - Quick actions section with feature navigation (start work, take break, add entry, leave requests)
+  - Work time tracking interface
+- **Role-Specific Management**: Admins and managers navigate to separate panel views (`/admin`, `/manager`) to access management features
 - **Styling Consistency**: Use existing color palette (gradient: #2563eb → #9333ea), spacing scale, and shadow patterns
+
+### Composables Catalogue
+
+All composables live in `src/composables/`. Each composable owns its own state — do not duplicate logic in stores or components.
+
+| File                     | Purpose                                                                                          |
+| ------------------------ | ------------------------------------------------------------------------------------------------ |
+| `useAuthForm.ts`         | Login/register form state, Yup schema validation, submit handling, backend error mapping         |
+| `useWorkScheduleForm.ts` | Work schedule create/edit form with `useFieldArray` for dynamic daily entries                    |
+| `useChatLogic.ts`        | Paginated user list loading, message fetching, send-message action                               |
+| `useChatWebSocket.ts`    | Laravel Echo private channel subscription, incoming message handling, cleanup                    |
+| `useRoleGuard.ts`        | Computed role booleans (`isAdmin`, `isManager`, `isEmployee`) and `hasRole`/`hasAnyRole` helpers |
+
+**Pattern rules for new composables:**
+
+- Name with `use` prefix, camelCase: `useFeatureName.ts`
+- Define Yup schemas and `VALIDATION_MESSAGES` constants at module level (outside the function)
+- Return only what the caller needs — keep internal refs private
+- Clean up side-effects (event listeners, Echo channels) in `onUnmounted`
+- **Performance**: Use `computed` instead of `watch` where possible
+- **Performance**: Debounce expensive operations (search, filtering)
 
 ### Type Conventions
 
@@ -126,8 +203,148 @@ npm run format      # Prettier formatting
 - **Token refresh** happens silently via interceptor - queues failed requests during refresh
 - **Pusher setup**: Required global `window.Pusher` assignment for Echo (see websocket/client.ts)
 - **Ukrainian locale**: All user-facing validation messages and errors in Ukrainian
-- **Layout Wrapping**: All views must work within `MainLayout.vue` (header + main content area). Only `AuthView.vue` has no layout wrapper.
-- **Feature Navigation**: New features are accessed through dashboard quick actions, not header links. This keeps navigation clean and role-appropriate.
+- **Layout Wrapping**: All views must work within `MainLayout.vue` (header + main content area). Only `AuthView.vue` has no layout wrapper
+- **Unified Employee Identity**: Every user is considered an employee first. The home page (`IndexView.vue`) renders `EmployeeView.vue` for all roles. Management capabilities are separate concerns accessed through dedicated panels
+- **Role-Based Panel Access**: Admins and managers see additional navigation links in the header to access their management panels. These panels are separate routes, not embedded in the home page.
+
+## Performance & Optimization Guidelines
+
+> **Priority**: Always write optimized code by default. Performance is not an afterthought.
+
+### Data Loading & API Calls
+
+#### ❌ Anti-Pattern: Duplicate Data Fetching
+
+```typescript
+// DON'T: Fetch profile in every component
+onMounted(() => {
+  profileStore.fetchProfile()
+})
+```
+
+#### ✅ Correct Pattern: Use Computed Getter with Fallback
+
+```typescript
+// profileStore has displayProfile getter that falls back to authStore.currentUser
+const currentProfile = computed(() => profileStore.displayProfile)
+// Router guard already loads user once - components just use it
+```
+
+**Rules**:
+
+- **NEVER** call `fetchProfile()` in components (except on explicit user action like "retry")
+- **Router guard** is the single source of truth for initial user data loading
+- **Use `displayProfile` getter** in all components instead of direct `profile` access
+- **Lock mechanism** in `ui.store.lockMeEndpoint()` prevents duplicate `/api/me` requests
+
+#### Cache Strategy
+
+- `profileStore` has 5-minute cache (`CACHE_DURATION`)
+- `fetchProfile()` checks `isCacheValid()` before making API calls
+- Use `forceRefresh: true` parameter only when user explicitly updates data
+- Consider adding similar caching to other stores (admin, manager, chat user lists)
+
+### Reactive Data Optimization
+
+#### ❌ Anti-Pattern: Watch for Computed URLs
+
+```typescript
+const avatarUrl = ref<string | null>(null)
+watch(
+  () => [store.profile?.avatar, store.avatarTimestamp],
+  () => {
+    avatarUrl.value = getAvatarUrl(store.profile?.avatar, store.avatarTimestamp)
+  },
+  { immediate: true },
+)
+```
+
+#### ✅ Correct Pattern: Use Computed Properties
+
+```typescript
+const avatarUrl = computed(() => getAvatarUrl(store.displayProfile?.avatar, store.avatarTimestamp))
+```
+
+**Benefits**:
+
+- No extra reactivity overhead from watch
+- Automatically updates when dependencies change
+- Cleaner code, fewer refs to manage
+
+### Component Design
+
+#### Lazy Loading
+
+- **All routes** must use dynamic imports: `component: () => import('./views/SomeView.vue')`
+- Already implemented but verify when adding new routes
+
+#### Avoid Over-Rendering
+
+- Use `v-if` for conditional heavy components, not `v-show`
+- Add `:key` attributes on `v-for` lists with unique IDs
+- Consider `v-memo` for large lists that rarely change
+- Consider `v-once` for static content that never updates
+
+#### Component Splitting
+
+- Break large files (>400 lines) into smaller components or composables
+- Move complex logic to composables, keep components focused on UI
+- Example: `ProfileView.vue` password/PIN modals could be separate components
+
+### State Management Patterns
+
+#### Single Source of Truth
+
+- `auth.store` holds `currentUser` (from router guard)
+- `profile.store` extends it with full profile data (manager, company, work_schedule)
+- Use `displayProfile` getter to automatically fallback to `currentUser`
+- **DON'T** duplicate user data across multiple stores
+
+#### Lock Mechanism for Concurrent Requests
+
+```typescript
+// ui.store.ts provides lockMeEndpoint for /api/me deduplication
+await uiStore.lockMeEndpoint(async () => {
+  if (user.value) return user.value // double-check after acquiring lock
+  // make API call only if still needed
+})
+```
+
+Use this pattern for any frequently-called endpoint that might race.
+
+### Search & Filtering
+
+#### Debounce User Input
+
+```typescript
+import { useDebounceFn } from '@vueuse/core'
+
+const debouncedSearch = useDebounceFn((query: string) => {
+  // perform search
+}, 300)
+```
+
+Apply to all text input filters (user search, chat search, admin filters).
+
+### Code Organization
+
+- **Prefer computed over methods** when deriving display values
+- **Prefer composables over mixins** for reusable logic
+- **Minimize `watch` usage** - most cases can use `computed` or `watchEffect`
+- **Clean up side-effects** in `onUnmounted` (event listeners, intervals, WebSocket channels)
+
+### Quick Wins Checklist
+
+When reviewing or writing code, verify:
+
+- [ ] No redundant API calls (check network tab)
+- [ ] No `watch` that could be `computed`
+- [ ] No `onMounted` fetchProfile calls
+- [ ] Using `displayProfile` instead of `profile` in components
+- [ ] Large lists have proper `:key` attributes
+- [ ] Debounced search/filter inputs
+- [ ] Routes use lazy loading
+- [ ] Cleanup in `onUnmounted` for side-effects
 
 ## Integration Points
 

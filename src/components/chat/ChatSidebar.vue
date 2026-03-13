@@ -74,23 +74,25 @@ useInfiniteScroll(
 <style scoped>
 .users-sidebar {
   width: 18rem;
-  border-right: 1px solid #e5e7eb;
+  border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  background-color: #fafafa;
+  background-color: var(--surface);
+  height: 100%;
 }
 
 .sidebar-header {
   padding: 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
-  background-color: white;
+  border-bottom: 1px solid var(--border);
+  background-color: var(--surface);
 }
 
 .sidebar-header h2 {
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1f2937;
+  font-family: var(--font-heading);
+  color: var(--text);
 }
 
 .users-list {
@@ -102,14 +104,33 @@ useInfiniteScroll(
 .loading-state {
   padding: 2rem 1.5rem;
   text-align: center;
-  color: #6b7280;
+  color: var(--text-muted);
   font-size: 1.3rem;
+  font-family: var(--font-body);
 }
 
 .loading-more {
   padding: 1rem 1.5rem;
   text-align: center;
-  color: #6b7280;
+  color: var(--text-muted);
   font-size: 0.875rem;
+  font-family: var(--font-body);
+}
+
+@media (max-width: 900px) {
+  .users-sidebar {
+    width: 100%;
+    border-right: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .sidebar-header {
+    padding: 1rem;
+  }
+
+  .sidebar-header h2 {
+    font-size: 1.125rem;
+  }
 }
 </style>

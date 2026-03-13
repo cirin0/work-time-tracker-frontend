@@ -1,8 +1,7 @@
 import type { AxiosError, InternalAxiosRequestConfig } from 'axios'
 import { apiClient } from './client'
 import { API_ROUTES } from '../config/api.config'
-
-const TOKEN_KEY = 'token-store'
+import { tokenService } from './token.service'
 
 let isRefreshing = false
 let failedRequestsQueue: Array<{
@@ -12,7 +11,7 @@ let failedRequestsQueue: Array<{
 
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem(TOKEN_KEY)
+    const token = tokenService.get()
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`
     }
@@ -24,7 +23,9 @@ apiClient.interceptors.request.use(
 )
 
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    return response
+  },
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
 
@@ -66,7 +67,7 @@ apiClient.interceptors.response.use(
       const { data } = await apiClient.post(API_ROUTES.auth.refresh)
       const newToken = data.access_token
 
-      localStorage.setItem(TOKEN_KEY, newToken)
+      tokenService.set(newToken)
 
       failedRequestsQueue.forEach((request) => {
         request.resolve(newToken)
@@ -84,7 +85,7 @@ apiClient.interceptors.response.use(
       })
       failedRequestsQueue = []
 
-      localStorage.removeItem(TOKEN_KEY)
+      tokenService.clear()
 
       if (window.location.pathname !== '/auth') {
         window.location.href = '/auth'

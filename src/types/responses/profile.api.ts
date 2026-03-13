@@ -1,22 +1,7 @@
 import type { UserRole, WorkMode } from '../enums/enums.types'
+import type { UserBasic } from '../interfaces/userBasic.interface'
+import type { WorkSchedule } from '../interfaces/workSchedule.interface'
 import type { DailySchedule } from '../interfaces/dailySchedule.interface'
-
-interface ProfileCompany {
-  id: number
-  name: string
-}
-
-interface ProfileManager {
-  id: number
-  name: string
-  email: string
-  avatar: string | null
-}
-
-interface ProfileWorkSchedule {
-  id: number
-  name: string
-}
 
 export interface UserProfile {
   id: number
@@ -26,9 +11,9 @@ export interface UserProfile {
   role: UserRole
   work_mode: WorkMode
   has_pin_code: boolean
-  company: ProfileCompany | null
-  manager: ProfileManager | null
-  work_schedule: ProfileWorkSchedule | null
+  company: { id: number; name: string } | null
+  manager: UserBasic | null
+  work_schedule: Pick<WorkSchedule, 'id' | 'name'> | null
   created_at: string
   updated_at: string
 }
@@ -36,22 +21,6 @@ export interface UserProfile {
 export interface UserProfileResponse {
   message: string
   user: UserProfile
-}
-
-interface UserWorkScheduleInfo {
-  id: number
-  name: string
-  email: string
-  avatar: string | null
-  role: UserRole
-  work_mode: WorkMode
-  has_pin_code: boolean
-  work_schedule: {
-    id: number
-    name: string
-  }
-  created_at: string
-  updated_at: string
 }
 
 interface WorkScheduleDetails {
@@ -63,6 +32,5 @@ interface WorkScheduleDetails {
 
 export interface UserWorkScheduleResponse {
   message: string
-  user: UserWorkScheduleInfo
-  work_schedule: WorkScheduleDetails
+  data: WorkScheduleDetails
 }

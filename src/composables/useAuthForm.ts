@@ -78,9 +78,9 @@ export function useAuthForm(isLogin: () => boolean) {
   })
 
   watch(
-    () => authStore.getToken,
+    () => authStore.isAuthenticated,
     () => {
-      if (authStore.getToken) {
+      if (authStore.isAuthenticated) {
         router.push({ name: 'main' })
       }
     },

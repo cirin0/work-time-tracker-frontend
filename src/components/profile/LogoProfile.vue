@@ -1,31 +1,37 @@
 <script setup lang="ts">
 import type { User } from '@/types/interfaces/user.interface'
+import type { UserProfile } from '@/types/responses/profile.api'
 import { getAvatarUrl } from '@/core/utils/url'
 import { useProfileStore } from '@/stores/profile.store'
-import { computed, watch, ref } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 const props = defineProps<{
-  user: User
+  user: User | UserProfile
 }>()
 
 const profileStore = useProfileStore()
-const avatarUrlKey = ref(0)
-
-const avatarUrl = computed(() => {
-  return getAvatarUrl(props.user.avatar, profileStore.avatarTimestamp)
-})
+const imageKey = ref(0)
 
 watch(
-  () => profileStore.avatarTimestamp,
+  () => props.user.avatar,
   () => {
-    avatarUrlKey.value++
+    imageKey.value++
   },
 )
+
+watch(
+  () => profileStore.profile?.avatar,
+  () => {
+    imageKey.value++
+  },
+)
+
+const avatarUrl = computed(() => getAvatarUrl(props.user.avatar))
 </script>
 <template>
   <div class="user">
     <div class="user-avatar">
-      <img v-if="avatarUrl" :key="`avatar-${avatarUrlKey}`" :src="avatarUrl" alt="User Avatar" />
+      <img v-if="avatarUrl" :key="imageKey" :src="avatarUrl" alt="User Avatar" />
       <div v-else>{{ user.name.charAt(0).toUpperCase() }}</div>
     </div>
     <div class="user-info">
@@ -38,37 +44,37 @@ watch(
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 0.5rem;
+  padding: 0.4rem;
+  border-radius: 0.5rem;
+  border: 1px solid transparent;
   cursor: pointer;
+  transition: all 0.2s;
 }
 
-.user-item:hover {
-  background-color: #f3f4f6;
-}
-
-.user-item.active {
-  background-color: #eff6ff;
-  border-left: 3px solid #2563eb;
+.user.active {
+  background-color: var(--sand);
+  border-color: var(--accent-2);
 }
 
 .user-avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
-  color: white;
+  background: var(--accent-2);
+  color: var(--btn-on-accent);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
   font-size: 1.125rem;
+  border: 1px solid var(--border);
+}
 
-  img {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-  }
+.user-avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .user-info {
@@ -77,8 +83,7 @@ watch(
 }
 
 .user-name {
-  font-weight: 500;
-  color: white;
+  font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

@@ -3,6 +3,10 @@ import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import QRCode from 'qrcode'
 import { apiClient, API_ROUTES } from '@/core/api'
 import type { ApiResponse } from '@/types/responses/apiResponse.interface'
+import { formatDate } from '@/core/utils/date'
+import Card from '@/components/ui/Card.vue'
+import ButtonMain from '@/components/ui/ButtonMain.vue'
+import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 
 interface QRCodeData {
   qr_data: string
@@ -93,13 +97,18 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="qr-code-container">
-    <div class="qr-header">
-      <h3>QR-код для відмітки часу</h3>
+  <Card no-padding>
+    <template #header>
+      <h3 class="card-title">QR-код для відмітки часу</h3>
       <div class="header-actions">
-        <button @click="fetchQRCode" class="btn-refresh" :disabled="isLoading" v-if="!isCollapsed">
+        <ButtonMain
+          v-if="!isCollapsed"
+          @click="fetchQRCode"
+          :disabled="isLoading"
+          class="btn-refresh"
+        >
           {{ isLoading ? 'Завантаження...' : 'Оновити' }}
-        </button>
+        </ButtonMain>
         <button
           @click="toggleCollapse"
           class="btn-toggle"
@@ -108,7 +117,7 @@ onUnmounted(() => {
           {{ isCollapsed ? '▼' : '▲' }}
         </button>
       </div>
-    </div>
+    </template>
 
     <div v-if="error && !isCollapsed" class="error-message">
       {{ error }}
@@ -116,102 +125,72 @@ onUnmounted(() => {
 
     <div v-else-if="!isCollapsed" class="qr-content">
       <div class="qr-canvas-wrapper">
-        <div v-if="isLoading" class="loading-spinner">
-          <div class="spinner"></div>
-        </div>
+        <LoadingSpinner v-if="isLoading" text="Завантаження QR-коду..." />
         <canvas ref="canvasRef" v-show="!isLoading"></canvas>
       </div>
 
       <div v-if="expiresAt && !isLoading" class="qr-info">
-        <p class="validity-info">
-          <strong>Валідний до:</strong> {{ new Date(expiresAt).toLocaleDateString('uk-UA') }}
-        </p>
+        <p class="validity-info"><strong>Валідний до:</strong> {{ formatDate(expiresAt) }}</p>
         <p class="usage-info">
           Співробітники можуть використовувати цей QR-код для відмітки робочого часу
         </p>
       </div>
     </div>
-  </div>
+  </Card>
 </template>
 
 <style scoped>
-.qr-code-container {
-  background: white;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-}
-
-.qr-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.qr-header h3 {
+.card-title {
   margin: 0;
+  font-family: var(--font-heading);
   font-size: 1.25rem;
-  font-weight: 600;
-  color: #1f2937;
+  font-weight: 700;
+  color: var(--text);
 }
 
 .header-actions {
   display: flex;
-  gap: 8px;
-}
-
-.btn-toggle {
-  padding: 8px 12px;
-  background: #f3f4f6;
-  color: #374151;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 1rem;
-}
-
-.btn-toggle:hover {
-  background: #e5e7eb;
+  gap: 0.5rem;
+  align-items: center;
 }
 
 .btn-refresh {
-  padding: 8px 16px;
-  background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 500;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+.btn-toggle {
+  padding: 0.5rem 0.75rem;
+  background: var(--sand-light);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 1rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
-.btn-refresh:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-}
-
-.btn-refresh:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.btn-toggle:hover {
+  background: var(--surface-hover);
+  border-color: var(--accent-2);
 }
 
 .error-message {
-  padding: 12px 16px;
-  background: #fee2e2;
-  color: #991b1b;
-  border-radius: 8px;
-  border-left: 4px solid #dc2626;
+  padding: 0.75rem 1rem;
+  background: var(--error-bg);
+  color: var(--error-text);
+  border-radius: 0.5rem;
+  border-left: 4px solid var(--error-border);
+  font-family: var(--font-body);
+  margin-bottom: 1rem;
 }
 
 .qr-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
-  margin-top: 10px;
 }
 
 .qr-canvas-wrapper {
@@ -219,39 +198,18 @@ onUnmounted(() => {
   justify-content: center;
   align-items: center;
   min-height: 300px;
-  background: #f9fafb;
-  border-radius: 8px;
-  padding: 16px;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  width: 100%;
 }
 
 canvas {
   display: block;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px var(--shadow);
+  background: var(--surface);
   width: 300px;
   height: 300px;
-}
-
-.loading-spinner {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.spinner {
-  width: 48px;
-  height: 48px;
-  border: 4px solid #e5e7eb;
-  border-top-color: #2563eb;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 .qr-info {
@@ -261,19 +219,49 @@ canvas {
 }
 
 .validity-info {
-  margin: 0 0 12px;
+  margin: 0 0 0.75rem;
+  font-family: var(--font-body);
   font-size: 1rem;
-  color: #1f2937;
+  color: var(--text);
 }
 
 .validity-info strong {
-  color: #2563eb;
+  font-family: var(--font-mono);
+  color: var(--accent-2);
+  font-weight: 600;
 }
 
 .usage-info {
-  margin: 0;
+  margin-bottom: 1rem;
   font-size: 0.875rem;
-  color: #6b7280;
   line-height: 1.5;
+}
+
+@media (max-width: 640px) {
+  .card-title {
+    font-size: 1.125rem;
+  }
+
+  .qr-canvas-wrapper {
+    min-height: 250px;
+  }
+
+  canvas {
+    width: 250px;
+    height: 250px;
+  }
+
+  .header-actions {
+    gap: 0.25rem;
+  }
+
+  .btn-refresh {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+
+  .btn-toggle {
+    padding: 0.5rem;
+  }
 }
 </style>

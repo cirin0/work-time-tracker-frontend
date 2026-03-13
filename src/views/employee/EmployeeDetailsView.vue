@@ -1,15 +1,21 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useManagerStore } from '@/stores/manager.store'
-import type { User } from '@/types/interfaces/user.interface'
-import type { TimeEntry } from '@/types/interfaces/timeEntry.interface'
-import type { TimeEntrySummary } from '@/types/interfaces/timeEntrySummary.interface'
-import type { WorkSchedule } from '@/types/interfaces/workSchedule.interface'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
+import { useManagerStore } from '@/stores/manager.store.ts'
+import { useWorkScheduleStore } from '@/stores/workSchedule.store.ts'
+import type { User } from '@/types/interfaces/user.interface.ts'
+import type { TimeEntry } from '@/types/interfaces/timeEntry.interface.ts'
+import type { TimeEntrySummary } from '@/types/interfaces/timeEntrySummary.interface.ts'
+import type { WorkSchedule } from '@/types/interfaces/workSchedule.interface.ts'
+import { formatDate, formatTime, formatMinutes } from '@/core/utils/date.ts'
+import { getAvatarUrl } from '@/core/utils/url.ts'
+import StatCard from '@/components/ui/StatCard.vue'
+import PageHeader from '@/components/ui/PageHeader.vue'
+import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 
 const route = useRoute()
-const router = useRouter()
 const managerStore = useManagerStore()
+const workScheduleStore = useWorkScheduleStore()
 
 const employeeId = computed(() => Number(route.params.id))
 const employee = ref<User | null>(null)
@@ -20,8 +26,24 @@ const isLoading = ref(false)
 const loadError = ref<string | null>(null)
 const activeTab = ref<'overview' | 'timeEntries' | 'schedule'>('overview')
 
+// Schedule editing
+const isEditingSchedule = ref(false)
+const selectedScheduleId = ref<number | null>(null)
+const scheduleAssignSuccess = ref<string | null>(null)
+const scheduleAssignError = ref<string | null>(null)
+
+const avatarUrl = ref<string | null>(null)
+watch(
+  () => employee.value?.avatar,
+  () => {
+    avatarUrl.value = getAvatarUrl(employee.value?.avatar)
+  },
+  { immediate: true },
+)
+
 onMounted(() => {
   loadEmployeeDetails()
+  workScheduleStore.fetchWorkSchedules()
 })
 
 async function loadEmployeeDetails() {
@@ -64,21 +86,31 @@ async function loadTimeEntries() {
   }
 }
 
-function goBack() {
-  router.push({ name: 'main' })
-}
-
-function formatDate(date: Date | string) {
-  if (date instanceof Date) {
-    return date.toLocaleDateString('uk-UA')
+async function assignSchedule() {
+  if (!selectedScheduleId.value) return
+  scheduleAssignError.value = null
+  scheduleAssignSuccess.value = null
+  try {
+    await workScheduleStore.assignScheduleToEmployee(employeeId.value, {
+      work_schedule_id: selectedScheduleId.value,
+    })
+    // Refresh employee work schedule
+    await managerStore.fetchEmployeeWorkSchedule(employeeId.value)
+    employeeWorkSchedule.value = managerStore.selectedEmployeeWorkSchedule
+    // Also refresh employee info to update work_schedule name in the card
+    await managerStore.fetchEmployeeById(employeeId.value)
+    employee.value = managerStore.selectedEmployee
+    scheduleAssignSuccess.value = 'Графік роботи успішно змінено'
+    isEditingSchedule.value = false
+    selectedScheduleId.value = null
+    setTimeout(() => (scheduleAssignSuccess.value = null), 4000)
+  } catch {
+    scheduleAssignError.value = workScheduleStore.error ?? 'Помилка призначення графіку'
   }
-  return new Date(date).toLocaleDateString('uk-UA')
 }
 
-function formatTime(minutes: number) {
-  const hours = Math.floor(minutes / 60)
-  const mins = minutes % 60
-  return `${hours}г ${mins}хв`
+function formatDuration(minutes: number) {
+  return formatMinutes(minutes)
 }
 
 const workModeLabel = computed(() => {
@@ -103,22 +135,16 @@ const daysOfWeekLabels: Record<string, string> = {
 
 <template>
   <div class="employee-details">
-    <div class="page-header">
-      <button @click="goBack" class="btn-back">← Назад</button>
-      <h1>Деталі співробітника</h1>
-    </div>
+    <PageHeader title="Деталі співробітника" back-route="manager-employees" />
 
-    <div v-if="isLoading" class="loading">
-      <div class="spinner"></div>
-      <p>Завантаження...</p>
-    </div>
+    <LoadingSpinner v-if="isLoading" text="Завантаження..." />
 
     <div v-else-if="employee" class="content-wrapper">
       <!-- Employee Info Card -->
       <div class="employee-card">
         <div class="employee-header">
           <div class="employee-avatar">
-            <img v-if="employee.avatar" :src="employee.avatar" :alt="employee.name" />
+            <img v-if="avatarUrl" :src="avatarUrl" :alt="employee.name" />
             <div v-else class="avatar-placeholder">
               {{ employee.name.charAt(0).toUpperCase() }}
             </div>
@@ -147,7 +173,7 @@ const daysOfWeekLabels: Record<string, string> = {
           </div>
           <div class="detail-item">
             <span class="label">Дата реєстрації:</span>
-            <span class="value">{{ formatDate(employee.createdAt) }}</span>
+            <span class="value">{{ formatDate(employee.created_at) }}</span>
           </div>
         </div>
       </div>
@@ -155,35 +181,64 @@ const daysOfWeekLabels: Record<string, string> = {
       <!-- Statistics -->
       <div v-if="employeeSummary" class="stats-section">
         <h3>Статистика роботи</h3>
+
+        <!-- Period summary cards -->
         <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon">📅</div>
-            <div class="stat-content">
-              <div class="stat-value">{{ formatTime(employeeSummary.summary.today) }}</div>
-              <div class="stat-label">Сьогодні</div>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">📊</div>
-            <div class="stat-content">
-              <div class="stat-value">{{ formatTime(employeeSummary.summary.week) }}</div>
-              <div class="stat-label">Цього тижня</div>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">📈</div>
-            <div class="stat-content">
-              <div class="stat-value">{{ formatTime(employeeSummary.summary.month) }}</div>
-              <div class="stat-label">Цього місяця</div>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">⏱️</div>
-            <div class="stat-content">
-              <div class="stat-value">{{ employeeSummary.entries_count }}</div>
-              <div class="stat-label">Всього записів</div>
-            </div>
-          </div>
+          <StatCard
+            icon="📅"
+            label="Сьогодні"
+            :value="`${employeeSummary.summary.today.hours}г ${employeeSummary.summary.today.minutes}хв`"
+            :sub="`Днів: ${employeeSummary.summary.today.working_days} · Запізнень: ${employeeSummary.summary.today.late_count} · Ранніх: ${employeeSummary.summary.today.early_count}`"
+          />
+          <StatCard
+            icon="📊"
+            label="Цього тижня"
+            :value="`${employeeSummary.summary.week.hours}г ${employeeSummary.summary.week.minutes}хв`"
+            :sub="`Днів: ${employeeSummary.summary.week.working_days} · Запізнень: ${employeeSummary.summary.week.late_count} · Ранніх: ${employeeSummary.summary.week.early_count}`"
+          />
+          <StatCard
+            icon="📈"
+            label="Цього місяця"
+            :value="`${employeeSummary.summary.month.hours}г ${employeeSummary.summary.month.minutes}хв`"
+            :sub="`Днів: ${employeeSummary.summary.month.working_days} · Запізнень: ${employeeSummary.summary.month.late_count} · Ранніх: ${employeeSummary.summary.month.early_count}`"
+          />
+          <StatCard
+            icon="⏱️"
+            label="Робочих днів"
+            :value="employeeSummary.working_days"
+            :sub="`Сер. ${formatDuration(employeeSummary.average_work_time)}`"
+          />
+        </div>
+
+        <!-- Attendance details -->
+        <h3 class="stats-subsection-title">Відвідуваність та дисципліна</h3>
+        <div class="stats-grid">
+          <StatCard
+            icon="✅"
+            label="Вчасно"
+            :value="employeeSummary.attendance.on_time_count"
+            variant="success"
+          />
+          <StatCard
+            icon="🕐"
+            label="Запізнень"
+            :value="employeeSummary.attendance.late_count"
+            variant="danger"
+            :sub="`Сер. ${employeeSummary.attendance.average_late_minutes} хв · Всього ${employeeSummary.attendance.total_late_minutes} хв`"
+          />
+          <StatCard
+            icon="🚪"
+            label="Ранніх виходів"
+            :value="employeeSummary.attendance.early_leave_count"
+            :sub="`Сер. ${employeeSummary.attendance.average_early_leave_minutes} хв · Всього ${employeeSummary.attendance.total_early_leave_minutes} хв`"
+          />
+          <StatCard
+            icon="💪"
+            label="Понаднормових"
+            :value="employeeSummary.attendance.overtime_count"
+            variant="success"
+            :sub="`Сер. ${employeeSummary.attendance.average_overtime_minutes} хв · Всього ${formatDuration(employeeSummary.attendance.total_overtime_minutes)}`"
+          />
         </div>
       </div>
 
@@ -198,10 +253,7 @@ const daysOfWeekLabels: Record<string, string> = {
             Огляд
           </button>
           <button
-            @click="
-              activeTab = 'timeEntries'
-              loadTimeEntries()
-            "
+            @click="((activeTab = 'timeEntries'), loadTimeEntries())"
             :class="{ active: activeTab === 'timeEntries' }"
             class="tab"
           >
@@ -223,12 +275,14 @@ const daysOfWeekLabels: Record<string, string> = {
               <h4>Загальна інформація</h4>
               <p v-if="employeeSummary">
                 Середній робочий час:
-                <strong>{{ formatTime(employeeSummary.average_work_time) }}</strong>
+                <strong>{{ formatDuration(employeeSummary.average_work_time) }}</strong>
               </p>
               <p>
                 Всього годин:
                 <strong>{{
-                  employeeSummary ? formatTime(employeeSummary.total_minutes) : '-'
+                  employeeSummary
+                    ? `${employeeSummary.total_hours}г ${employeeSummary.total_minutes}хв`
+                    : '-'
                 }}</strong>
               </p>
             </div>
@@ -241,14 +295,14 @@ const daysOfWeekLabels: Record<string, string> = {
             </div>
             <div v-else class="entries-list">
               <div v-for="entry in employeeTimeEntries" :key="entry.id" class="entry-item">
-                <div class="entry-date">{{ formatDate(entry.createdAt) }}</div>
+                <div class="entry-date">{{ formatDate(entry.created_at) }}</div>
                 <div class="entry-details">
                   <div class="entry-time">
-                    <span>{{ entry.start_time || '-' }}</span>
+                    <span>{{ formatTime(entry.start_time) }}</span>
                     <span>→</span>
-                    <span>{{ entry.stop_time || '-' }}</span>
+                    <span>{{ formatTime(entry.stop_time) }}</span>
                   </div>
-                  <div class="entry-duration">Тривалість: {{ formatTime(entry.duration) }}</div>
+                  <div class="entry-duration">Тривалість: {{ formatDuration(entry.duration) }}</div>
                   <div class="entry-type">Тип: {{ entry.entry_type }}</div>
                 </div>
               </div>
@@ -257,6 +311,18 @@ const daysOfWeekLabels: Record<string, string> = {
 
           <!-- Schedule Tab -->
           <div v-if="activeTab === 'schedule'" class="schedule">
+            <!-- Success / error notifications -->
+            <Transition name="fade">
+              <div v-if="scheduleAssignSuccess" class="schedule-notify success">
+                ✓ {{ scheduleAssignSuccess }}
+              </div>
+            </Transition>
+            <Transition name="fade">
+              <div v-if="scheduleAssignError" class="schedule-notify error">
+                {{ scheduleAssignError }}
+              </div>
+            </Transition>
+
             <div
               v-if="!employeeWorkSchedule || !employeeWorkSchedule.daily_schedules?.length"
               class="empty-state"
@@ -264,7 +330,16 @@ const daysOfWeekLabels: Record<string, string> = {
               <p>Графік роботи не призначений</p>
             </div>
             <div v-else>
-              <h4>{{ employeeWorkSchedule.name }}</h4>
+              <div class="schedule-header">
+                <h4>{{ employeeWorkSchedule.name }}</h4>
+                <button
+                  v-if="!isEditingSchedule"
+                  class="btn-change-schedule"
+                  @click="isEditingSchedule = true"
+                >
+                  ✏️ Змінити графік
+                </button>
+              </div>
               <div class="schedule-list">
                 <div
                   v-for="day in employeeWorkSchedule.daily_schedules"
@@ -282,6 +357,40 @@ const daysOfWeekLabels: Record<string, string> = {
                   <div v-else class="day-off">Вихідний</div>
                 </div>
               </div>
+            </div>
+
+            <!-- Assign schedule form -->
+            <div v-if="isEditingSchedule" class="assign-schedule-form">
+              <h5>Призначити інший графік</h5>
+              <div class="assign-row">
+                <select v-model.number="selectedScheduleId" class="schedule-select">
+                  <option :value="null" disabled>Оберіть графік...</option>
+                  <option v-for="s in workScheduleStore.workSchedules" :key="s.id" :value="s.id">
+                    {{ s.name }}{{ s.is_default ? ' (за замовчуванням)' : '' }}
+                  </option>
+                </select>
+                <button
+                  class="btn-assign"
+                  :disabled="!selectedScheduleId || workScheduleStore.isSaving"
+                  @click="assignSchedule"
+                >
+                  {{ workScheduleStore.isSaving ? 'Збереження...' : 'Призначити' }}
+                </button>
+                <button
+                  class="btn-cancel-assign"
+                  @click="((isEditingSchedule = false), (selectedScheduleId = null))"
+                >
+                  Скасувати
+                </button>
+              </div>
+              <div v-if="scheduleAssignError" class="assign-error">{{ scheduleAssignError }}</div>
+            </div>
+
+            <!-- No schedule assigned yet but can still assign -->
+            <div v-if="!employeeWorkSchedule && !isEditingSchedule" class="assign-prompt">
+              <button class="btn-change-schedule" @click="isEditingSchedule = true">
+                + Призначити графік
+              </button>
             </div>
           </div>
         </div>
@@ -302,60 +411,6 @@ const daysOfWeekLabels: Record<string, string> = {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
-}
-
-.page-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.btn-back {
-  padding: 0.5rem 1rem;
-  background: #f3f4f6;
-  color: #374151;
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-back:hover {
-  background: #e5e7eb;
-}
-
-.page-header h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin: 0;
-}
-
-.loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem;
-  gap: 1rem;
-}
-
-.spinner {
-  width: 48px;
-  height: 48px;
-  border: 4px solid #e5e7eb;
-  border-top-color: #2563eb;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 .content-wrapper {
@@ -467,33 +522,31 @@ const daysOfWeekLabels: Record<string, string> = {
   gap: 1rem;
 }
 
-.stat-card {
+/* Compact/flat stat card style for this detail view */
+.stats-grid :deep(.stat-card) {
   background: #f9fafb;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+  box-shadow: none;
+  padding: 1.25rem 1.5rem;
 }
 
-.stat-icon {
+.stats-grid :deep(.stat-card:hover) {
+  transform: none;
+  box-shadow: none;
+}
+
+.stats-grid :deep(.stat-value) {
+  font-size: 1.5rem;
+}
+
+.stats-grid :deep(.stat-icon) {
   font-size: 2rem;
 }
 
-.stat-content {
-  flex: 1;
-}
-
-.stat-value {
-  font-size: 1.5rem;
-  font-weight: 700;
+.stats-subsection-title {
+  font-size: 1.125rem;
+  font-weight: 600;
   color: #1f2937;
-}
-
-.stat-label {
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin-top: 0.25rem;
+  margin: 1.5rem 0 1rem;
 }
 
 .tabs-section {
@@ -677,5 +730,154 @@ const daysOfWeekLabels: Record<string, string> = {
 .btn-primary:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 6px rgba(147, 51, 234, 0.3);
+}
+
+/* Schedule editing */
+.schedule-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.schedule-header h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.btn-change-schedule {
+  padding: 0.4rem 1rem;
+  background: linear-gradient(135deg, #2563eb, #9333ea);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-change-schedule:hover {
+  opacity: 0.88;
+}
+
+.assign-schedule-form {
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  background: #f8faff;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+}
+
+.assign-schedule-form h5 {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #1d4ed8;
+  margin: 0 0 0.85rem 0;
+}
+
+.assign-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.schedule-select {
+  flex: 1;
+  min-width: 180px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.88rem;
+  color: #1f2937;
+  outline: none;
+  background: white;
+}
+
+.schedule-select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.btn-assign {
+  padding: 0.5rem 1.1rem;
+  background: linear-gradient(135deg, #2563eb, #9333ea);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+}
+
+.btn-assign:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-assign:not(:disabled):hover {
+  opacity: 0.88;
+}
+
+.btn-cancel-assign {
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+  color: #374151;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.btn-cancel-assign:hover {
+  background: #f9fafb;
+}
+
+.assign-error {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: #dc2626;
+}
+
+.assign-prompt {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.schedule-notify {
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.schedule-notify.success {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  color: #15803d;
+}
+
+.schedule-notify.error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

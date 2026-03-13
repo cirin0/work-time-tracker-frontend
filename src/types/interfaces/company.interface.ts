@@ -13,7 +13,7 @@ export interface Company extends BaseModel {
   latitude: string | null
   longitude: string | null
   radius_meters: number | null
-  employees: Record<string, UserBasic> | UserBasic[]
-  employee_count: number
+  employees?: UserBasic[]
+  employee_count?: number
   work_schedules?: WorkSchedule[]
 }

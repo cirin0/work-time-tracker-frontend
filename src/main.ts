@@ -5,9 +5,10 @@ import { createPinia } from 'pinia'
 
 import App from './App.vue'
 import { router } from './router'
+import './assets/fonts/fonts.css'
 import VueScan, { type VueScanOptions } from 'z-vue-scan'
 
-const isProduction = import.meta.env.PROD
+export const isProduction = import.meta.env.VITE_PRODUCTION === 'true'
 
 const app = createApp(App)
 

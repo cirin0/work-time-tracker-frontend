@@ -36,31 +36,50 @@ withDefaults(
   justify-content: center;
   width: 5rem;
   height: 5rem;
-  background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
+  background: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 100%);
   border-radius: 1.5rem;
   margin-bottom: 1rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px var(--shadow);
 }
 
 .logo-icon {
   width: 2.5rem;
   height: 2.5rem;
-  color: white;
+  color: var(--surface);
 }
 
 .title {
+  font-family: var(--font-heading);
   font-size: 2.25rem;
-  font-weight: bold;
-  background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 0.5rem;
-  margin: 0;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 0.5rem 0;
 }
 
 .subtitle {
-  color: #6b7280;
-  margin: 0.5rem 0 0 0;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .logo-container {
+    width: 4rem;
+    height: 4rem;
+  }
+
+  .logo-icon {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .title {
+    font-size: 1.75rem;
+  }
+
+  .subtitle {
+    font-size: 0.875rem;
+  }
 }
 </style>

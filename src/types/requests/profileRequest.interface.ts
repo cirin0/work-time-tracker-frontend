@@ -6,6 +6,8 @@ export interface UpdateProfileRequest {
 export interface ChangePasswordRequest {
   current_password: string
   new_password: string
+  code: string
+  new_password_confirmation: string
 }
 
 export interface SetupPinCodeRequest {

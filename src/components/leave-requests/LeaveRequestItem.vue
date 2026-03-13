@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { LeaveRequest } from '@/types/interfaces/leaveRequest.interface'
 import { LeaveRequestStatus, LeaveRequestType } from '@/types/enums/enums.types'
+import { formatDate } from '@/core/utils/date'
 
 interface Props {
   leaveRequest: LeaveRequest
@@ -8,36 +9,12 @@ interface Props {
 
 defineProps<Props>()
 
-function formatDate(dateString: string): string {
-  const parts = dateString.split(' ')
-  const datePart = parts[0]
-  const timePart = parts[1]
-
-  if (!datePart) {
-    return 'Невідома дата'
-  }
-
-  const [day, month, year] = datePart.split('-')
-
-  if (!day || !month || !year) {
-    return 'Невідома дата'
-  }
-
-  const isoDate = `${year}-${month}-${day}T${timePart || '00:00:00'}`
-  const date = new Date(isoDate)
-
-  return date.toLocaleDateString('uk-UA', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  })
-}
-
 function getTypeLabel(type: LeaveRequestType): string {
   const labels: Record<LeaveRequestType, string> = {
     [LeaveRequestType.VACATION]: 'Відпустка',
     [LeaveRequestType.SICK]: 'Лікарняний',
     [LeaveRequestType.PERSONAL]: 'Особисті причини',
+    [LeaveRequestType.UNPAID]: 'Неоплачувана відпустка',
   }
   return labels[type] || type
 }
@@ -53,7 +30,10 @@ function getStatusLabel(status: LeaveRequestStatus): string {
 </script>
 
 <template>
-  <div class="leave-request-item">
+  <router-link
+    :to="{ name: 'leave-request-detail', params: { id: leaveRequest.id } }"
+    class="leave-request-item"
+  >
     <div class="leave-request-header">
       <div class="leave-request-info">
         <div class="leave-request-type">
@@ -87,25 +67,29 @@ function getStatusLabel(status: LeaveRequestStatus): string {
 
     <div class="leave-request-footer">
       <span class="created-date">Створено: {{ formatDate(leaveRequest.created_at) }}</span>
-      <span v-if="leaveRequest.updated_at !== leaveRequest.created_at" class="updated-date">
-        Оновлено: {{ formatDate(leaveRequest.updated_at) }}
-      </span>
     </div>
-  </div>
+  </router-link>
 </template>
 
 <style scoped>
 .leave-request-item {
+  display: block;
+  text-decoration: none;
+  color: inherit;
   background: white;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   padding: 20px;
   margin-bottom: 16px;
-  transition: box-shadow 0.2s;
+  transition:
+    box-shadow 0.2s,
+    border-color 0.2s;
+  cursor: pointer;
 }
 
 .leave-request-item:hover {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-color: #2563eb;
 }
 
 .leave-request-header {
@@ -114,7 +98,6 @@ function getStatusLabel(status: LeaveRequestStatus): string {
   align-items: center;
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 1px solid #f0f0f0;
   gap: 16px;
 }
 

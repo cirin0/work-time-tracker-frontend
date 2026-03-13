@@ -3,8 +3,8 @@ import { ref, onMounted } from 'vue'
 import { useLeaveRequestStore } from '@/stores/leaveRequest.store'
 import LeaveRequestsList from '@/components/leave-requests/LeaveRequestsList.vue'
 import LeaveRequestForm from '@/components/leave-requests/LeaveRequestForm.vue'
+import PageHeader from '@/components/ui/PageHeader.vue'
 import type { CreateLeaveRequestRequest } from '@/types/requests/leaveRequestRequest.interface'
-
 const leaveRequestStore = useLeaveRequestStore()
 const showFormModal = ref(false)
 const isSubmittingForm = ref(false)
@@ -40,36 +40,36 @@ function handlePageChange(page: number) {
 
 <template>
   <div class="leave-requests-view">
-    <div class="page-header">
-      <h1>Запити на відпустку</h1>
-      <p class="subtitle">Керування вашими запитами на відпустку</p>
-    </div>
+    <PageHeader
+      title="Запити на відпустку"
+      subtitle="Керування вашими запитами на відпустку"
+      back-route="main"
+    />
 
-      <div class="content-section">
-        <div class="section-header">
-          <h2>Мої запити</h2>
-          <button @click="showFormModal = true" class="btn-primary">+ Створити запит</button>
-        </div>
-
-        <LeaveRequestsList
-          :leave-requests="leaveRequestStore.leaveRequests"
-          :is-loading="leaveRequestStore.isLoading"
-          :error="leaveRequestStore.error"
-          :pagination="leaveRequestStore.pagination"
-          @retry="loadLeaveRequests"
-          @create="showFormModal = true"
-          @page-change="handlePageChange"
-        />
+    <div class="content-section">
+      <div class="section-header">
+        <h2>Мої запити</h2>
+        <button @click="showFormModal = true" class="btn-primary">+ Створити запит</button>
       </div>
 
-      <LeaveRequestForm
-        :show-form="showFormModal"
-        :is-submitting="isSubmittingForm"
-        @close="showFormModal = false"
-        @submit="handleCreateRequest"
+      <LeaveRequestsList
+        :leave-requests="leaveRequestStore.leaveRequests"
+        :is-loading="leaveRequestStore.isLoading"
+        :error="leaveRequestStore.error"
+        :pagination="leaveRequestStore.pagination"
+        @retry="loadLeaveRequests"
+        @create="showFormModal = true"
+        @page-change="handlePageChange"
       />
     </div>
-  </MainLayout>
+
+    <LeaveRequestForm
+      :show-form="showFormModal"
+      :is-submitting="isSubmittingForm"
+      @close="showFormModal = false"
+      @submit="handleCreateRequest"
+    />
+  </div>
 </template>
 
 <style scoped>
@@ -77,22 +77,6 @@ function handlePageChange(page: number) {
   max-width: 1400px;
   margin: 0 auto;
   padding: 2rem;
-}
-
-.page-header {
-  margin-bottom: 2rem;
-}
-
-.page-header h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 0.5rem;
-}
-
-.subtitle {
-  color: #6b7280;
-  font-size: 1rem;
 }
 
 .content-section {

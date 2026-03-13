@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useManagerStore } from '@/stores/manager.store'
+import { useManagerStore } from '@/stores/manager.store.ts'
 import ManagerLeaveRequestsList from '@/components/leave-requests/ManagerLeaveRequestsList.vue'
 import RejectModal from '@/components/leave-requests/RejectModal.vue'
 import Pagination from '@/components/ui/Pagination.vue'
+import PageHeader from '@/components/ui/PageHeader.vue'
 
-const router = useRouter()
 const managerStore = useManagerStore()
 
 const showRejectModal = ref(false)
@@ -36,7 +35,6 @@ async function handleApprove(id: number) {
   processingRequestId.value = id
   try {
     await managerStore.approveLeaveRequest(id)
-    // Reload current page to reflect changes
     await loadLeaveRequests(currentPage.value)
   } catch (error) {
     console.error('Failed to approve leave request:', error)
@@ -61,7 +59,6 @@ async function handleRejectSubmit(comments: string) {
     })
     showRejectModal.value = false
     rejectingRequestId.value = null
-    // Reload current page to reflect changes
     await loadLeaveRequests(currentPage.value)
   } catch (error) {
     console.error('Failed to reject leave request:', error)
@@ -74,18 +71,11 @@ async function handleRejectSubmit(comments: string) {
 function handlePageChange(page: number) {
   loadLeaveRequests(page)
 }
-
-function goBack() {
-  router.push({ name: 'main' })
-}
 </script>
 
 <template>
   <div class="leave-requests-page">
-    <div class="page-header">
-      <button @click="goBack" class="btn-back">← Назад</button>
-      <h1>Всі запити на відпустку</h1>
-    </div>
+    <PageHeader title="Всі запити на відпустку" back-route="manager" />
 
     <div class="content-section">
       <ManagerLeaveRequestsList
@@ -119,36 +109,6 @@ function goBack() {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
-}
-
-.page-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.btn-back {
-  padding: 0.5rem 1rem;
-  background: #f3f4f6;
-  color: #374151;
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-back:hover {
-  background: #e5e7eb;
-}
-
-.page-header h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin: 0;
 }
 
 .content-section {

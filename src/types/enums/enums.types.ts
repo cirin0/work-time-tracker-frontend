@@ -7,6 +7,7 @@ export enum UserRole {
 export enum LeaveRequestType {
   SICK = 'sick',
   VACATION = 'vacation',
+  UNPAID = 'unpaid',
   PERSONAL = 'personal',
 }
 
