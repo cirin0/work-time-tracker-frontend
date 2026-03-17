@@ -7,8 +7,8 @@ import { useRouter } from 'vue-router'
 
 const VALIDATION_MESSAGES = {
   email: {
-    required: "Email є обов'язковим",
-    invalid: 'Введіть валідний email',
+    required: "Електронна пошта є обов'язковою",
+    invalid: 'Введіть коректну електронну пошту',
   },
   password: {
     required: "Пароль є обов'язковим",
@@ -22,9 +22,12 @@ const VALIDATION_MESSAGES = {
 
 const ERROR_MESSAGES = {
   invalidCredentials: 'Невірні дані для входу',
+  validationFailed: 'Перевірте коректність введених даних.',
+  emailAlreadyTaken:
+    'Ця електронна пошта вже зареєстрована. Спробуйте увійти або використайте іншу пошту.',
   serverError: 'Сталася помилка. Спробуйте ще раз.',
   unknownError: 'Сталася невідома помилка',
-  registrationSuccess: 'Реєстрація успішна! Тепер ви можете увійти.',
+  registrationSuccess: 'Реєстрація успішна. Перевірте пошту та введіть код підтвердження.',
 } as const
 
 const loginSchema = yup.object({
@@ -65,6 +68,7 @@ export function useAuthForm(isLogin: () => boolean) {
 
   const savedName = ref<string>('')
   const savedEmail = ref<string>('')
+  const registeredEmail = ref<string>('')
 
   const validationSchema = computed(() => (isLogin() ? loginSchema : registerSchema))
 
@@ -95,7 +99,7 @@ export function useAuthForm(isLogin: () => boolean) {
     const response = error.response
 
     if (response?.status === 401) {
-      generalError.value = response.data?.error || ERROR_MESSAGES.invalidCredentials
+      generalError.value = ERROR_MESSAGES.invalidCredentials
       return
     }
 
@@ -106,8 +110,8 @@ export function useAuthForm(isLogin: () => boolean) {
         setValidationErrors(errors)
       }
 
-      if (response.data?.message && !Object.keys(errors || {}).length) {
-        generalError.value = response.data.message
+      if (!Object.keys(errors || {}).length) {
+        generalError.value = ERROR_MESSAGES.validationFailed
       }
       return
     }
@@ -117,19 +121,31 @@ export function useAuthForm(isLogin: () => boolean) {
 
   function setValidationErrors(errors: Record<string, string[]>) {
     const validFields: FormField[] = ['name', 'email', 'password']
+    const fieldMessages: Record<FormField, string> = {
+      name: 'Перевірте правильність імені.',
+      email: 'Перевірте правильність електронної пошти.',
+      password: 'Перевірте правильність пароля.',
+    }
+
+    const emailErrors = errors.email || []
+    const hasEmailTakenError = emailErrors.some((message) =>
+      message.toLowerCase().includes('already been taken'),
+    )
+
+    if (hasEmailTakenError) {
+      generalError.value = ERROR_MESSAGES.emailAlreadyTaken
+      serverErrors.value.email = ERROR_MESSAGES.emailAlreadyTaken
+      return
+    }
 
     Object.keys(errors).forEach((field) => {
-      const errorMessages = errors[field]
-      if (!errorMessages || errorMessages.length === 0) return
+      const typedField = field as FormField
+      if (!validFields.includes(typedField)) return
 
-      const errorMessage = errorMessages[0]
-      if (!errorMessage) return
+      const translatedMessage = fieldMessages[typedField]
 
-      if (validFields.includes(field as FormField)) {
-        setFieldError(field as FormField, errorMessage)
-      }
-
-      serverErrors.value[field] = errorMessage
+      setFieldError(typedField, translatedMessage)
+      serverErrors.value[field] = translatedMessage
     })
   }
 
@@ -168,6 +184,7 @@ export function useAuthForm(isLogin: () => boolean) {
 
       savedName.value = name
       savedEmail.value = email
+      registeredEmail.value = email
 
       resetForm({
         values: {
@@ -227,6 +244,7 @@ export function useAuthForm(isLogin: () => boolean) {
     serverErrors,
     generalError,
     successMessage,
+    registeredEmail,
     onSubmit,
     resetFormState,
     clearErrors,

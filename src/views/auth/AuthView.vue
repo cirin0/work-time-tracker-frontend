@@ -1,26 +1,70 @@
 <script setup lang="ts">
 import AuthForm from '@/components/auth/AuthForm.vue'
 import AuthHeader from '@/components/auth/AuthHeader.vue'
+import EmailVerificationForm from '@/components/auth/EmailVerificationForm.vue'
 import FormToggle from '@/components/auth/FormToggle.vue'
 import { ref } from 'vue'
 
 const isLogin = ref(true)
+const authStep = ref<'auth' | 'verify-email'>('auth')
+const verificationEmail = ref('')
+const loginNotice = ref('')
 
 const handleToggle = (newValue: boolean) => {
   isLogin.value = newValue
+  authStep.value = 'auth'
+
+  if (!newValue) {
+    loginNotice.value = ''
+  }
 }
 
-const handleRegisterSuccess = () => {
+const handleRegisterSuccess = (email: string) => {
+  verificationEmail.value = email
+  authStep.value = 'verify-email'
+}
+
+const handleVerificationSuccess = () => {
+  authStep.value = 'auth'
   isLogin.value = true
+  loginNotice.value = 'Електронну пошту підтверджено. Ви можете увійти.'
+}
+
+const handleBackToAuth = () => {
+  authStep.value = 'auth'
+  isLogin.value = true
+}
+
+const handleClearLoginNotice = () => {
+  loginNotice.value = ''
 }
 </script>
 <template>
   <div class="app-container">
     <div class="app-wrapper">
-      <AuthHeader subtitle="Track your productivity, boost your success" />
+      <AuthHeader
+        :subtitle="
+          authStep === 'verify-email'
+            ? 'Підтвердьте вашу електронну пошту для завершення реєстрації'
+            : 'Керуйте робочим часом швидко та зручно'
+        "
+      />
       <div class="form-card">
-        <FormToggle :is-login="isLogin" @toggle="handleToggle" />
-        <AuthForm :is-login="isLogin" @register-success="handleRegisterSuccess" />
+        <template v-if="authStep === 'auth'">
+          <FormToggle :is-login="isLogin" @toggle="handleToggle" />
+          <AuthForm
+            :is-login="isLogin"
+            :login-notice="loginNotice"
+            @register-success="handleRegisterSuccess"
+            @clear-login-notice="handleClearLoginNotice"
+          />
+        </template>
+        <EmailVerificationForm
+          v-else
+          :email="verificationEmail"
+          @verified="handleVerificationSuccess"
+          @back-to-auth="handleBackToAuth"
+        />
       </div>
     </div>
   </div>

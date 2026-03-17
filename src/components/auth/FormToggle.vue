@@ -13,10 +13,10 @@ const buttonClass = (isLoginButton: boolean) => {
 <template>
   <div class="toggle-container">
     <button @click="emit('toggle', true)" class="toggle-button" :class="buttonClass(true)">
-      Login
+      Вхід
     </button>
     <button @click="emit('toggle', false)" class="toggle-button" :class="buttonClass(false)">
-      Register
+      Реєстрація
     </button>
   </div>
 </template>

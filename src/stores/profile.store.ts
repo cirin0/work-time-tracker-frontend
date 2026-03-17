@@ -92,6 +92,23 @@ export const useProfileStore = defineStore('profile', () => {
     }
   }
 
+  async function requestPasswordChangeCode() {
+    isSaving.value = true
+    error.value = null
+
+    try {
+      const { data } = await apiClient.post<{ message: string }>(
+        API_ROUTES.me.requestPasswordChangeCode,
+      )
+      return data
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to request password code'
+      throw err
+    } finally {
+      isSaving.value = false
+    }
+  }
+
   async function changePassword(passwordData: ChangePasswordRequest) {
     isSaving.value = true
     error.value = null
@@ -151,6 +168,7 @@ export const useProfileStore = defineStore('profile', () => {
     updateProfileLocally,
     updateProfile,
     updateAvatar,
+    requestPasswordChangeCode,
     changePassword,
     setupPinCode,
     changePinCode,

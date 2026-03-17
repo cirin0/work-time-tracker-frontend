@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProfileStore } from '@/stores/profile.store'
 import { getAvatarUrl } from '@/core/utils/url'
@@ -47,6 +47,17 @@ const passwordForm = ref<ChangePasswordRequest>({
   new_password_confirmation: '',
 })
 const passwordError = ref<string | null>(null)
+const passwordSuccess = ref<string | null>(null)
+const isRequestingPasswordCode = ref(false)
+const passwordCodeCooldown = ref(0)
+
+let passwordCodeTimer: ReturnType<typeof setInterval> | null = null
+
+const isPasswordCodeButtonDisabled = computed(
+  () => isRequestingPasswordCode.value || passwordCodeCooldown.value > 0 || store.isSaving,
+)
+
+const isPasswordSubmitDisabled = computed(() => store.isSaving || isRequestingPasswordCode.value)
 
 const isPinSetupModalOpen = ref(false)
 const isPinChangeModalOpen = ref(false)
@@ -111,6 +122,28 @@ async function handleAvatarChange(event: Event) {
   }
 }
 
+function clearPasswordCodeTimer() {
+  if (!passwordCodeTimer) return
+
+  clearInterval(passwordCodeTimer)
+  passwordCodeTimer = null
+}
+
+function startPasswordCodeCooldown(seconds = 60) {
+  clearPasswordCodeTimer()
+  passwordCodeCooldown.value = seconds
+
+  passwordCodeTimer = setInterval(() => {
+    if (passwordCodeCooldown.value <= 1) {
+      passwordCodeCooldown.value = 0
+      clearPasswordCodeTimer()
+      return
+    }
+
+    passwordCodeCooldown.value -= 1
+  }, 1000)
+}
+
 function openPasswordModal() {
   passwordForm.value = {
     current_password: '',
@@ -119,14 +152,40 @@ function openPasswordModal() {
     new_password_confirmation: '',
   }
   passwordError.value = null
+  passwordSuccess.value = null
+  passwordCodeCooldown.value = 0
+  clearPasswordCodeTimer()
   isPasswordModalOpen.value = true
 }
 function cancelPasswordChange() {
   isPasswordModalOpen.value = false
   passwordError.value = null
+  passwordSuccess.value = null
+  clearPasswordCodeTimer()
+  passwordCodeCooldown.value = 0
+}
+
+async function requestPasswordCode() {
+  passwordError.value = null
+  passwordSuccess.value = null
+  isRequestingPasswordCode.value = true
+
+  try {
+    await store.requestPasswordChangeCode()
+    passwordSuccess.value = 'Код підтвердження надіслано на вашу електронну пошту.'
+    startPasswordCodeCooldown()
+  } catch (e) {
+    passwordError.value =
+      e instanceof Error && e.message ? e.message : 'Не вдалося надіслати код підтвердження'
+  } finally {
+    isRequestingPasswordCode.value = false
+  }
 }
 
 async function changePassword() {
+  passwordError.value = null
+  passwordSuccess.value = null
+
   if (!passwordForm.value.current_password) {
     passwordError.value = 'Введіть поточний пароль'
     return
@@ -139,7 +198,11 @@ async function changePassword() {
     passwordError.value = 'Новий пароль повинен містити мінімум 8 символів'
     return
   }
-  if (passwordForm.value.code && passwordForm.value.code.length !== 6) {
+  if (!passwordForm.value.code) {
+    passwordError.value = 'Введіть код підтвердження'
+    return
+  }
+  if (passwordForm.value.code.length !== 6) {
     passwordError.value = 'Код підтвердження повинен містити 6 символів'
     return
   }
@@ -151,11 +214,18 @@ async function changePassword() {
     await store.changePassword(passwordForm.value)
     isPasswordModalOpen.value = false
     passwordError.value = null
+    passwordSuccess.value = null
+    clearPasswordCodeTimer()
+    passwordCodeCooldown.value = 0
     alert('Пароль успішно змінено')
   } catch (e) {
     passwordError.value = e instanceof Error ? e.message : 'Помилка зміни пароля'
   }
 }
+
+onUnmounted(() => {
+  clearPasswordCodeTimer()
+})
 
 function openPinSetupModal() {
   pinSetupForm.value = { pin_code: '' }
@@ -250,15 +320,32 @@ function getWorkModeLabel(mode?: string): string {
     </Modal>
 
     <Modal v-model="isPasswordModalOpen" title="Зміна пароля">
+      <div v-if="passwordSuccess" class="modal-success">{{ passwordSuccess }}</div>
       <div v-if="passwordError" class="modal-error">{{ passwordError }}</div>
-      <div class="form-field">
-        <InputField
-          name="code"
-          label="Код підтвердження (якщо увімкнено 2FA)"
-          v-model="passwordForm.code"
-          type="text"
-          placeholder="Введіть код підтвердження"
-        />
+      <div class="password-code-row">
+        <div class="form-field password-code-field">
+          <InputField
+            name="code"
+            label="Код підтвердження"
+            v-model="passwordForm.code"
+            type="text"
+            icon="lock"
+            placeholder="Введіть 6-значний код"
+          />
+        </div>
+        <button
+          class="btn-secondary btn-code"
+          :disabled="isPasswordCodeButtonDisabled"
+          @click="requestPasswordCode"
+        >
+          {{
+            isRequestingPasswordCode
+              ? 'Надсилання...'
+              : passwordCodeCooldown > 0
+                ? `Повторно через ${passwordCodeCooldown}с`
+                : 'Надіслати код'
+          }}
+        </button>
       </div>
       <div class="form-field">
         <InputField
@@ -266,6 +353,7 @@ function getWorkModeLabel(mode?: string): string {
           label="Поточний пароль"
           v-model="passwordForm.current_password"
           type="password"
+          icon="lock"
           placeholder="Поточний пароль"
         />
       </div>
@@ -275,6 +363,7 @@ function getWorkModeLabel(mode?: string): string {
           label="Новий пароль"
           v-model="passwordForm.new_password"
           type="password"
+          icon="lock"
           placeholder="Мінімум 8 символів"
         />
       </div>
@@ -284,14 +373,19 @@ function getWorkModeLabel(mode?: string): string {
           label="Підтвердження пароля"
           v-model="passwordForm.new_password_confirmation"
           type="password"
+          icon="lock"
           placeholder="Повторіть новий пароль"
         />
       </div>
       <template #footer>
-        <button class="btn-secondary" @click="cancelPasswordChange" :disabled="store.isSaving">
+        <button
+          class="btn-secondary"
+          @click="cancelPasswordChange"
+          :disabled="isPasswordSubmitDisabled"
+        >
           Скасувати
         </button>
-        <button class="btn-primary" @click="changePassword" :disabled="store.isSaving">
+        <button class="btn-primary" @click="changePassword" :disabled="isPasswordSubmitDisabled">
           {{ store.isSaving ? 'Збереження...' : 'Змінити пароль' }}
         </button>
       </template>
@@ -305,6 +399,7 @@ function getWorkModeLabel(mode?: string): string {
           label="PIN код (4 цифри)"
           v-model="pinSetupForm.pin_code"
           type="password"
+          icon="lock"
           placeholder="0000"
           maxlength="4"
         />
@@ -329,6 +424,7 @@ function getWorkModeLabel(mode?: string): string {
           type="password"
           placeholder="0000"
           maxlength="4"
+          icon="lock"
         />
       </div>
       <div class="form-field">
@@ -339,6 +435,7 @@ function getWorkModeLabel(mode?: string): string {
           type="password"
           placeholder="0000"
           maxlength="4"
+          icon="lock"
         />
       </div>
       <template #footer>
@@ -465,7 +562,7 @@ function getWorkModeLabel(mode?: string): string {
 
           <template #footer>
             <div v-if="store.displayProfile.manager" class="manager-section">
-              <div class="manager-label">Безпосередній менеджер</div>
+              <div class="manager-label">Менеджер</div>
               <div class="manager-card">
                 <Avatar
                   :src="managerAvatarUrl || undefined"
@@ -841,6 +938,27 @@ function getWorkModeLabel(mode?: string): string {
   border-radius: 0.5rem;
   margin-bottom: 1rem;
   font-size: 0.875rem;
+}
+.modal-success {
+  background: rgba(74, 222, 128, 0.12);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  color: var(--pin-ok-color);
+  padding: 0.65rem 0.875rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+.password-code-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+.password-code-field {
+  flex: 1;
+}
+.btn-code {
+  margin-top: 1.75rem;
+  padding: 0.9rem;
 }
 
 /* ── Responsive ─────────────────────────────────────────────────────────── */
