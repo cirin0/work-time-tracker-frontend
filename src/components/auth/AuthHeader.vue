@@ -4,7 +4,7 @@ withDefaults(
     subtitle: string
   }>(),
   {
-    subtitle: 'Track your productivity, boost your success',
+    subtitle: 'Відстежуйте робочий час і керуйте продуктивністю',
   },
 )
 </script>

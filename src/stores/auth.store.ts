@@ -1,7 +1,12 @@
 import { API_ROUTES, apiClient } from '@/core/api'
 import { tokenService } from '@/core/api/token.service'
 import type { User } from '@/types/interfaces/user.interface'
-import type { LoginResponse, RefreshResponse } from '@/types/responses/auth.interface'
+import type {
+  LoginResponse,
+  RefreshResponse,
+  RegisterResponse,
+  VerifyEmailResponse,
+} from '@/types/responses/auth.interface'
 import type { UserWorkScheduleResponse } from '@/types/responses/profile.api'
 import { useLocalStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
@@ -47,11 +52,29 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function register(name: string, email: string, password: string) {
-    const { data } = await apiClient.post<User>(API_ROUTES.auth.register, {
+    const { data } = await apiClient.post<RegisterResponse>(API_ROUTES.auth.register, {
       name,
       email,
       password,
     })
+    return data
+  }
+
+  async function verifyEmail(email: string, code: string) {
+    const { data } = await apiClient.post<VerifyEmailResponse>(API_ROUTES.auth.verifyEmail, {
+      email,
+      code,
+    })
+    return data
+  }
+
+  async function resendVerificationCode(email: string) {
+    const { data } = await apiClient.post<VerifyEmailResponse>(
+      API_ROUTES.auth.resendVerificationCode,
+      {
+        email,
+      },
+    )
     return data
   }
 
@@ -117,6 +140,8 @@ export const useAuthStore = defineStore('auth', () => {
     currentUser,
     isLoadingUser,
     register,
+    verifyEmail,
+    resendVerificationCode,
     login,
     logout,
     refreshToken,

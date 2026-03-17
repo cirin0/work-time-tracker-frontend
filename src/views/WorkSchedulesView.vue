@@ -263,8 +263,7 @@ async function handleAssign(userId: number, scheduleId: number) {
 /* Create button (used in header actions slot and empty state) */
 .btn-create {
   padding: 0.65rem 1.5rem;
-  background: linear-gradient(135deg, #2563eb, #9333ea);
-  color: white;
+  background: var(--accent-2);
   border: none;
   border-radius: 10px;
   font-size: 0.9rem;

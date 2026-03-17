@@ -1,33 +1,39 @@
 <script setup lang="ts">
-import { watch } from 'vue'
+import { computed, watch } from 'vue'
 import InputField from '../ui/InputField.vue'
 import { useAuthForm } from '@/composables/useAuthForm'
 
 const props = defineProps<{
   isLogin: boolean
+  loginNotice?: string
 }>()
 
 const emit = defineEmits<{
-  registerSuccess: []
+  registerSuccess: [email: string]
+  clearLoginNotice: []
 }>()
 
-const { generalError, successMessage, onSubmit, resetFormState, clearErrors } = useAuthForm(
-  () => props.isLogin,
-)
+const { generalError, successMessage, registeredEmail, onSubmit, resetFormState, clearErrors } =
+  useAuthForm(() => props.isLogin)
+
+const visibleSuccessMessage = computed(() => {
+  if (successMessage.value) return successMessage.value
+  if (props.isLogin && props.loginNotice) return props.loginNotice
+  return ''
+})
 
 const handleSubmit = async (event: Event) => {
   event.preventDefault()
   await onSubmit(event)
 
-  if (!props.isLogin && !generalError.value && successMessage.value) {
-    emit('registerSuccess')
+  if (!props.isLogin && !generalError.value && successMessage.value && registeredEmail.value) {
+    emit('registerSuccess', registeredEmail.value)
   }
 }
 
 const handleInputStart = () => {
-  if (successMessage.value) {
-    successMessage.value = ''
-  }
+  if (successMessage.value) successMessage.value = ''
+  if (props.loginNotice) emit('clearLoginNotice')
 }
 
 watch(
@@ -44,8 +50,8 @@ watch(
 </script>
 <template>
   <div>
-    <div v-if="successMessage" class="success-alert">
-      {{ successMessage }}
+    <div v-if="visibleSuccessMessage" class="success-alert">
+      {{ visibleSuccessMessage }}
     </div>
     <div v-if="generalError" class="error-alert">
       {{ generalError }}
@@ -54,38 +60,40 @@ watch(
       <InputField
         v-if="!isLogin"
         name="name"
-        label="Name"
+        label="Ім'я"
         type="text"
         icon="user"
-        placeholder="Enter your full name"
+        placeholder="Введіть ваше повне ім'я"
         @focus="handleInputStart"
       />
       <InputField
         name="email"
-        label="Email"
+        label="Електронна пошта"
         type="email"
         icon="email"
-        placeholder="Enter your email"
+        placeholder="Введіть електронну пошту"
         @focus="handleInputStart"
       />
       <InputField
         name="password"
-        label="Password"
+        label="Пароль"
         type="password"
         icon="lock"
-        placeholder="Enter your password"
+        placeholder="Введіть пароль"
         @focus="handleInputStart"
       />
       <div v-if="isLogin" class="forgot-password">
-        <a href="#" class="forgot-link">Forgot password?</a>
+        <a href="#" class="forgot-link">Забули пароль?</a>
       </div>
 
       <button class="submit-button" type="submit">
-        {{ isLogin ? 'Login' : 'Register' }}
+        {{ isLogin ? 'Увійти' : 'Зареєструватися' }}
       </button>
     </form>
 
-    <p v-if="!isLogin" class="terms-text">By registering, you agree to our Terms of Service</p>
+    <p v-if="!isLogin" class="terms-text">
+      Реєструючись, ви погоджуєтесь з умовами використання сервісу
+    </p>
   </div>
 </template>
 <style scoped>
