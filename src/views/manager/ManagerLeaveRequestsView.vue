@@ -112,7 +112,7 @@ function handlePageChange(page: number) {
 }
 
 .content-section {
-  background: white;
+  background: var(--surface);
   border-radius: 0.75rem;
   padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);

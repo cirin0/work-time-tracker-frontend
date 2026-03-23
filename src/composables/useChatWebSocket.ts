@@ -7,10 +7,20 @@ export function useChatWebSocket(
   currentUser: { value: User | null },
   onMessageReceived: (message: Message) => void,
 ) {
+  let subscribedChannelName: string | null = null
+
   function setupWebSocket() {
     if (!currentUser.value) return
 
-    const channel = echoClient.private(`chat.${currentUser.value.id}`)
+    const nextChannelName = `chat.${currentUser.value.id}`
+
+    if (subscribedChannelName) {
+      echoClient.leave(subscribedChannelName)
+      subscribedChannelName = null
+    }
+
+    const channel = echoClient.private(nextChannelName)
+    subscribedChannelName = nextChannelName
 
     channel
       .listen(
@@ -34,8 +44,9 @@ export function useChatWebSocket(
   }
 
   function cleanup() {
-    if (currentUser.value) {
-      echoClient.leave(`chat.${currentUser.value.id}`)
+    if (subscribedChannelName) {
+      echoClient.leave(subscribedChannelName)
+      subscribedChannelName = null
     }
   }
 
