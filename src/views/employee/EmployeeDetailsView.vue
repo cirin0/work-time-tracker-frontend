@@ -408,7 +408,7 @@ const daysOfWeekLabels: Record<string, string> = {
 
 <style scoped>
 .employee-details {
-  max-width: 1200px;
+  max-width: var(--container-max);
   margin: 0 auto;
   padding: 2rem;
 }

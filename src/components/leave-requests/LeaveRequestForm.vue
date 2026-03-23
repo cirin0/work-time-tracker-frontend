@@ -129,6 +129,7 @@ defineExpose({
               <option value="vacation">Відпустка</option>
               <option value="sick">Лікарняний</option>
               <option value="personal">Особисті причини</option>
+              <option value="business_trip">Відрядження</option>
             </select>
             <span v-if="errors.type" class="field-error">{{ errors.type }}</span>
           </div>
@@ -341,12 +342,12 @@ defineExpose({
 }
 
 .button-primary {
-  background: #28a745;
-  color: white;
+  background: var(--accent-2);
+  color: var(--btn-on-accent);
 }
 
 .button-primary:hover:not(:disabled) {
-  background: #218838;
+  background: var(--accent-2-hover);
 }
 
 .button-primary:disabled {
@@ -354,7 +355,7 @@ defineExpose({
   cursor: not-allowed;
 }
 
-@media (max-width: 768px) {
+@media (max-width: var(--bp-md)) {
   .form-container {
     max-height: 100vh;
     border-radius: 0;

@@ -420,13 +420,13 @@ const DAY_LABELS: Record<string, string> = {
   box-shadow: 0 4px 12px rgba(255, 155, 81, 0.4);
 }
 
-@media (max-width: 900px) {
+@media (max-width: var(--bp-lg)) {
   .day-fields {
     width: 100%;
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: var(--bp-sm)) {
   .day-row {
     padding: 0.75rem 1rem;
   }

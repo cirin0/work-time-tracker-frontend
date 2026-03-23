@@ -222,13 +222,13 @@ function workingDaysCount() {
   font-style: italic;
 }
 
-@media (max-width: 900px) {
+@media (max-width: var(--bp-lg)) {
   .days-grid {
     grid-template-columns: repeat(4, 1fr);
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: var(--bp-sm)) {
   .days-grid {
     grid-template-columns: repeat(2, 1fr);
   }

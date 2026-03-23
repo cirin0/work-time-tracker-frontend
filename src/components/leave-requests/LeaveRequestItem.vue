@@ -15,6 +15,7 @@ function getTypeLabel(type: LeaveRequestType): string {
     [LeaveRequestType.SICK]: 'Лікарняний',
     [LeaveRequestType.PERSONAL]: 'Особисті причини',
     [LeaveRequestType.UNPAID]: 'Неоплачувана відпустка',
+    [LeaveRequestType.BUSINESS_TRIP]: 'Відрядження',
   }
   return labels[type] || type
 }
@@ -220,7 +221,7 @@ function getStatusLabel(status: LeaveRequestStatus): string {
   border-top: 1px solid #f0f0f0;
 }
 
-@media (max-width: 768px) {
+@media (max-width: var(--bp-md)) {
   .leave-request-header {
     flex-direction: column;
     align-items: flex-start;

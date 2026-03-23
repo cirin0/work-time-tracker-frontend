@@ -273,7 +273,7 @@ onMounted(() => {
   outline-offset: 3px;
 }
 
-@media (max-width: 640px) {
+@media (max-width: var(--bp-sm)) {
   .user-view {
     padding: 1rem;
   }

@@ -184,7 +184,7 @@ function viewCompany() {
 
 <style scoped>
 .manager-panel {
-  max-width: 1600px;
+  max-width: var(--container-lg);
   margin: 0 auto;
   padding: 2rem;
 }
@@ -238,7 +238,7 @@ function viewCompany() {
   align-items: start;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: var(--bp-lg)) {
   .two-column-layout {
     grid-template-columns: 1fr;
   }

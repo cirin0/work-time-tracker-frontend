@@ -54,7 +54,7 @@ const buttonClass = (isLoginButton: boolean) => {
   box-shadow: 0 2px 8px var(--shadow);
 }
 
-@media (max-width: 640px) {
+@media (max-width: var(--bp-sm)) {
   .toggle-button {
     padding: 0.875rem 1rem;
     font-size: 0.875rem;

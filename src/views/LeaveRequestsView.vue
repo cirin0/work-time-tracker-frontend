@@ -74,7 +74,7 @@ function handlePageChange(page: number) {
 
 <style scoped>
 .leave-requests-view {
-  max-width: 1400px;
+  max-width: var(--container-max);
   margin: 0 auto;
   padding: 2rem;
 }
@@ -116,7 +116,7 @@ function handlePageChange(page: number) {
   box-shadow: 0 4px 6px var(--shadow);
 }
 
-@media (max-width: 768px) {
+@media (max-width: var(--bp-md)) {
   .leave-requests-view {
     padding: 1rem;
   }

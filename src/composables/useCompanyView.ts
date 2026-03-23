@@ -2,7 +2,6 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { useCompanyStore } from '@/stores/company.store'
-import { useUsersStore } from '@/stores/users.store'
 import { useRoleGuard } from '@/composables/useRoleGuard'
 import { getAvatarUrl } from '@/core/utils/url'
 import type AdminCompanyEditModal from '@/components/admin/AdminCompanyEditModal.vue'
@@ -11,7 +10,6 @@ import type { UpdateCompanyRequest } from '@/types/requests/companyRequest.inter
 export function useCompanyView() {
   const authStore = useAuthStore()
   const companyStore = useCompanyStore()
-  const usersStore = useUsersStore()
   const router = useRouter()
   const { isAdmin } = useRoleGuard()
 
@@ -44,11 +42,6 @@ export function useCompanyView() {
     const id = companyId.value
     if (!id) return
     await companyStore.fetchById(id)
-    if (isAdmin.value && company.value) {
-      companyStore.fetchCompanyUsers(company.value.id)
-    } else {
-      usersStore.fetchUsers(1)
-    }
   })
 
   async function handleEditSubmit(payload: UpdateCompanyRequest) {
@@ -122,7 +115,6 @@ export function useCompanyView() {
 
   return {
     companyStore,
-    usersStore,
     company,
     companyId,
     logoUrl,

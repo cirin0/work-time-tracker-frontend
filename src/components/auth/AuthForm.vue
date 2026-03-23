@@ -172,7 +172,7 @@ watch(
   margin-top: 1rem;
 }
 
-@media (max-width: 640px) {
+@media (max-width: var(--bp-sm)) {
   .submit-button {
     padding: 0.875rem 1rem;
     font-size: 1rem;

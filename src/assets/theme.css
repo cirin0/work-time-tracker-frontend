@@ -6,6 +6,28 @@
   --font-body: 'DM Sans', system-ui, -apple-system, sans-serif;
   --font-mono: 'Geist Mono', 'Courier New', monospace;
 
+  /* Розміри контейнерів */
+  --container-max: 1280px;
+  /* основні сторінки */
+  --container-lg: 1400px;
+  /* для таблиць та грідів */
+  --modal-lg: 560px;
+  /* великі модалі */
+  --modal-md: 480px;
+  /* середні модалі */
+  --modal-sm: 420px;
+  /* малі модалі */
+
+  /* Responsive breakpoints */
+  --bp-xl: 1200px;
+  /* desktop */
+  --bp-lg: 1024px;
+  /* large devices */
+  --bp-md: 768px;
+  /* tablet */
+  --bp-sm: 640px;
+  /* mobile */
+
   /* Кольори */
   --bg: #eaefef;
   --surface: #ffffff;

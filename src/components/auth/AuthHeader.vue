@@ -63,7 +63,7 @@ withDefaults(
   margin: 0;
 }
 
-@media (max-width: 640px) {
+@media (max-width: var(--bp-sm)) {
   .logo-container {
     width: 4rem;
     height: 4rem;

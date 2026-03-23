@@ -78,7 +78,7 @@ onMounted(() => {
 
 <style scoped>
 .statistics-view {
-  max-width: 1200px;
+  max-width: var(--container-max);
   margin: 0 auto;
   padding: 2rem;
 }
@@ -167,7 +167,7 @@ onMounted(() => {
   font-size: 0.95rem;
 }
 
-@media (max-width: 768px) {
+@media (max-width: var(--bp-md)) {
   .statistics-view {
     padding: 1rem;
   }

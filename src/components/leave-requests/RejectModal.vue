@@ -270,7 +270,7 @@ defineExpose({
   cursor: not-allowed;
 }
 
-@media (max-width: 768px) {
+@media (max-width: var(--bp-md)) {
   .modal-container {
     max-height: 100vh;
     border-radius: 0;

@@ -2,6 +2,7 @@
 import type { LeaveRequest } from '@/types/interfaces/leaveRequest.interface'
 import type { PaginatedResponse } from '@/types/responses/pagination.interface'
 import LeaveRequestItem from './LeaveRequestItem.vue'
+import Pagination from '@/components/ui/Pagination.vue'
 
 interface Props {
   leaveRequests: LeaveRequest[]
@@ -42,24 +43,13 @@ defineEmits<{
         :leave-request="request"
       />
 
-      <div v-if="pagination" class="pagination">
-        <button
-          @click="$emit('page-change', pagination.current_page - 1)"
-          :disabled="pagination.current_page === 1"
-          class="pagination-button"
-        >
-          Назад
-        </button>
-        <span class="pagination-info">
-          Сторінка {{ pagination.current_page }} з {{ pagination.last_page }}
-        </span>
-        <button
-          @click="$emit('page-change', pagination.current_page + 1)"
-          :disabled="pagination.current_page === pagination.last_page"
-          class="pagination-button"
-        >
-          Далі
-        </button>
+      <!-- Pagination -->
+      <div v-if="pagination && pagination.last_page > 1" class="pagination-wrapper">
+        <Pagination :meta="pagination" @change-page="$emit('page-change', $event)" />
+      </div>
+      <div v-if="pagination && pagination.total > 0" class="pagination-info">
+        Показано {{ pagination.last_page === 1 ? pagination.total : leaveRequests.length }} з
+        {{ pagination.total }}
       </div>
     </div>
   </div>
@@ -117,8 +107,8 @@ defineEmits<{
 }
 
 .create-button {
-  background: #28a745;
-  color: white;
+  background: var(--accent-2);
+  color: var(--btn-on-accent);
   border: none;
   padding: 12px 24px;
   border-radius: 6px;
@@ -129,52 +119,21 @@ defineEmits<{
 }
 
 .create-button:hover {
-  background: #218838;
+  background: var(--accent-2-hover);
 }
 
 .requests-container {
   width: 100%;
 }
 
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 16px;
-  margin-top: 24px;
-  padding: 20px;
-}
-
-.pagination-button {
-  background: #007bff;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.pagination-button:hover:not(:disabled) {
-  background: #0056b3;
-}
-
-.pagination-button:disabled {
-  background: #ccc;
-  cursor: not-allowed;
+.pagination-wrapper {
+  margin-top: 1.25rem;
 }
 
 .pagination-info {
-  font-size: 14px;
-  color: #666;
-  font-weight: 600;
-}
-
-@media (max-width: 768px) {
-  .pagination {
-    flex-wrap: wrap;
-  }
+  text-align: center;
+  margin-top: 0.625rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
 }
 </style>
