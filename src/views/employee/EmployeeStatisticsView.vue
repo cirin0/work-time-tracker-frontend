@@ -86,7 +86,7 @@ onMounted(() => {
 .empty-state {
   text-align: center;
   padding: 4rem;
-  color: #6b7280;
+  color: var(--text-muted);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -95,8 +95,8 @@ onMounted(() => {
 
 .btn-primary {
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
-  color: white;
+  background: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 100%);
+  color: var(--header-text);
   border: none;
   border-radius: 0.5rem;
   font-weight: 500;
@@ -105,7 +105,7 @@ onMounted(() => {
 
 .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
+  box-shadow: 0 4px 12px var(--shadow);
 }
 
 .content {
@@ -115,7 +115,7 @@ onMounted(() => {
 }
 
 .section {
-  background: white;
+  background: var(--surface);
   border-radius: 0.75rem;
   padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
@@ -124,7 +124,7 @@ onMounted(() => {
 .section h2 {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
   margin: 0 0 1.25rem;
 }
 
@@ -137,7 +137,7 @@ onMounted(() => {
 .cards-row :deep(.stat-card) {
   flex: 1;
   min-width: 140px;
-  background: #f9fafb;
+  background: var(--sand-light);
   border-radius: 0.5rem;
   padding: 1rem 1.25rem;
   box-shadow: none;
@@ -160,10 +160,10 @@ onMounted(() => {
 .chart-placeholder {
   margin-top: 1.25rem;
   padding: 3rem 2rem;
-  border: 2px dashed #e5e7eb;
+  border: 2px dashed var(--border);
   border-radius: 0.5rem;
   text-align: center;
-  color: #9ca3af;
+  color: var(--text-muted);
   font-size: 0.95rem;
 }
 

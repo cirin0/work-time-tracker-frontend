@@ -32,7 +32,9 @@ const avatarUrl = computed(() => getAvatarUrl(store.displayProfile?.avatar))
 const managerAvatarUrl = computed(() => getAvatarUrl(store.displayProfile?.manager?.avatar))
 
 onMounted(() => {
-  if (!store.displayProfile) store.fetchProfile()
+  if (!store.displayProfile) {
+    store.fetchProfile().catch(() => undefined)
+  }
 })
 
 const isEditMode = ref(false)
@@ -685,7 +687,7 @@ function getWorkModeLabel(mode?: string): string {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--header-text);
   font-size: 0.75rem;
   border-radius: 50%;
   width: 96px;

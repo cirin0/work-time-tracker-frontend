@@ -23,8 +23,8 @@ const profileRoute = computed(() => {
   }
 })
 
-function handleLogout() {
-  authStore.clearToken()
+async function handleLogout() {
+  await authStore.logout()
   profileStore.clearProfile()
   chatStore.resetAll()
   router.push({ name: 'auth' })

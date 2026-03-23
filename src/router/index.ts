@@ -138,12 +138,6 @@ export const router = createRouter({
       meta: { layout: 'main', requiresAuth: true },
     },
     {
-      path: '/role-examples',
-      name: 'role-examples',
-      component: () => import('../views/RoleExampleView.vue'),
-      meta: { requiresAuth: false },
-    },
-    {
       path: '/auth',
       name: 'auth',
       component: () => import('../views/auth/AuthView.vue'),

@@ -56,7 +56,6 @@ function reload() {
   justify-content: center;
   min-height: 400px;
   padding: 2rem;
-  background: #fef2f2;
 }
 
 .error-content {
