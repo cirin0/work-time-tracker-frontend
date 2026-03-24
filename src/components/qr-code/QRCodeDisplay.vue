@@ -237,7 +237,7 @@ canvas {
   line-height: 1.5;
 }
 
-@media (max-width: 640px) {
+@media (max-width: var(--bp-sm)) {
   .card-title {
     font-size: 1.125rem;
   }

@@ -271,7 +271,7 @@ function close() {
   box-shadow: 0 4px 12px rgba(255, 155, 81, 0.4);
 }
 
-@media (max-width: 640px) {
+@media (max-width: var(--bp-sm)) {
   .employees-list {
     max-height: 240px;
   }

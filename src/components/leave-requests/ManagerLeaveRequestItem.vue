@@ -23,6 +23,7 @@ function getTypeLabel(type: LeaveRequestType): string {
     [LeaveRequestType.SICK]: 'Лікарняний',
     [LeaveRequestType.PERSONAL]: 'Особисті причини',
     [LeaveRequestType.UNPAID]: 'Неоплачувана відпустка',
+    [LeaveRequestType.BUSINESS_TRIP]: 'Відрядження',
   }
   return labels[type] || type
 }
@@ -272,8 +273,8 @@ function getStatusLabel(status: LeaveRequestStatus): string {
 }
 
 .btn-approve {
-  background: #d4edda;
-  color: #155724;
+  background: var(--accent-2);
+  color: var(--btn-on-accent);
 }
 
 .btn-approve:hover:not(:disabled) {
@@ -304,7 +305,7 @@ function getStatusLabel(status: LeaveRequestStatus): string {
   border-top: 1px solid #f0f0f0;
 }
 
-@media (max-width: 768px) {
+@media (max-width: var(--bp-md)) {
   .request-header {
     flex-direction: column;
   }

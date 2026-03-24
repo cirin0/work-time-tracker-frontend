@@ -32,7 +32,9 @@ const avatarUrl = computed(() => getAvatarUrl(store.displayProfile?.avatar))
 const managerAvatarUrl = computed(() => getAvatarUrl(store.displayProfile?.manager?.avatar))
 
 onMounted(() => {
-  if (!store.displayProfile) store.fetchProfile()
+  if (!store.displayProfile) {
+    store.fetchProfile().catch(() => undefined)
+  }
 })
 
 const isEditMode = ref(false)
@@ -628,7 +630,7 @@ function getWorkModeLabel(mode?: string): string {
 <style scoped>
 /* ── Page wrapper ───────────────────────────────────────────────────────── */
 .profile-page {
-  max-width: 1100px;
+  max-width: var(--container-max);
   margin: 2rem auto;
   padding: 0 1.5rem 3rem;
 }
@@ -685,7 +687,7 @@ function getWorkModeLabel(mode?: string): string {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--header-text);
   font-size: 0.75rem;
   border-radius: 50%;
   width: 96px;
@@ -962,7 +964,7 @@ function getWorkModeLabel(mode?: string): string {
 }
 
 /* ── Responsive ─────────────────────────────────────────────────────────── */
-@media (max-width: 900px) {
+@media (max-width: var(--bp-lg)) {
   .profile-layout {
     grid-template-columns: 1fr;
   }
@@ -970,7 +972,7 @@ function getWorkModeLabel(mode?: string): string {
     position: static;
   }
 }
-@media (max-width: 640px) {
+@media (max-width: var(--bp-sm)) {
   .profile-page {
     padding: 0 1rem 2rem;
     margin-top: 1rem;

@@ -297,7 +297,7 @@ const isActive = computed(() => !props.entry.stop_time)
   color: var(--text);
 }
 
-@media (max-width: 768px) {
+@media (max-width: var(--bp-md)) {
   .entry-item {
     padding: 0.875rem;
   }

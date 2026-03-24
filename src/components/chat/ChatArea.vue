@@ -54,6 +54,8 @@ defineExpose({
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .empty-state {
@@ -71,7 +73,7 @@ defineExpose({
   margin-bottom: 1rem;
 }
 
-@media (max-width: 640px) {
+@media (max-width: var(--bp-sm)) {
   .empty-state {
     padding: 1rem;
   }

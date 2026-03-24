@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
+import { useLocalStorage } from '@vueuse/core'
 
 interface UnreadMessages {
   [userId: number]: number
@@ -10,8 +11,8 @@ interface LastActivity {
 }
 
 export const useChatStore = defineStore('chat', () => {
-  const unreadMessages = ref<UnreadMessages>({})
-  const lastActivity = ref<LastActivity>({})
+  const unreadMessages = useLocalStorage<UnreadMessages>('chat-unread-messages', {})
+  const lastActivity = useLocalStorage<LastActivity>('chat-last-activity', {})
 
   const totalUnread = computed(() => {
     return Object.values(unreadMessages.value).reduce((sum, count) => sum + count, 0)

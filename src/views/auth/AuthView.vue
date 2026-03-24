@@ -92,7 +92,7 @@ const handleClearLoginNotice = () => {
   padding: 2rem;
 }
 
-@media (max-width: 640px) {
+@media (max-width: var(--bp-sm)) {
   .app-container {
     padding: 0.5rem;
   }

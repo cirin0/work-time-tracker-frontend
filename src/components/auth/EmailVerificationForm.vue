@@ -158,7 +158,7 @@ const handleSubmit = async (event: Event) => {
   cursor: not-allowed;
 }
 
-@media (max-width: 640px) {
+@media (max-width: var(--bp-sm)) {
   .submit-button,
   .secondary-button,
   .link-button {

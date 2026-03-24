@@ -12,12 +12,11 @@ declare global {
 window.Pusher = Pusher
 
 export const echoClient = new Echo({
-  broadcaster: WEBSOCKET_CONFIG.broadcaster as 'reverb',
+  broadcaster: WEBSOCKET_CONFIG.broadcaster,
   key: WEBSOCKET_CONFIG.key,
   wsHost: WEBSOCKET_CONFIG.wsHost,
   wsPort: WEBSOCKET_CONFIG.wsPort,
-  wssPort: WEBSOCKET_CONFIG.wssPort,
-  forceTLS: WEBSOCKET_CONFIG.forceTLS,
-  enabledTransports: WEBSOCKET_CONFIG.enabledTransports as ['ws', 'wss'],
+  disableStats: WEBSOCKET_CONFIG.disableStats,
+  encrypted: WEBSOCKET_CONFIG.encrypted,
   authorizer: createEchoAuthorizer,
 })

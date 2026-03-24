@@ -162,12 +162,16 @@ async function handleAssignManager(managerId: number) {
         </Card>
 
         <!-- Quick actions - only when fully configured -->
-        <Card v-if="hasManager">
+        <Card>
           <div class="quick-actions">
             <button class="quick-action-btn" @click="viewCompany">
               <span class="qa-icon">🏢</span>
               <span class="qa-label">Компанія</span>
             </button>
+            <router-link :to="{ name: 'admin-audit-logs' }" class="quick-action-btn">
+              <span class="qa-icon">📋</span>
+              <span class="qa-label">Журнал аудиту</span>
+            </router-link>
           </div>
         </Card>
 
@@ -204,7 +208,7 @@ async function handleAssignManager(managerId: number) {
 
 <style scoped>
 .admin-panel {
-  max-width: 1280px;
+  max-width: var(--container-max);
   margin: 0 auto;
   padding: 2rem;
 }
@@ -310,6 +314,7 @@ async function handleAssignManager(managerId: number) {
   color: var(--text);
   cursor: pointer;
   transition: all 0.2s;
+  text-decoration: none;
 }
 
 .quick-action-btn:hover:not(:disabled) {
@@ -344,7 +349,7 @@ async function handleAssignManager(managerId: number) {
   min-width: 0;
 }
 
-@media (max-width: 900px) {
+@media (max-width: var(--bp-lg)) {
   .admin-panel {
     padding: 1.5rem;
   }
@@ -364,7 +369,7 @@ async function handleAssignManager(managerId: number) {
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: var(--bp-sm)) {
   .admin-panel {
     padding: 1rem;
   }

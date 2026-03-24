@@ -50,6 +50,7 @@ defineExpose({
 <style scoped>
 .messages-container {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: 1.5rem;
   background-color: var(--bg);
@@ -63,7 +64,7 @@ defineExpose({
   font-family: var(--font-body);
 }
 
-@media (max-width: 640px) {
+@media (max-width: var(--bp-sm)) {
   .messages-container {
     padding: 1rem;
   }

@@ -172,7 +172,7 @@ async function handleAssign(userId: number, scheduleId: number) {
 
 <style scoped>
 .work-schedules-page {
-  max-width: 1400px;
+  max-width: var(--container-lg);
   margin: 0 auto;
   padding: 2rem;
   position: relative;
@@ -244,9 +244,9 @@ async function handleAssign(userId: number, scheduleId: number) {
 }
 
 .form-card {
-  background: white;
+  background: var(--surface);
   border-radius: 16px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border);
   padding: 2rem;
   width: 100%;
   max-width: 700px;
@@ -256,7 +256,7 @@ async function handleAssign(userId: number, scheduleId: number) {
 .form-title {
   font-size: 1.2rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--text);
   margin: 0 0 1.5rem 0;
 }
 
@@ -281,7 +281,7 @@ async function handleAssign(userId: number, scheduleId: number) {
 .empty-state {
   text-align: center;
   padding: 4rem 2rem;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .empty-icon {
@@ -292,7 +292,7 @@ async function handleAssign(userId: number, scheduleId: number) {
 .empty-state h3 {
   font-size: 1.2rem;
   font-weight: 600;
-  color: #374151;
+  color: var(--text-muted);
   margin: 0 0 0.5rem 0;
 }
 
@@ -307,7 +307,7 @@ async function handleAssign(userId: number, scheduleId: number) {
   gap: 1.25rem;
 }
 
-@media (max-width: 600px) {
+@media (max-width: var(--bp-sm)) {
   .work-schedules-page {
     padding: 1rem;
   }

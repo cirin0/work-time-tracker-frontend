@@ -127,7 +127,7 @@ function handleFocus(event: FocusEvent) {
   font-weight: 500;
 }
 
-@media (max-width: 640px) {
+@media (max-width: var(--bp-sm)) {
   .input-field {
     font-size: 1rem;
     padding: 0.875rem 1rem 0.875rem 2.75rem;

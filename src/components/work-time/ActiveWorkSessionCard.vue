@@ -408,7 +408,7 @@ function handleStop() {
   cursor: not-allowed;
 }
 
-@media (max-width: 768px) {
+@media (max-width: var(--bp-md)) {
   .session-active,
   .session-idle {
     padding: 1.5rem;

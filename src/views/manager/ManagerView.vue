@@ -184,7 +184,7 @@ function viewCompany() {
 
 <style scoped>
 .manager-panel {
-  max-width: 1600px;
+  max-width: var(--container-lg);
   margin: 0 auto;
   padding: 2rem;
 }
@@ -196,12 +196,12 @@ function viewCompany() {
 .panel-header h1 {
   font-size: 2rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--text);
   margin-bottom: 0.5rem;
 }
 
 .subtitle {
-  color: #6b7280;
+  color: var(--text-muted);
   font-size: 1rem;
 }
 
@@ -238,7 +238,7 @@ function viewCompany() {
   align-items: start;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: var(--bp-lg)) {
   .two-column-layout {
     grid-template-columns: 1fr;
   }
@@ -262,7 +262,7 @@ function viewCompany() {
 }
 
 .content-section {
-  background: white;
+  background: var(--surface);
   border-radius: 0.75rem;
   padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -280,7 +280,7 @@ function viewCompany() {
 .section-header h2 {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
 }
 
 .header-actions {
@@ -291,7 +291,7 @@ function viewCompany() {
 
 .badge {
   background: #ef4444;
-  color: white;
+  color: var(--header-text);
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
   font-size: 0.875rem;
@@ -306,25 +306,25 @@ function viewCompany() {
   cursor: pointer;
   transition: all 0.2s;
   border: none;
-  background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
-  color: white;
+  background: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 100%);
+  color: var(--header-text);
 }
 
 .btn-view-all:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(147, 51, 234, 0.3);
+  box-shadow: 0 4px 6px var(--shadow);
 }
 
 .loading {
   text-align: center;
   padding: 2rem;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .empty-state {
   text-align: center;
   padding: 3rem;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 /* Quick Actions */
@@ -339,20 +339,20 @@ function viewCompany() {
   align-items: center;
   gap: 0.5rem;
   padding: 0.65rem 1.25rem;
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 10px;
   font-size: 0.9rem;
   font-weight: 500;
-  color: #374151;
+  color: var(--text-muted);
   cursor: pointer;
   transition: all 0.2s;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 .quick-action-btn:hover {
-  border-color: #2563eb;
-  color: #2563eb;
+  border-color: var(--accent-2);
+  color: var(--accent-2);
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12);
   transform: translateY(-1px);
 }

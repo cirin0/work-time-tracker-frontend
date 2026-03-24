@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, nextTick, computed } from 'vue'
+import { useMediaQuery } from '@vueuse/core'
 import ChatSidebar from '@/components/chat/ChatSidebar.vue'
 import ChatArea from '@/components/chat/ChatArea.vue'
 import { useChatLogic } from '@/composables/useChatLogic.ts'
@@ -19,6 +20,7 @@ const {
   hasMoreUsers,
   loadUsers,
   loadMoreUsers,
+  ensureUnreadUsersVisible,
   selectUser,
   sendMessage,
   handleIncomingMessage,
@@ -26,6 +28,14 @@ const {
 
 const chatAreaRef = ref<InstanceType<typeof ChatArea> | null>(null)
 const showMobileSidebar = ref(true)
+const isMobileLayout = useMediaQuery('(max-width: 900px)')
+const shouldShowSidebar = computed(() => !isMobileLayout.value || showMobileSidebar.value)
+const shouldShowChatArea = computed(
+  () => !isMobileLayout.value || !showMobileSidebar.value || Boolean(selectedUser.value),
+)
+const shouldShowBackButton = computed(
+  () => isMobileLayout.value && Boolean(selectedUser.value) && !showMobileSidebar.value,
+)
 
 const { setupWebSocket } = useChatWebSocket(currentUser, (message) => {
   const shouldScroll = handleIncomingMessage(message)
@@ -38,12 +48,19 @@ const { setupWebSocket } = useChatWebSocket(currentUser, (message) => {
 
 onMounted(async () => {
   setupWebSocket()
-  await loadUsers()
+  const isInitialUsersLoaded = await loadUsers()
+
+  if (isInitialUsersLoaded) {
+    await ensureUnreadUsersVisible()
+  }
 })
 
 async function handleSelectUser(user: typeof selectedUser.value) {
   await selectUser(user!)
-  showMobileSidebar.value = false
+  if (isMobileLayout.value) {
+    showMobileSidebar.value = false
+  }
+
   nextTick(() => {
     chatAreaRef.value?.scrollToBottom()
   })
@@ -64,7 +81,7 @@ function backToUserList() {
 <template>
   <div class="chat-container">
     <ChatSidebar
-      v-show="showMobileSidebar"
+      v-show="shouldShowSidebar"
       :users="sortedUsers"
       :selected-user-id="selectedUser?.id ?? null"
       :is-loading-users="isLoadingUsers"
@@ -74,8 +91,8 @@ function backToUserList() {
       class="chat-sidebar-wrapper"
     />
 
-    <div v-show="!showMobileSidebar || selectedUser" class="chat-area-wrapper">
-      <button v-if="selectedUser" @click="backToUserList" class="back-button">
+    <div v-show="shouldShowChatArea" class="chat-area-wrapper">
+      <button v-if="shouldShowBackButton" @click="backToUserList" class="back-button">
         ← Назад до списку
       </button>
       <ChatArea
@@ -93,7 +110,7 @@ function backToUserList() {
 <style scoped>
 .chat-container {
   display: flex;
-  height: calc(100vh - 8rem);
+  height: calc(100vh - 4.3rem);
   background: var(--surface);
   border-radius: 1rem;
   overflow: hidden;
@@ -131,7 +148,7 @@ function backToUserList() {
   background: var(--sand-light);
 }
 
-@media (max-width: 900px) {
+@media (max-width: var(--bp-lg)) {
   .chat-container {
     height: calc(100vh - 6rem);
   }
@@ -155,7 +172,7 @@ function backToUserList() {
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: var(--bp-sm)) {
   .chat-container {
     border-radius: 0.5rem;
     height: calc(100vh - 5rem);

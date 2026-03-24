@@ -64,7 +64,7 @@ const chatTitle = computed(() => {
   color: var(--text-muted);
 }
 
-@media (max-width: 640px) {
+@media (max-width: var(--bp-sm)) {
   .chat-header {
     padding: 1rem;
   }

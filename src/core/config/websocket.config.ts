@@ -1,11 +1,10 @@
 export const WEBSOCKET_CONFIG = {
-  broadcaster: 'reverb',
-  key: import.meta.env.VITE_REVERB_APP_KEY,
-  wsHost: import.meta.env.VITE_REVERB_HOST,
-  wsPort: import.meta.env.VITE_REVERB_PORT,
-  wssPort: import.meta.env.VITE_REVERB_PORT,
-  forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https',
-  enabledTransports: ['ws', 'wss'],
+  broadcaster: 'ably' as const,
+  key: import.meta.env.VITE_ABLY_PUBLIC_KEY,
+  wsHost: 'realtime-pusher.ably.io',
+  wsPort: 443,
+  disableStats: true,
+  encrypted: true,
 }
 
 export const BROADCASTING_AUTH_URL = '/broadcasting/auth'

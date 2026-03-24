@@ -43,8 +43,10 @@ export function useChatLogic(currentUser: ComputedRef<User | null>) {
 
       users.value = [...users.value, ...newUsers]
       hasMoreUsers.value = data.meta.current_page < data.meta.last_page
+      return true
     } catch (error) {
       console.error('Failed to load users:', error)
+      return false
     } finally {
       isLoadingUsers.value = false
     }
@@ -52,11 +54,48 @@ export function useChatLogic(currentUser: ComputedRef<User | null>) {
 
   async function loadMoreUsers() {
     if (isLoadingUsers.value || !hasMoreUsers.value) {
-      return
+      return false
     }
 
     currentPage.value++
-    await loadUsers()
+    const isSuccess = await loadUsers()
+
+    if (!isSuccess) {
+      currentPage.value = Math.max(1, currentPage.value - 1)
+      return false
+    }
+
+    return true
+  }
+
+  function getMissingUnreadUserIds() {
+    const unreadEntries = Object.entries(chatStore.unreadMessages as Record<number, number>)
+    const unreadUserIds = unreadEntries
+      .filter(([, unreadCount]) => unreadCount > 0)
+      .map(([userId]) => Number(userId))
+
+    if (unreadUserIds.length === 0) {
+      return []
+    }
+
+    const loadedUserIds = new Set(users.value.map((user) => user.id))
+    return unreadUserIds.filter((userId) => !loadedUserIds.has(userId))
+  }
+
+  async function ensureUnreadUsersVisible(maxPagesToAutoLoad = 5) {
+    let attempts = 0
+    let missingUnreadUserIds = getMissingUnreadUserIds()
+
+    while (missingUnreadUserIds.length > 0 && hasMoreUsers.value && attempts < maxPagesToAutoLoad) {
+      attempts++
+      const loadedMore = await loadMoreUsers()
+
+      if (!loadedMore) {
+        break
+      }
+
+      missingUnreadUserIds = getMissingUnreadUserIds()
+    }
   }
 
   function resetUsers() {
@@ -136,6 +175,7 @@ export function useChatLogic(currentUser: ComputedRef<User | null>) {
     hasMoreUsers,
     loadUsers,
     loadMoreUsers,
+    ensureUnreadUsersVisible,
     resetUsers,
     loadMessages,
     selectUser,

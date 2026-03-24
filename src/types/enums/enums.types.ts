@@ -9,6 +9,7 @@ export enum LeaveRequestType {
   VACATION = 'vacation',
   UNPAID = 'unpaid',
   PERSONAL = 'personal',
+  BUSINESS_TRIP = 'business_trip',
 }
 
 export enum LeaveRequestStatus {

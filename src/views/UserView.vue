@@ -84,9 +84,10 @@ onMounted(() => {
 .error-state {
   text-align: center;
   padding: 3rem;
-  background: #fff;
+  background: var(--surface);
   border-radius: 1rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 12px var(--shadow);
+  border: 1px solid var(--border);
 }
 
 .error-icon {
@@ -95,24 +96,25 @@ onMounted(() => {
 }
 
 .error-state h2 {
-  color: #991b1b;
+  color: var(--error-text);
   margin-bottom: 0.5rem;
 }
 
 .error-state p {
-  color: #6b7280;
+  color: var(--text-muted);
   margin-bottom: 1.5rem;
 }
 
 .user-card {
-  background: white;
+  background: var(--surface);
   border-radius: 1rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 12px var(--shadow);
+  border: 1px solid var(--border);
   overflow: hidden;
 }
 
 .user-header {
-  background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
+  background: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 100%);
   padding: 2.5rem 2rem;
   display: flex;
   align-items: center;
@@ -142,7 +144,7 @@ onMounted(() => {
   justify-content: center;
   font-size: 2.5rem;
   font-weight: 700;
-  color: white;
+  color: var(--header-text);
 }
 
 .user-meta {
@@ -152,7 +154,7 @@ onMounted(() => {
 .user-name {
   font-size: 1.75rem;
   font-weight: 700;
-  color: white;
+  color: var(--header-text);
   margin: 0 0 0.25rem;
 }
 
@@ -165,7 +167,7 @@ onMounted(() => {
 .user-id-badge {
   display: inline-block;
   background: rgba(255, 255, 255, 0.2);
-  color: white;
+  color: var(--header-text);
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
   font-size: 0.8rem;
@@ -184,9 +186,9 @@ onMounted(() => {
   align-items: center;
   gap: 1rem;
   padding: 1rem 1.25rem;
-  background: #f9fafb;
+  background: var(--sand-light);
   border-radius: 0.75rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border);
 }
 
 .info-icon {
@@ -196,13 +198,13 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: white;
+  background: var(--surface);
   border-radius: 0.5rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border);
   font-style: normal;
   flex-shrink: 0;
   font-weight: 700;
-  color: #4b5563;
+  color: var(--text-muted);
 }
 
 .info-content {
@@ -214,43 +216,64 @@ onMounted(() => {
 .info-label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #9ca3af;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .info-value {
   font-size: 0.95rem;
-  color: #1f2937;
+  color: var(--text);
   font-weight: 500;
 }
 
 .info-value.link {
-  color: #2563eb;
+  color: var(--accent-2);
   text-decoration: none;
+  transition: color 0.2s ease;
 }
 
 .info-value.link:hover {
   text-decoration: underline;
 }
 
+.info-value.link:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 3px;
+  border-radius: 0.25rem;
+}
+
 .btn-primary {
   padding: 0.625rem 1.5rem;
-  background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
-  color: white;
+  background: var(--accent-2);
+  color: var(--btn-on-accent);
   border: none;
   border-radius: 0.5rem;
   font-size: 0.9rem;
   cursor: pointer;
-  transition: all 0.2s;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+  font-weight: 700;
 }
 
-.btn-primary:hover {
+.btn-primary:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
+  box-shadow: 0 4px 12px var(--shadow);
+  filter: brightness(1.05);
 }
 
-@media (max-width: 640px) {
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-primary:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 3px;
+}
+
+@media (max-width: var(--bp-sm)) {
   .user-view {
     padding: 1rem;
   }

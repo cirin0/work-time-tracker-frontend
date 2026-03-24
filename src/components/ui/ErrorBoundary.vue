@@ -56,7 +56,15 @@ function reload() {
   justify-content: center;
   min-height: 400px;
   padding: 2rem;
-  background: #fef2f2;
+}
+
+.error-boundary {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: var(--error-bg);
+  padding: 1rem;
 }
 
 .error-content {
@@ -172,7 +180,7 @@ function reload() {
   background: #e5e7eb;
 }
 
-@media (max-width: 640px) {
+@media (max-width: var(--bp-sm)) {
   .error-content {
     padding: 1.5rem;
   }

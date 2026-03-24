@@ -365,7 +365,7 @@ const statusColor = computed(() => {
   margin: 0;
 }
 
-@media (max-width: 768px) {
+@media (max-width: var(--bp-md)) {
   .time-value {
     font-size: 1.25rem;
   }

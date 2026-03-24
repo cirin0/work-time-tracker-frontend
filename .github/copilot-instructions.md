@@ -13,6 +13,7 @@
 - **State Management**: Pinia stores in `src/stores/` (auth, profile, chat, ui)
   - `auth.store` — authentication, token management, currentUser
   - `profile.store` — extended user profile with cache (5 min), `displayProfile` getter
+  - `chat.store` — unread counters and last activity metadata (persisted in localStorage)
   - `ui.store` — global UI state, loading indicators, lock mechanisms for deduplication
 - **API Layer**: Centralized in `src/core/api/` with Axios interceptors for auto-token refresh
 - **WebSocket**: Laravel Echo client in `src/core/websocket/` for real-time chat
@@ -43,6 +44,7 @@
 - **Profile Store** has `displayProfile` computed getter that falls back to `authStore.currentUser`
 - **Lock mechanism** in `ui.store.lockMeEndpoint()` ensures only one `/api/me` request happens at a time
 - Components should use `profileStore.displayProfile` instead of direct `profileStore.profile` to guarantee data availability
+- Use `authStore.logout()` for sign-out flow so backend token invalidation is always executed before local cleanup
 
 ### 3. Form Validation
 
@@ -67,6 +69,9 @@
 - Private channels: `chat.${userId}` for user-specific messages
 - Listen for `.new-message` event (note the leading dot)
 - **Always** cleanup channels in `onUnmounted` hook: `echoClient.leave(channelName)`
+- `useChatWebSocket.ts` tracks the currently subscribed channel and leaves it before re-subscribing to avoid duplicate listeners
+- `useChatLogic.ts` auto-loads additional user pages on chat entry to surface users with unread messages at the top without manual scroll
+- `chat.store.ts` persists unread counters (`chat-unread-messages`) and last activity (`chat-last-activity`) via VueUse `useLocalStorage`
 - Example in `src/composables/useChatWebSocket.ts`
 
 ### 6. Layout System
@@ -155,7 +160,7 @@ Prefer VueUse composables over hand-rolling common reactive utilities:
   - Quick actions section with feature navigation (start work, take break, add entry, leave requests)
   - Work time tracking interface
 - **Role-Specific Management**: Admins and managers navigate to separate panel views (`/admin`, `/manager`) to access management features
-- **Styling Consistency**: Use existing color palette (gradient: #2563eb → #9333ea), spacing scale, and shadow patterns
+- **Styling Consistency**: Use the current **Arctic Orange** theme tokens from `src/assets/theme.css` (e.g. `--accent-2: #ff9b51`, `--accent-1: #25343f`, `--bg: #eaefef`) and rely on CSS variables instead of hardcoded colors
 
 ### Composables Catalogue
 
@@ -165,7 +170,7 @@ All composables live in `src/composables/`. Each composable owns its own state �
 | ------------------------ | ------------------------------------------------------------------------------------------------ |
 | `useAuthForm.ts`         | Login/register form state, Yup schema validation, submit handling, backend error mapping         |
 | `useWorkScheduleForm.ts` | Work schedule create/edit form with `useFieldArray` for dynamic daily entries                    |
-| `useChatLogic.ts`        | Paginated user list loading, message fetching, send-message action                               |
+| `useChatLogic.ts`        | Paginated user list loading, unread-aware auto-preload, message fetching, send-message action    |
 | `useChatWebSocket.ts`    | Laravel Echo private channel subscription, incoming message handling, cleanup                    |
 | `useRoleGuard.ts`        | Computed role booleans (`isAdmin`, `isManager`, `isEmployee`) and `hasRole`/`hasAnyRole` helpers |
 
@@ -206,6 +211,7 @@ All composables live in `src/composables/`. Each composable owns its own state �
 - **Layout Wrapping**: All views must work within `MainLayout.vue` (header + main content area). Only `AuthView.vue` has no layout wrapper
 - **Unified Employee Identity**: Every user is considered an employee first. The home page (`IndexView.vue`) renders `EmployeeView.vue` for all roles. Management capabilities are separate concerns accessed through dedicated panels
 - **Role-Based Panel Access**: Admins and managers see additional navigation links in the header to access their management panels. These panels are separate routes, not embedded in the home page.
+- **Chat Unread Persistence**: Unread badge state is intentionally persisted in localStorage and reset on logout via `chatStore.resetAll()`.
 
 ## Performance & Optimization Guidelines
 
@@ -232,7 +238,7 @@ const currentProfile = computed(() => profileStore.displayProfile)
 
 **Rules**:
 
-- **NEVER** call `fetchProfile()` in components (except on explicit user action like "retry")
+- **Avoid** calling `fetchProfile()` in components unless there is no hydrated profile data; if used for fallback load, handle rejection explicitly and rely on store error state
 - **Router guard** is the single source of truth for initial user data loading
 - **Use `displayProfile` getter** in all components instead of direct `profile` access
 - **Lock mechanism** in `ui.store.lockMeEndpoint()` prevents duplicate `/api/me` requests
@@ -339,7 +345,7 @@ When reviewing or writing code, verify:
 
 - [ ] No redundant API calls (check network tab)
 - [ ] No `watch` that could be `computed`
-- [ ] No `onMounted` fetchProfile calls
+- [ ] No redundant `onMounted` `fetchProfile()` calls (allow only guarded fallback when `displayProfile` is empty)
 - [ ] Using `displayProfile` instead of `profile` in components
 - [ ] Large lists have proper `:key` attributes
 - [ ] Debounced search/filter inputs

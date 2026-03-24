@@ -408,7 +408,7 @@ const daysOfWeekLabels: Record<string, string> = {
 
 <style scoped>
 .employee-details {
-  max-width: 1200px;
+  max-width: var(--container-max);
   margin: 0 auto;
   padding: 2rem;
 }
@@ -420,7 +420,7 @@ const daysOfWeekLabels: Record<string, string> = {
 }
 
 .employee-card {
-  background: white;
+  background: var(--surface);
   border-radius: 0.75rem;
   padding: 2rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -441,8 +441,8 @@ const daysOfWeekLabels: Record<string, string> = {
 }
 
 .avatar-placeholder {
-  background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
-  color: white;
+  background: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 100%);
+  color: var(--header-text);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -453,12 +453,12 @@ const daysOfWeekLabels: Record<string, string> = {
 .employee-info h2 {
   font-size: 1.75rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
   margin: 0 0 0.5rem;
 }
 
 .employee-email {
-  color: #6b7280;
+  color: var(--text-muted);
   margin: 0 0 1rem;
 }
 
@@ -494,16 +494,16 @@ const daysOfWeekLabels: Record<string, string> = {
 
 .detail-item .label {
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .detail-item .value {
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
 }
 
 .stats-section {
-  background: white;
+  background: var(--surface);
   border-radius: 0.75rem;
   padding: 2rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -512,7 +512,7 @@ const daysOfWeekLabels: Record<string, string> = {
 .stats-section h3 {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
   margin: 0 0 1.5rem;
 }
 
@@ -524,7 +524,7 @@ const daysOfWeekLabels: Record<string, string> = {
 
 /* Compact/flat stat card style for this detail view */
 .stats-grid :deep(.stat-card) {
-  background: #f9fafb;
+  background: var(--sand-light);
   box-shadow: none;
   padding: 1.25rem 1.5rem;
 }
@@ -545,12 +545,12 @@ const daysOfWeekLabels: Record<string, string> = {
 .stats-subsection-title {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
   margin: 1.5rem 0 1rem;
 }
 
 .tabs-section {
-  background: white;
+  background: var(--surface);
   border-radius: 0.75rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   overflow: hidden;
@@ -558,7 +558,7 @@ const daysOfWeekLabels: Record<string, string> = {
 
 .tabs {
   display: flex;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border);
 }
 
 .tab {
@@ -568,20 +568,20 @@ const daysOfWeekLabels: Record<string, string> = {
   border: none;
   font-size: 1rem;
   font-weight: 500;
-  color: #6b7280;
+  color: var(--text-muted);
   cursor: pointer;
   transition: all 0.2s;
   border-bottom: 2px solid transparent;
 }
 
 .tab:hover {
-  color: #2563eb;
-  background: #f9fafb;
+  color: var(--accent-2);
+  background: var(--sand-light);
 }
 
 .tab.active {
-  color: #2563eb;
-  border-bottom-color: #2563eb;
+  color: var(--accent-2);
+  border-bottom-color: var(--accent-2);
 }
 
 .tab-content {
@@ -589,7 +589,7 @@ const daysOfWeekLabels: Record<string, string> = {
 }
 
 .overview .info-card {
-  background: #f9fafb;
+  background: var(--sand-light);
   padding: 1.5rem;
   border-radius: 0.5rem;
 }
@@ -597,13 +597,13 @@ const daysOfWeekLabels: Record<string, string> = {
 .info-card h4 {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
   margin: 0 0 1rem;
 }
 
 .info-card p {
   margin: 0.5rem 0;
-  color: #4b5563;
+  color: var(--text-muted);
 }
 
 .entries-list {
@@ -613,7 +613,7 @@ const daysOfWeekLabels: Record<string, string> = {
 }
 
 .entry-item {
-  background: #f9fafb;
+  background: var(--sand-light);
   padding: 1rem;
   border-radius: 0.5rem;
   display: flex;
@@ -622,7 +622,7 @@ const daysOfWeekLabels: Record<string, string> = {
 
 .entry-date {
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
   min-width: 120px;
 }
 
@@ -637,12 +637,12 @@ const daysOfWeekLabels: Record<string, string> = {
 .entry-time {
   display: flex;
   gap: 0.5rem;
-  color: #4b5563;
+  color: var(--text-muted);
 }
 
 .entry-duration,
 .entry-type {
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .schedule-list {
@@ -653,7 +653,7 @@ const daysOfWeekLabels: Record<string, string> = {
 }
 
 .schedule-item {
-  background: #f9fafb;
+  background: var(--sand-light);
   padding: 1rem;
   border-radius: 0.5rem;
   display: flex;
@@ -667,15 +667,15 @@ const daysOfWeekLabels: Record<string, string> = {
 
 .day-name {
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
 }
 
 .day-time {
-  color: #4b5563;
+  color: var(--text-muted);
 }
 
 .break-info {
-  color: #6b7280;
+  color: var(--text-muted);
   font-size: 0.875rem;
 }
 
@@ -687,13 +687,13 @@ const daysOfWeekLabels: Record<string, string> = {
 .empty-state {
   text-align: center;
   padding: 3rem;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .error-state {
   text-align: center;
   padding: 3rem;
-  background: white;
+  background: var(--surface);
   border-radius: 0.75rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
@@ -706,7 +706,7 @@ const daysOfWeekLabels: Record<string, string> = {
 .error-state h3 {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
   margin: 0 0 0.5rem;
 }
 
@@ -718,8 +718,8 @@ const daysOfWeekLabels: Record<string, string> = {
 
 .btn-primary {
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
-  color: white;
+  background: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 100%);
+  color: var(--header-text);
   border: none;
   border-radius: 0.5rem;
   font-weight: 500;
@@ -729,7 +729,7 @@ const daysOfWeekLabels: Record<string, string> = {
 
 .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(147, 51, 234, 0.3);
+  box-shadow: 0 4px 6px var(--shadow);
 }
 
 /* Schedule editing */
@@ -745,14 +745,14 @@ const daysOfWeekLabels: Record<string, string> = {
 .schedule-header h4 {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
   margin: 0;
 }
 
 .btn-change-schedule {
   padding: 0.4rem 1rem;
-  background: linear-gradient(135deg, #2563eb, #9333ea);
-  color: white;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  color: var(--header-text);
   border: none;
   border-radius: 8px;
   font-size: 0.82rem;
@@ -790,24 +790,24 @@ const daysOfWeekLabels: Record<string, string> = {
 .schedule-select {
   flex: 1;
   min-width: 180px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 0.5rem 0.75rem;
   font-size: 0.88rem;
-  color: #1f2937;
+  color: var(--text);
   outline: none;
-  background: white;
+  background: var(--surface);
 }
 
 .schedule-select:focus {
-  border-color: #2563eb;
+  border-color: var(--accent-2);
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 .btn-assign {
   padding: 0.5rem 1.1rem;
-  background: linear-gradient(135deg, #2563eb, #9333ea);
-  color: white;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  color: var(--header-text);
   border: none;
   border-radius: 8px;
   font-size: 0.88rem;
@@ -828,16 +828,16 @@ const daysOfWeekLabels: Record<string, string> = {
 
 .btn-cancel-assign {
   padding: 0.5rem 1rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border);
   border-radius: 8px;
-  background: white;
-  color: #374151;
+  background: var(--surface);
+  color: var(--text-muted);
   font-size: 0.88rem;
   cursor: pointer;
 }
 
 .btn-cancel-assign:hover {
-  background: #f9fafb;
+  background: var(--sand-light);
 }
 
 .assign-error {

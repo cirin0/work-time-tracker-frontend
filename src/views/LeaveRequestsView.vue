@@ -74,13 +74,13 @@ function handlePageChange(page: number) {
 
 <style scoped>
 .leave-requests-view {
-  max-width: 1400px;
+  max-width: var(--container-max);
   margin: 0 auto;
   padding: 2rem;
 }
 
 .content-section {
-  background: white;
+  background: var(--surface);
   border-radius: 0.75rem;
   padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -96,12 +96,12 @@ function handlePageChange(page: number) {
 .section-header h2 {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
-  color: white;
+  background: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 100%);
+  color: var(--header-text);
   border: none;
   padding: 0.625rem 1.25rem;
   border-radius: 0.5rem;
@@ -113,10 +113,10 @@ function handlePageChange(page: number) {
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 6px rgba(147, 51, 234, 0.3);
+  box-shadow: 0 4px 6px var(--shadow);
 }
 
-@media (max-width: 768px) {
+@media (max-width: var(--bp-md)) {
   .leave-requests-view {
     padding: 1rem;
   }

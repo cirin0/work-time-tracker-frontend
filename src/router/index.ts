@@ -138,10 +138,14 @@ export const router = createRouter({
       meta: { layout: 'main', requiresAuth: true },
     },
     {
-      path: '/role-examples',
-      name: 'role-examples',
-      component: () => import('../views/RoleExampleView.vue'),
-      meta: { requiresAuth: false },
+      path: '/admin/audit-logs',
+      name: 'admin-audit-logs',
+      component: () => import('../views/admin/AuditLogsView.vue'),
+      meta: {
+        layout: 'main',
+        requiresAuth: true,
+        roles: [UserRole.ADMIN, UserRole.MANAGER],
+      },
     },
     {
       path: '/auth',

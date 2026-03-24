@@ -75,7 +75,7 @@ function viewEmployeeDetails(id: number) {
 
 <style scoped>
 .employees-page {
-  max-width: 900px;
+  max-width: var(--container-max);
   margin: 0 auto;
   padding: 2rem;
 }
@@ -83,7 +83,7 @@ function viewEmployeeDetails(id: number) {
 .error-state {
   text-align: center;
   padding: 3rem;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .error-icon {
@@ -94,8 +94,8 @@ function viewEmployeeDetails(id: number) {
 .btn-retry {
   margin-top: 1rem;
   padding: 0.5rem 1.25rem;
-  background: linear-gradient(135deg, #2563eb, #9333ea);
-  color: white;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  color: var(--header-text);
   border: none;
   border-radius: 8px;
   font-size: 0.875rem;
@@ -107,7 +107,7 @@ function viewEmployeeDetails(id: number) {
 .empty-state {
   text-align: center;
   padding: 4rem 2rem;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .empty-icon {
@@ -118,7 +118,7 @@ function viewEmployeeDetails(id: number) {
 .empty-state h3 {
   font-size: 1.2rem;
   font-weight: 600;
-  color: #374151;
+  color: var(--text-muted);
   margin: 0 0 0.5rem 0;
 }
 
@@ -138,8 +138,8 @@ function viewEmployeeDetails(id: number) {
   align-items: center;
   gap: 1.25rem;
   padding: 1rem 1.5rem;
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s;
@@ -147,8 +147,8 @@ function viewEmployeeDetails(id: number) {
 }
 
 .employee-card:hover {
-  border-color: #9333ea;
-  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.1);
+  border-color: var(--accent-2);
+  box-shadow: 0 4px 12px var(--shadow);
   transform: translateX(4px);
 }
 
@@ -167,8 +167,8 @@ function viewEmployeeDetails(id: number) {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb, #9333ea);
-  color: white;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  color: var(--header-text);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -184,13 +184,13 @@ function viewEmployeeDetails(id: number) {
 .employee-info h3 {
   font-size: 1rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
   margin: 0 0 0.2rem 0;
 }
 
 .employee-email {
   font-size: 0.82rem;
-  color: #6b7280;
+  color: var(--text-muted);
   margin: 0 0 0.2rem 0;
   white-space: nowrap;
   overflow: hidden;
@@ -199,12 +199,12 @@ function viewEmployeeDetails(id: number) {
 
 .employee-schedule {
   font-size: 0.78rem;
-  color: #9ca3af;
+  color: var(--text-muted);
   margin: 0;
 }
 
 .employee-arrow {
-  color: #9333ea;
+  color: var(--accent-2);
   font-size: 1.25rem;
   font-weight: 600;
   flex-shrink: 0;
