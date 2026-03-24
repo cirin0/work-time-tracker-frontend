@@ -94,6 +94,7 @@ defineExpose({
         label="Новий пароль"
         type="password"
         placeholder="Мінімум 8 символів"
+        icon="lock"
         :error="errors.password"
         required
       />
@@ -104,6 +105,7 @@ defineExpose({
         label="Підтвердження паролю"
         type="password"
         placeholder="Повторіть пароль"
+        icon="lock"
         :error="errors.password_confirmation"
         required
       />
