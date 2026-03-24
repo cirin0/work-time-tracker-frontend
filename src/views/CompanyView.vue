@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { getAvatarUrl } from '@/core/utils/url'
 import { formatDate } from '@/core/utils/date'
 import AdminCompanyEditModal from '@/components/admin/AdminCompanyEditModal.vue'
@@ -8,7 +9,6 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 
 const {
   companyStore,
-  usersStore,
   company,
   companyId,
   logoUrl,
@@ -30,6 +30,8 @@ const {
   handleRemoveEmployee,
   goToUser,
 } = useCompanyView()
+
+const companyEmployees = computed(() => company.value?.employees ?? [])
 </script>
 
 <template>
@@ -84,7 +86,7 @@ const {
           <div class="company-title">
             <h2>{{ company.name }}</h2>
             <div class="company-badges">
-              <span class="badge-employees"> 👥 {{ company.employee_count }} співробітників </span>
+              <span class="badge-employees"> 👥 {{ companyEmployees.length }} співробітників </span>
               <span v-if="company.work_schedules?.length" class="badge-schedules">
                 📅 {{ company.work_schedules.length }} графік(ів)
               </span>
@@ -180,9 +182,7 @@ const {
       <div class="section-card">
         <div class="section-header">
           <h3>Співробітники</h3>
-          <span class="count-badge">
-            {{ isAdmin ? companyStore.companyUsers.length : usersStore.total }}
-          </span>
+          <span class="count-badge">{{ companyEmployees.length }}</span>
         </div>
 
         <div v-if="isAdmin" class="add-employee-form">
@@ -200,100 +200,36 @@ const {
         <p v-if="addEmployeeError" class="field-error">{{ addEmployeeError }}</p>
         <p v-if="removeEmployeeError" class="field-error">{{ removeEmployeeError }}</p>
 
-        <!-- Admin list -->
-        <template v-if="isAdmin">
-          <div v-if="companyStore.isLoadingUsers" class="loading-inline">
-            <div class="spinner-sm" />
-            Завантаження списку...
-          </div>
-          <div v-else-if="companyStore.companyUsers.length === 0" class="empty-employees">
-            👤 Немає прикріплених співробітників
-          </div>
-          <ul v-else class="employees-list">
-            <li v-for="user in companyStore.companyUsers" :key="user.id" class="employee-item">
-              <div class="employee-avatar" @click="goToUser(user.id)">
-                <img
-                  v-if="getAvatarUrl(user.avatar)"
-                  :src="getAvatarUrl(user.avatar)!"
-                  :alt="user.name"
-                  class="employee-avatar-img"
-                />
-                <span v-else>{{ user.name.charAt(0).toUpperCase() }}</span>
-              </div>
-              <div class="employee-info" @click="goToUser(user.id)">
-                <span class="employee-name">{{ user.name }}</span>
-                <span class="employee-email">{{ user.email }}</span>
-              </div>
-              <div class="employee-actions">
-                <button class="btn-view" @click="goToUser(user.id)">Переглянути</button>
-                <button class="btn-remove" @click="handleRemoveEmployee(user.id)">Видалити</button>
-              </div>
-            </li>
-          </ul>
-        </template>
-
-        <!-- Non-admin list with pagination -->
-        <template v-else>
-          <div v-if="usersStore.isLoading" class="loading-inline">
-            <div class="spinner-sm" />
-            Завантаження списку...
-          </div>
-          <div v-else-if="usersStore.users.length === 0" class="empty-employees">
-            👤 Немає співробітників
-          </div>
-          <ul v-else class="employees-list">
-            <li v-for="user in usersStore.users" :key="user.id" class="employee-item">
-              <div class="employee-avatar" @click="goToUser(user.id)">
-                <img
-                  v-if="getAvatarUrl(user.avatar)"
-                  :src="getAvatarUrl(user.avatar)!"
-                  :alt="user.name"
-                  class="employee-avatar-img"
-                />
-                <span v-else>{{ user.name.charAt(0).toUpperCase() }}</span>
-              </div>
-              <div class="employee-info" @click="goToUser(user.id)">
-                <span class="employee-name">{{ user.name }}</span>
-                <span class="employee-email">{{ user.email }}</span>
-              </div>
-              <div class="employee-actions">
-                <button class="btn-view" @click="goToUser(user.id)">Переглянути</button>
-              </div>
-            </li>
-          </ul>
-
-          <!-- Pagination -->
-          <div v-if="usersStore.lastPage > 1" class="pagination">
-            <button
-              class="page-btn"
-              :disabled="usersStore.currentPage <= 1"
-              @click="usersStore.fetchUsers(usersStore.currentPage - 1)"
-            >
-              ← Назад
-            </button>
-            <div class="page-numbers">
-              <button
-                v-for="page in usersStore.lastPage"
-                :key="page"
-                class="page-num"
-                :class="{ active: page === usersStore.currentPage }"
-                @click="usersStore.fetchUsers(page)"
-              >
-                {{ page }}
+        <div v-if="companyStore.isLoading" class="loading-inline">
+          <div class="spinner-sm" />
+          Завантаження списку...
+        </div>
+        <div v-else-if="companyEmployees.length === 0" class="empty-employees">
+          👤 Немає прикріплених співробітників
+        </div>
+        <ul v-else class="employees-list">
+          <li v-for="user in companyEmployees" :key="user.id" class="employee-item">
+            <div class="employee-avatar" @click="goToUser(user.id)">
+              <img
+                v-if="getAvatarUrl(user.avatar)"
+                :src="getAvatarUrl(user.avatar)!"
+                :alt="user.name"
+                class="employee-avatar-img"
+              />
+              <span v-else>{{ user.name.charAt(0).toUpperCase() }}</span>
+            </div>
+            <div class="employee-info" @click="goToUser(user.id)">
+              <span class="employee-name">{{ user.name }}</span>
+              <span class="employee-email">{{ user.email }}</span>
+            </div>
+            <div class="employee-actions">
+              <button class="btn-view" @click="goToUser(user.id)">Переглянути</button>
+              <button v-if="isAdmin" class="btn-remove" @click="handleRemoveEmployee(user.id)">
+                Видалити
               </button>
             </div>
-            <button
-              class="page-btn"
-              :disabled="usersStore.currentPage >= usersStore.lastPage"
-              @click="usersStore.fetchUsers(usersStore.currentPage + 1)"
-            >
-              Далі →
-            </button>
-          </div>
-          <div v-if="usersStore.total > 0" class="pagination-info">
-            Показано {{ usersStore.users.length }} з {{ usersStore.total }}
-          </div>
-        </template>
+          </li>
+        </ul>
       </div>
     </div>
 
@@ -311,7 +247,7 @@ const {
 
 <style scoped>
 .company-view {
-  max-width: 960px;
+  max-width: var(--container-max);
   margin: 0 auto;
   padding: 2rem;
 }
@@ -720,15 +656,19 @@ const {
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 0.875rem 1.125rem;
-  background: var(--sand-light);
-  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: var(--surface);
+  border-radius: 0.5rem;
   border: 1px solid var(--border);
   cursor: pointer;
+  transition:
+    box-shadow 0.15s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
 }
 .employee-item:hover {
   border-color: var(--accent-2);
-  background: var(--surface);
+  box-shadow: 0 2px 8px var(--shadow);
 }
 
 .employee-avatar {
@@ -817,86 +757,6 @@ const {
   outline-offset: 3px;
 }
 
-/* ── Pagination ── */
-.pagination {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.625rem;
-  margin-top: 1.25rem;
-  flex-wrap: wrap;
-}
-.page-btn {
-  padding: 0.5rem 1rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  color: var(--text);
-  cursor: pointer;
-  transition:
-    border-color 0.2s ease,
-    color 0.2s ease,
-    transform 0.2s ease;
-}
-.page-btn:hover:not(:disabled) {
-  border-color: var(--accent-2);
-  color: var(--accent-2);
-  transform: translateY(-1px);
-}
-
-.page-btn:focus-visible {
-  outline: 2px solid var(--accent-2);
-  outline-offset: 3px;
-}
-.page-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-.page-numbers {
-  display: flex;
-  gap: 0.375rem;
-}
-.page-num {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
-  background: var(--surface);
-  font-size: 0.875rem;
-  color: var(--text);
-  cursor: pointer;
-  transition:
-    border-color 0.2s ease,
-    color 0.2s ease,
-    transform 0.2s ease;
-}
-.page-num:hover {
-  border-color: var(--accent-2);
-  color: var(--accent-2);
-  transform: translateY(-1px);
-}
-
-.page-num:focus-visible {
-  outline: 2px solid var(--accent-2);
-  outline-offset: 3px;
-}
-.page-num.active {
-  background: var(--accent-2);
-  border-color: transparent;
-  color: var(--btn-on-accent);
-  font-weight: 700;
-}
-.pagination-info {
-  text-align: center;
-  margin-top: 0.625rem;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
 .btn-primary {
   margin-top: 1rem;
   padding: 0.625rem 1.5rem;
@@ -924,7 +784,7 @@ const {
   outline-offset: 3px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: var(--bp-md)) {
   .company-view {
     padding: 1rem;
   }

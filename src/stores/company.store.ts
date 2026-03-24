@@ -9,6 +9,8 @@ import type {
   UpdateCompanyRequest,
 } from '@/types/requests/companyRequest.interface'
 
+type CompanyEmployeesPayload = Company['employees'] | Record<string, User>
+
 function extractMessage(err: unknown): string | undefined {
   if (err && typeof err === 'object' && 'response' in err) {
     return (err as { response?: { data?: { message?: string } } }).response?.data?.message
@@ -45,22 +47,35 @@ export const useCompanyStore = defineStore('company', () => {
     }
   }
 
+  function normalizeEmployees(
+    employees: CompanyEmployeesPayload | undefined,
+  ): Company['employees'] {
+    if (!employees) return []
+    if (Array.isArray(employees)) return employees
+    return Object.values(employees)
+  }
+
   function setCompanyFromResponse(data: Company | undefined) {
-    if (data) company.value = data
+    if (data) {
+      company.value = {
+        ...data,
+        employees: normalizeEmployees(data.employees as CompanyEmployeesPayload | undefined),
+      }
+    }
     return data
   }
 
   async function fetchByName(name: string) {
     return withLoading(async () => {
       const { data } = await apiClient.get<Company>(API_ROUTES.companies.showByName(name))
-      company.value = data
+      setCompanyFromResponse(data)
     }, 'Помилка завантаження компанії')
   }
 
   async function fetchById(id: number) {
     return withLoading(async () => {
       const { data } = await apiClient.get<Company>(API_ROUTES.companies.showById(id))
-      company.value = data
+      setCompanyFromResponse(data)
     }, 'Помилка завантаження компанії')
   }
 
@@ -124,7 +139,7 @@ export const useCompanyStore = defineStore('company', () => {
       await apiClient.post(API_ROUTES.admin.companies.addEmployee(companyId), {
         employee_id: employee_id,
       })
-      await fetchCompanyUsers(companyId)
+      await fetchById(Number(companyId))
     }, 'Помилка додавання співробітника')
   }
 
@@ -133,7 +148,7 @@ export const useCompanyStore = defineStore('company', () => {
       await apiClient.delete(API_ROUTES.admin.companies.removeEmployee(companyId), {
         data: { employee_id },
       })
-      companyUsers.value = companyUsers.value.filter((u) => u.id !== Number(employee_id))
+      await fetchById(Number(companyId))
     }, 'Помилка видалення співробітника')
   }
 

@@ -172,7 +172,7 @@ async function handleAssign(userId: number, scheduleId: number) {
 
 <style scoped>
 .work-schedules-page {
-  max-width: 1400px;
+  max-width: var(--container-lg);
   margin: 0 auto;
   padding: 2rem;
   position: relative;
@@ -307,7 +307,7 @@ async function handleAssign(userId: number, scheduleId: number) {
   gap: 1.25rem;
 }
 
-@media (max-width: 600px) {
+@media (max-width: var(--bp-sm)) {
   .work-schedules-page {
     padding: 1rem;
   }

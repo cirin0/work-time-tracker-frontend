@@ -34,7 +34,7 @@
   transform: none;
 }
 
-@media (max-width: 640px) {
+@media (max-width: var(--bp-sm)) {
   .button {
     padding: 0.875rem 1rem;
   }

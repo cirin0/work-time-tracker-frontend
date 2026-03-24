@@ -211,11 +211,9 @@ onMounted(() => loadPage(1))
         </div>
       </div>
 
-      <Pagination
-        v-if="store.pagination && store.pagination.last_page > 1"
-        :meta="store.pagination"
-        @change-page="loadPage"
-      />
+      <div v-if="store.pagination && store.pagination.last_page > 1" class="pagination-wrapper">
+        <Pagination :meta="store.pagination" @change-page="loadPage" />
+      </div>
     </Card>
 
     <!-- Modals -->
@@ -259,7 +257,7 @@ onMounted(() => loadPage(1))
 
 <style scoped>
 .users-manager {
-  max-width: 1100px;
+  max-width: var(--container-max);
   margin: 0 auto;
 }
 
@@ -412,7 +410,11 @@ h2 {
   transform: scale(1.1);
 }
 
-@media (max-width: 900px) {
+.pagination-wrapper {
+  margin-top: 1.25rem;
+}
+
+@media (max-width: var(--bp-lg)) {
   .user-card {
     flex-direction: column;
     align-items: flex-start;
@@ -424,7 +426,7 @@ h2 {
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: var(--bp-sm)) {
   h2 {
     font-size: 1.1rem;
   }

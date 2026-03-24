@@ -64,7 +64,7 @@ defineExpose({
   font-family: var(--font-body);
 }
 
-@media (max-width: 640px) {
+@media (max-width: var(--bp-sm)) {
   .messages-container {
     padding: 1rem;
   }

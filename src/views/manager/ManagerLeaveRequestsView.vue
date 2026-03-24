@@ -88,11 +88,9 @@ function handlePageChange(page: number) {
         @reject="handleRejectClick"
       />
 
-      <Pagination
-        v-if="managerStore.leaveRequestsPagination"
-        :meta="managerStore.leaveRequestsPagination"
-        @change-page="handlePageChange"
-      />
+      <div v-if="managerStore.leaveRequestsPagination" class="pagination-wrapper">
+        <Pagination :meta="managerStore.leaveRequestsPagination" @change-page="handlePageChange" />
+      </div>
     </div>
 
     <RejectModal
@@ -106,7 +104,7 @@ function handlePageChange(page: number) {
 
 <style scoped>
 .leave-requests-page {
-  max-width: 1200px;
+  max-width: var(--container-max);
   margin: 0 auto;
   padding: 2rem;
 }
@@ -116,5 +114,9 @@ function handlePageChange(page: number) {
   border-radius: 0.75rem;
   padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.pagination-wrapper {
+  margin-top: 1.25rem;
 }
 </style>

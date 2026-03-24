@@ -75,7 +75,7 @@ function viewEmployeeDetails(id: number) {
 
 <style scoped>
 .employees-page {
-  max-width: 900px;
+  max-width: var(--container-max);
   margin: 0 auto;
   padding: 2rem;
 }

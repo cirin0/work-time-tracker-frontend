@@ -148,7 +148,7 @@ function backToUserList() {
   background: var(--sand-light);
 }
 
-@media (max-width: 900px) {
+@media (max-width: var(--bp-lg)) {
   .chat-container {
     height: calc(100vh - 6rem);
   }
@@ -172,7 +172,7 @@ function backToUserList() {
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: var(--bp-sm)) {
   .chat-container {
     border-radius: 0.5rem;
     height: calc(100vh - 5rem);

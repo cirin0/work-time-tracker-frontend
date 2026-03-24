@@ -118,7 +118,6 @@ function parsePage(label: string): number | null {
 .pagination-edge {
   min-width: 2.5rem;
   padding: 0.5rem;
-  font-size: 1.1rem;
 }
 
 .pagination-pages {
@@ -152,7 +151,7 @@ function parsePage(label: string): number | null {
   box-shadow: 0 4px 12px rgba(255, 155, 81, 0.35);
 }
 
-@media (max-width: 640px) {
+@media (max-width: var(--bp-sm)) {
   .pagination {
     flex-wrap: wrap;
   }

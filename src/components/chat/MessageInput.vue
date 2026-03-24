@@ -89,7 +89,7 @@ function handleKeyUp(event: KeyboardEvent) {
   cursor: not-allowed;
 }
 
-@media (max-width: 640px) {
+@media (max-width: var(--bp-sm)) {
   .message-input-container {
     padding: 1rem;
     gap: 0.75rem;

@@ -117,14 +117,14 @@ useInfiniteScroll(
   font-family: var(--font-body);
 }
 
-@media (max-width: 900px) {
+@media (max-width: var(--bp-lg)) {
   .users-sidebar {
     width: 100%;
     border-right: none;
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: var(--bp-sm)) {
   .sidebar-header {
     padding: 1rem;
   }

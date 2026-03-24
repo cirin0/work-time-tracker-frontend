@@ -76,7 +76,7 @@ const formattedTime = useDateFormat(() => props.message.created_at, 'HH:mm')
   text-align: right;
 }
 
-@media (max-width: 640px) {
+@media (max-width: var(--bp-sm)) {
   .message-bubble {
     max-width: 85%;
   }

@@ -163,11 +163,9 @@ function viewStatistics() {
               :is-loading="employeeStore.isLoadingEntries"
               :show-view-more="false"
             />
-            <Pagination
-              v-if="employeeStore.entriesMeta"
-              :meta="employeeStore.entriesMeta"
-              @change-page="handlePageChange"
-            />
+            <div v-if="employeeStore.entriesMeta" class="pagination-wrapper">
+              <Pagination :meta="employeeStore.entriesMeta" @change-page="handlePageChange" />
+            </div>
           </Card>
 
           <Card v-if="employeeStore.error" variant="highlighted">
@@ -237,7 +235,7 @@ function viewStatistics() {
 
 <style scoped>
 .employee-dashboard {
-  max-width: 1280px;
+  max-width: var(--container-max);
   margin: 0 auto;
   padding: 2rem;
 }
@@ -342,6 +340,10 @@ function viewStatistics() {
   gap: 1.5rem;
   position: sticky;
   top: 1rem;
+}
+
+.pagination-wrapper {
+  margin-top: 1.25rem;
 }
 
 /* Card Headers */
@@ -461,7 +463,7 @@ function viewStatistics() {
 }
 
 /* Responsive Design */
-@media (max-width: 900px) {
+@media (max-width: var(--bp-lg)) {
   .two-column-layout {
     grid-template-columns: 1fr;
   }
@@ -471,7 +473,7 @@ function viewStatistics() {
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: var(--bp-sm)) {
   .employee-dashboard {
     padding: 1rem;
   }
