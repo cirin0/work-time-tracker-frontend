@@ -199,26 +199,41 @@ async function handleLogout() {
   transform: translateY(-1px);
 }
 
-@media (max-width: var(--bp-md)) {
+@media (max-width: 768px) {
   .header {
-    flex-direction: column;
-    height: auto;
-    padding: 1rem;
-    gap: 1rem;
+    padding: 0 0.75rem;
+    height: 56px;
+    flex-wrap: nowrap;
   }
 
   .header-left {
-    flex-direction: column;
-    gap: 1rem;
-    width: 100%;
+    gap: 0.25rem;
+    flex-shrink: 1;
+    min-width: 0;
   }
 
   .header h1 {
-    text-align: center;
+    display: none;
   }
 
-  .nav-links {
-    width: 100%;
+  .nav-link {
+    padding: 0.4rem 0.5rem;
+    font-size: 0.82rem;
+  }
+
+  .header-right {
+    flex-shrink: 0;
+    gap: 0.5rem;
+    flex-wrap: nowrap;
+  }
+
+  .logout-button {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.82rem;
+  }
+
+  .profile-link :deep(.user-info) {
+    display: none;
   }
 }
 </style>

@@ -117,7 +117,6 @@ export const useProfileStore = defineStore('profile', () => {
       await apiClient.post(API_ROUTES.me.changePassword, passwordData)
       return true
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to change password'
       throw err
     } finally {
       isSaving.value = false

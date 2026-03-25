@@ -56,6 +56,7 @@ const handleClearLoginNotice = () => {
             :is-login="isLogin"
             :login-notice="loginNotice"
             @register-success="handleRegisterSuccess"
+            @email-not-verified="handleRegisterSuccess"
             @clear-login-notice="handleClearLoginNotice"
           />
         </template>

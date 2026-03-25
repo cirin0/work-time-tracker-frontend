@@ -25,6 +25,7 @@ const ERROR_MESSAGES = {
   validationFailed: 'Перевірте коректність введених даних.',
   emailAlreadyTaken:
     'Ця електронна пошта вже зареєстрована. Спробуйте увійти або використайте іншу пошту.',
+  emailNotVerified: 'Спочатку підтвердьте електронну пошту.',
   serverError: 'Сталася помилка. Спробуйте ще раз.',
   unknownError: 'Сталася невідома помилка',
   registrationSuccess: 'Реєстрація успішна. Перевірте пошту та введіть код підтвердження.',
@@ -69,6 +70,7 @@ export function useAuthForm(isLogin: () => boolean) {
   const savedName = ref<string>('')
   const savedEmail = ref<string>('')
   const registeredEmail = ref<string>('')
+  const unverifiedEmail = ref<string>('')
 
   const validationSchema = computed(() => (isLogin() ? loginSchema : registerSchema))
 
@@ -97,6 +99,11 @@ export function useAuthForm(isLogin: () => boolean) {
     }
 
     const response = error.response
+
+    if (response?.status === 403 && response.data?.email_not_verified) {
+      unverifiedEmail.value = response.data.email
+      return
+    }
 
     if (response?.status === 401) {
       generalError.value = ERROR_MESSAGES.invalidCredentials
@@ -245,6 +252,7 @@ export function useAuthForm(isLogin: () => boolean) {
     generalError,
     successMessage,
     registeredEmail,
+    unverifiedEmail,
     onSubmit,
     resetFormState,
     clearErrors,

@@ -86,6 +86,7 @@ defineExpose({
         label="Ім'я"
         type="text"
         placeholder="Введіть ім'я"
+        icon="user"
         :error="errors.name"
         required
       />
@@ -96,6 +97,7 @@ defineExpose({
         label="Email"
         type="email"
         placeholder="Введіть email"
+        icon="email"
         :error="errors.email"
         required
       />

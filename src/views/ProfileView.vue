@@ -8,7 +8,11 @@ import InputField from '@/components/ui/InputField.vue'
 import Badge from '@/components/ui/Badge.vue'
 import Modal from '@/components/ui/Modal.vue'
 import Card from '@/components/ui/Card.vue'
+import UserIcon from '@/icons/UserIcon.vue'
+import EmailIcon from '@/icons/EmailIcon.vue'
 import Avatar from '@/components/ui/Avatar.vue'
+import { apiClient, API_ROUTES } from '@/core/api'
+import { API_BASE_URL } from '@/core/api/client'
 import type {
   UpdateProfileRequest,
   ChangePasswordRequest,
@@ -214,14 +218,23 @@ async function changePassword() {
   }
   try {
     await store.changePassword(passwordForm.value)
-    isPasswordModalOpen.value = false
     passwordError.value = null
-    passwordSuccess.value = null
+    passwordSuccess.value = 'Пароль успішно змінено!'
     clearPasswordCodeTimer()
     passwordCodeCooldown.value = 0
-    alert('Пароль успішно змінено')
-  } catch (e) {
-    passwordError.value = e instanceof Error ? e.message : 'Помилка зміни пароля'
+    setTimeout(() => {
+      isPasswordModalOpen.value = false
+      passwordSuccess.value = null
+    }, 1500)
+  } catch (e: unknown) {
+    const axiosError = e as { response?: { data?: { message?: string } } }
+    const serverMessage = axiosError?.response?.data?.message
+    const errorMap: Record<string, string> = {
+      'The current password is incorrect.': 'Поточний пароль невірний.',
+      'The given data was invalid.': 'Введені дані невірні.',
+      'Too Many Attempts.': 'Забагато спроб. Спробуйте пізніше.',
+    }
+    passwordError.value = (serverMessage && errorMap[serverMessage]) || serverMessage || 'Помилка зміни пароля'
   }
 }
 
@@ -286,30 +299,69 @@ function getWorkModeLabel(mode?: string): string {
   const labels: Record<string, string> = { office: 'Офіс', remote: 'Віддалено', hybrid: 'Гібрид' }
   return mode ? labels[mode] || mode : 'Не вказано'
 }
+
+const appDownloadUrl = ref('')
+const isDownloadingApp = ref(false)
+
+onMounted(async () => {
+  try {
+    const { data } = await apiClient.get(API_ROUTES.app.updateCheck)
+    if (data && data.downloadUrl) {
+      let finalUrl = data.downloadUrl
+      try {
+        const urlObj = new URL(data.downloadUrl)
+        const baseUrl = new URL(API_BASE_URL).origin
+        finalUrl = `${baseUrl}${urlObj.pathname}`
+      } catch {
+        if (data.downloadUrl.startsWith('/')) {
+          const baseUrl = API_BASE_URL.replace(/\/api$/, '')
+          finalUrl = `${baseUrl}${data.downloadUrl}`
+        }
+      }
+      appDownloadUrl.value = finalUrl
+    }
+  } catch {
+    /* ignore */
+  }
+})
+
+function downloadApp() {
+  if (!appDownloadUrl.value) return
+  isDownloadingApp.value = true
+  window.open(appDownloadUrl.value, '_blank')
+  setTimeout(() => {
+    isDownloadingApp.value = false
+  }, 1000)
+}
 </script>
 
 <template>
   <div class="profile-page">
-    <!-- Modals -->
     <Modal v-model="isEditMode" title="Редагувати профіль">
       <div v-if="formError" class="modal-error">{{ formError }}</div>
       <div class="form-field">
-        <InputField
-          name="name"
-          label="Ім'я"
-          v-model="editForm.name"
-          type="text"
-          placeholder="Введіть ім'я"
-        />
+        <label class="edit-label">Ім'я</label>
+        <div class="edit-input-wrapper">
+          <UserIcon class="edit-icon" />
+          <input
+            v-model="editForm.name"
+            type="text"
+            class="edit-input with-icon"
+            placeholder="Введіть ім'я"
+          />
+        </div>
       </div>
       <div class="form-field">
-        <InputField
-          name="email"
-          label="Email"
-          v-model="editForm.email"
-          type="email"
-          placeholder="Введіть email"
-        />
+        <label class="edit-label">Email</label>
+        <div class="edit-input-wrapper">
+          <EmailIcon class="edit-icon" />
+          <input
+            v-model="editForm.email"
+            type="email"
+            class="edit-input with-icon"
+            placeholder="Введіть email"
+          />
+        </div>
       </div>
       <template #footer>
         <button class="btn-secondary" @click="cancelEdit" :disabled="store.isSaving">
@@ -331,7 +383,7 @@ function getWorkModeLabel(mode?: string): string {
             label="Код підтвердження"
             v-model="passwordForm.code"
             type="text"
-            icon="lock"
+            icon="email"
             placeholder="Введіть 6-значний код"
           />
         </div>
@@ -531,6 +583,14 @@ function getWorkModeLabel(mode?: string): string {
         >
           {{ isUploadingAvatar ? 'Завантаження...' : 'Змінити фото' }}
         </button>
+        <button
+          v-if="appDownloadUrl"
+          class="sidebar-download-btn"
+          @click="downloadApp"
+          :disabled="isDownloadingApp"
+        >
+          📱 {{ isDownloadingApp ? 'Завантаження...' : 'Завантажити додаток' }}
+        </button>
       </Card>
 
       <!-- Right Main -->
@@ -596,11 +656,11 @@ function getWorkModeLabel(mode?: string): string {
             <div class="security-divider"></div>
             <div class="security-item">
               <div class="security-info">
-                <div class="security-title">PIN код для входу</div>
+                <div class="security-title">PIN код</div>
                 <div class="security-desc">
                   {{
                     store.displayProfile.has_pin_code
-                      ? 'PIN активний — захищає швидкий вхід'
+                      ? 'PIN активний — для підтвердження завершення роботи'
                       : 'PIN не встановлено'
                   }}
                 </div>
@@ -628,14 +688,12 @@ function getWorkModeLabel(mode?: string): string {
 </template>
 
 <style scoped>
-/* ── Page wrapper ───────────────────────────────────────────────────────── */
 .profile-page {
   max-width: var(--container-max);
   margin: 2rem auto;
   padding: 0 1.5rem 3rem;
 }
 
-/* ── Loading / error states ─────────────────────────────────────────────── */
 .state-center {
   text-align: center;
   padding: 4rem 2rem;
@@ -660,7 +718,6 @@ function getWorkModeLabel(mode?: string): string {
   }
 }
 
-/* ── Two-column layout ──────────────────────────────────────────────────── */
 .profile-layout {
   display: grid;
   grid-template-columns: 280px 1fr;
@@ -668,7 +725,6 @@ function getWorkModeLabel(mode?: string): string {
   align-items: start;
 }
 
-/* ── Sidebar ────────────────────────────────────────────────────────────── */
 .profile-sidebar {
   text-align: center;
   position: sticky;
@@ -764,8 +820,29 @@ function getWorkModeLabel(mode?: string): string {
   opacity: 0.5;
   cursor: not-allowed;
 }
+.sidebar-download-btn {
+  display: block;
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 0.6rem 1rem;
+  background: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 100%);
+  border: none;
+  border-radius: 0.5rem;
+  color: var(--header-text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.sidebar-download-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px var(--shadow);
+}
+.sidebar-download-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
-/* ── Main cards ─────────────────────────────────────────────────────────── */
 .profile-main {
   display: flex;
   flex-direction: column;
@@ -825,7 +902,6 @@ function getWorkModeLabel(mode?: string): string {
   color: var(--btn-on-accent);
 }
 
-/* ── Manager section ────────────────────────────────────────────────────── */
 .manager-section {
   padding: 0;
 }
@@ -852,7 +928,6 @@ function getWorkModeLabel(mode?: string): string {
   color: var(--text-muted);
 }
 
-/* ── Security card ──────────────────────────────────────────────────────── */
 .security-card :deep(.card-header) {
   background: transparent;
 }
@@ -885,7 +960,6 @@ function getWorkModeLabel(mode?: string): string {
   margin: 0;
 }
 
-/* ── Buttons ────────────────────────────────────────────────────────────── */
 .btn-primary {
   padding: 0.6rem 1.25rem;
   background: var(--accent-2);
@@ -928,7 +1002,6 @@ function getWorkModeLabel(mode?: string): string {
   cursor: not-allowed;
 }
 
-/* ── Modals ─────────────────────────────────────────────────────────────── */
 .form-field {
   margin-bottom: 1.25rem;
 }
@@ -940,6 +1013,50 @@ function getWorkModeLabel(mode?: string): string {
   border-radius: 0.5rem;
   margin-bottom: 1rem;
   font-size: 0.875rem;
+}
+.edit-label {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+.edit-input-wrapper {
+  position: relative;
+}
+.edit-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+.edit-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 0.5rem;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--text);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  outline: none;
+}
+.edit-input.with-icon {
+  padding-left: 2.75rem;
+}
+.edit-input:focus {
+  border-color: var(--accent-2);
+  box-shadow: 0 0 0 3px rgba(255, 155, 81, 0.1);
+}
+.edit-input::placeholder {
+  color: var(--text-muted);
 }
 .modal-success {
   background: rgba(74, 222, 128, 0.12);
@@ -963,8 +1080,7 @@ function getWorkModeLabel(mode?: string): string {
   padding: 0.9rem;
 }
 
-/* ── Responsive ─────────────────────────────────────────────────────────── */
-@media (max-width: var(--bp-lg)) {
+@media (max-width: 1024px) {
   .profile-layout {
     grid-template-columns: 1fr;
   }
@@ -972,7 +1088,16 @@ function getWorkModeLabel(mode?: string): string {
     position: static;
   }
 }
-@media (max-width: var(--bp-sm)) {
+@media (max-width: 768px) {
+  .password-code-row {
+    flex-direction: column;
+  }
+  .btn-code {
+    margin-top: 0;
+    width: 100%;
+  }
+}
+@media (max-width: 480px) {
   .profile-page {
     padding: 0 1rem 2rem;
     margin-top: 1rem;

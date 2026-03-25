@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { apiClient, API_ROUTES } from '@/core/api'
+import { downloadBlob } from '@/core/utils/download'
 import type { TimeEntry } from '@/types/interfaces/timeEntry.interface'
 import type { TimeEntrySummary } from '@/types/interfaces/timeEntrySummary.interface'
 import type { ApiResponse } from '@/types/responses/apiResponse.interface'
@@ -22,6 +23,9 @@ export const useEmployeeStore = defineStore('employee', () => {
 
   // Errors
   const error = ref<string | null>(null)
+
+  // Export
+  const isExporting = ref(false)
 
   function extractErrorMessage(err: unknown): string | undefined {
     if (err && typeof err === 'object' && 'response' in err) {
@@ -114,6 +118,23 @@ export const useEmployeeStore = defineStore('employee', () => {
     }
   }
 
+  async function exportTimeEntries(from?: string, to?: string) {
+    isExporting.value = true
+    error.value = null
+    try {
+      const response = await apiClient.get<Blob>(API_ROUTES.timeEntries.export, {
+        params: { from, to },
+        responseType: 'blob',
+      })
+      downloadBlob(response, 'time-entries.xlsx')
+    } catch (err: unknown) {
+      error.value = extractErrorMessage(err) || 'Помилка завантаження звіту'
+      throw err
+    } finally {
+      isExporting.value = false
+    }
+  }
+
   function clearError() {
     error.value = null
   }
@@ -126,6 +147,7 @@ export const useEmployeeStore = defineStore('employee', () => {
     isLoadingSummary.value = false
     isLoadingActiveEntry.value = false
     isLoadingEntries.value = false
+    isExporting.value = false
     error.value = null
   }
 
@@ -138,6 +160,7 @@ export const useEmployeeStore = defineStore('employee', () => {
     isLoadingSummary,
     isLoadingActiveEntry,
     isLoadingEntries,
+    isExporting,
     error,
     // Actions
     fetchTimeSummary,
@@ -145,6 +168,7 @@ export const useEmployeeStore = defineStore('employee', () => {
     fetchTimeEntries,
     startWork,
     stopWork,
+    exportTimeEntries,
     clearError,
     $reset,
   }

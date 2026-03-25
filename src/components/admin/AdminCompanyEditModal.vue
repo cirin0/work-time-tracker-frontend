@@ -113,6 +113,7 @@ defineExpose({ setError })
         label="Назва"
         type="text"
         placeholder="Назва компанії"
+        icon="company"
         required
       />
 
@@ -122,6 +123,7 @@ defineExpose({ setError })
         label="Email"
         type="email"
         placeholder="company@example.com"
+        icon="email"
       />
 
       <InputField
@@ -130,6 +132,7 @@ defineExpose({ setError })
         label="Телефон"
         type="text"
         placeholder="+380..."
+        icon="phone"
       />
 
       <InputField
@@ -138,6 +141,7 @@ defineExpose({ setError })
         label="Адреса"
         type="text"
         placeholder="вул. ..."
+        icon="map"
       />
 
       <div class="field">
@@ -160,6 +164,7 @@ defineExpose({ setError })
           min="-90"
           max="90"
           placeholder="48.45"
+          icon="compass"
         />
         <InputField
           v-model="form.longitude"
@@ -170,6 +175,7 @@ defineExpose({ setError })
           min="-180"
           max="180"
           placeholder="34.98"
+          icon="compass"
         />
       </div>
 
@@ -180,6 +186,7 @@ defineExpose({ setError })
         type="number"
         min="1"
         placeholder="100"
+        icon="ruler"
       />
     </form>
 

@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import EmailIcon from '@/icons/EmailIcon.vue'
+import BuildingIcon from '@/icons/BuildingIcon.vue'
+import CompassIcon from '@/icons/CompassIcon.vue'
 import LockIcon from '@/icons/LockIcon.vue'
+import MapPinIcon from '@/icons/MapPinIcon.vue'
+import PhoneIcon from '@/icons/PhoneIcon.vue'
+import RulerIcon from '@/icons/RulerIcon.vue'
 import UserIcon from '@/icons/UserIcon.vue'
 import { computed } from 'vue'
 import { useField } from 'vee-validate'
@@ -21,6 +26,11 @@ const emit = defineEmits<{
 
 const icons = {
   user: UserIcon,
+  company: BuildingIcon,
+  phone: PhoneIcon,
+  map: MapPinIcon,
+  compass: CompassIcon,
+  ruler: RulerIcon,
   email: EmailIcon,
   lock: LockIcon,
 }

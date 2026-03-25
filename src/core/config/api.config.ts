@@ -37,12 +37,14 @@ export const API_ROUTES = {
   manager: {
     company: {
       statistics: '/managers/company/statistics',
+      exportStatistics: '/managers/company/statistics/export',
     },
     users: {
       index: '/managers/users',
       show: (userId: number | string) => `/managers/users/${userId}`,
       timeEntries: (userId: number | string) => `/managers/users/${userId}/time-entries`,
       timeSummary: (userId: number | string) => `/managers/users/${userId}/time-summary`,
+      exportStatistics: (userId: number | string) => `/managers/users/${userId}/statistics/export`,
       workSchedule: (userId: number | string) => `/managers/users/${userId}/work-schedule`,
       updateWorkSchedule: (userId: number | string) => `/managers/users/${userId}/work-schedule`,
     },
@@ -68,6 +70,7 @@ export const API_ROUTES = {
     active: '/time-entries/active',
     stopActive: '/time-entries/active/stop',
     summaryByCurrentUser: '/time-entries/summary/me',
+    export: '/time-entries/export',
   },
   qrCode: {
     daily: '/qr-code/daily',
@@ -96,5 +99,8 @@ export const API_ROUTES = {
   auditLogs: {
     index: '/audit-logs',
     all: '/audit-logs/all',
+  },
+  app: {
+    updateCheck: '/app/update-check',
   },
 } as const

@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import AppHeader from './AppHeader.vue'
+import AppDownloadPopup from '@/components/ui/AppDownloadPopup.vue'
+import PinSetupModal from '@/components/ui/PinSetupModal.vue'
 </script>
 
 <template>
@@ -10,6 +12,8 @@ import AppHeader from './AppHeader.vue'
         <slot />
       </div>
     </main>
+    <AppDownloadPopup />
+    <PinSetupModal />
   </div>
 </template>
 
@@ -19,6 +23,6 @@ main {
 }
 
 main > div {
-  min-height: calc(100vh - 73px);
+  padding-bottom: 2rem;
 }
 </style>

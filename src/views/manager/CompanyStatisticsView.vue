@@ -5,7 +5,10 @@ import PageHeader from '@/components/ui/PageHeader.vue'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import StatCard from '@/components/ui/StatCard.vue'
 import PeriodSummaryTable from '@/components/stats/PeriodSummaryTable.vue'
+import PeriodSummaryChart from '@/components/stats/PeriodSummaryChart.vue'
 import AttendanceStatsSection from '@/components/stats/AttendanceStatsSection.vue'
+import AttendanceChart from '@/components/stats/AttendanceChart.vue'
+import OvertimeChart from '@/components/stats/OvertimeChart.vue'
 
 const managerStore = useManagerStore()
 const stats = computed(() => managerStore.companyStats)
@@ -21,7 +24,18 @@ onMounted(() => {
       title="Розширена статистика компанії"
       subtitle="Аналіз робочого часу та відвідуваності"
       back-route="manager"
-    />
+    >
+      <template #actions>
+        <button 
+          class="btn-primary" 
+          @click="managerStore.exportCompanyStatistics()"
+          :disabled="managerStore.isExporting"
+        >
+          <span v-if="managerStore.isExporting">Завантаження...</span>
+          <span v-else>📥 Скачати звіт</span>
+        </button>
+      </template>
+    </PageHeader>
 
     <LoadingSpinner v-if="managerStore.isLoadingStats" text="Завантаження статистики..." />
 
@@ -54,21 +68,15 @@ onMounted(() => {
       <section class="section">
         <h2>Розбивка по періодах</h2>
         <PeriodSummaryTable :summary="stats.summary" />
-        <div class="chart-placeholder">
-          <span>📊 Тут буде графік по тижнях/місяцях</span>
-        </div>
+        <PeriodSummaryChart :summary="stats.summary" />
       </section>
 
       <AttendanceStatsSection :attendance="stats.attendance">
         <template #chart-attendance>
-          <div class="chart-placeholder">
-            <span>🕐 Тут буде графік запізнень по днях</span>
-          </div>
+          <AttendanceChart :attendance="stats.attendance" />
         </template>
         <template #chart-overtime>
-          <div class="chart-placeholder">
-            <span>📈 Тут буде графік понаднормових</span>
-          </div>
+          <OvertimeChart :attendance="stats.attendance" />
         </template>
       </AttendanceStatsSection>
     </div>
@@ -149,16 +157,6 @@ onMounted(() => {
 
 .cards-row :deep(.stat-icon) {
   display: none;
-}
-
-.chart-placeholder {
-  margin-top: 1.25rem;
-  padding: 2rem;
-  border: 2px dashed var(--border);
-  border-radius: 0.5rem;
-  text-align: center;
-  color: var(--text-muted);
-  font-size: 0.9rem;
 }
 
 @media (max-width: var(--bp-md)) {

@@ -81,7 +81,7 @@ function handleViewMore() {
 
 .empty-state {
   text-align: center;
-  padding: 3rem 1rem;
+  padding: 1rem 1rem;
 }
 
 .empty-icon {
