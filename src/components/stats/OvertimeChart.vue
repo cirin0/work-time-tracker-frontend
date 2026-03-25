@@ -104,6 +104,7 @@ const chartOptions = computed<ChartOptions<'bar'>>(() => ({
 
 <style scoped>
 .overtime-chart {
+  margin-top: 1rem;
   width: 100%;
 }
 

@@ -9,6 +9,7 @@ interface Props {
   isLoading: boolean
   error: string | null
   pagination: PaginatedResponse<LeaveRequest>['meta'] | null
+  canCreate?: boolean
 }
 
 defineProps<Props>()
@@ -33,7 +34,9 @@ defineEmits<{
 
     <div v-else-if="leaveRequests.length === 0" class="empty-state">
       <p>У вас поки немає запитів на відпустку</p>
-      <button @click="$emit('create')" class="create-button">Створити запит</button>
+      <button v-if="canCreate" @click="$emit('create')" class="create-button">
+        Створити запит
+      </button>
     </div>
 
     <div v-else class="requests-container">
@@ -104,6 +107,13 @@ defineEmits<{
   font-size: 16px;
   color: #666;
   margin-bottom: 20px;
+}
+
+.no-access-hint {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-top: 8px;
+  margin-bottom: 0 !important;
 }
 
 .create-button {

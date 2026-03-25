@@ -71,7 +71,6 @@ defineProps<{
   gap: 1rem;
 }
 
-/* Override StatCard to use compact "flat" style inside this section */
 .cards-row :deep(.stat-card) {
   flex: 1;
   min-width: 140px;

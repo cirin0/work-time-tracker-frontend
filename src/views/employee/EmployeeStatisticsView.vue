@@ -13,6 +13,7 @@ import OvertimeChart from '@/components/stats/OvertimeChart.vue'
 
 const employeeStore = useEmployeeStore()
 const summary = computed(() => employeeStore.timeSummary)
+const hasData = computed(() => (summary.value?.working_days ?? 0) > 0)
 
 onMounted(() => {
   if (!employeeStore.timeSummary) {
@@ -29,9 +30,10 @@ onMounted(() => {
       back-route="main"
     >
       <template #actions>
-        <button 
-          class="btn-primary" 
-          @click="employeeStore.exportTimeEntries()" 
+        <button
+          v-if="hasData"
+          class="btn-primary"
+          @click="employeeStore.exportTimeEntries()"
           :disabled="employeeStore.isExporting"
         >
           <span v-if="employeeStore.isExporting">Завантаження...</span>

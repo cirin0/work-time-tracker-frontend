@@ -79,6 +79,7 @@ const chartOptions = computed(() => ({
 <style scoped>
 .attendance-chart {
   width: 100%;
+  margin-top: 1rem;
 }
 
 .chart-container {
