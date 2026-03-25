@@ -16,7 +16,6 @@ const { currentUser } = useRoleGuard()
 const authStore = useAuthStore()
 const employeeStore = useEmployeeStore()
 
-// Stats Card: Сьогодні
 const todayStats = computed(() => {
   const hours = employeeStore.timeSummary?.summary.today.hours ?? 0
   const minutes = employeeStore.timeSummary?.summary.today.minutes ?? 0
@@ -26,21 +25,18 @@ const todayStats = computed(() => {
 const todayHours = computed(() => employeeStore.timeSummary?.summary.today.hours ?? 0)
 const todayMinutes = computed(() => employeeStore.timeSummary?.summary.today.minutes ?? 0)
 
-// Stats Card: Тиждень
 const weekStats = computed(() => {
   const hours = employeeStore.timeSummary?.summary.week.hours ?? 0
   const minutes = employeeStore.timeSummary?.summary.week.minutes ?? 0
   return { hours, minutes }
 })
 
-// Stats Card: Місяць
 const monthStats = computed(() => {
   const hours = employeeStore.timeSummary?.summary.month.hours ?? 0
   const minutes = employeeStore.timeSummary?.summary.month.minutes ?? 0
   return { hours, minutes }
 })
 
-// Stats Card: Вчасно
 const attendanceStats = computed(() => {
   const onTime = employeeStore.timeSummary?.attendance.on_time_count ?? 0
   const late = employeeStore.timeSummary?.attendance.late_count ?? 0
@@ -196,11 +192,15 @@ function viewStatistics() {
           </Card>
 
           <!-- Attendance Stats -->
-          <Card v-if="employeeStore.timeSummary">
+          <Card>
             <template #header>
               <h3>📊 Статистика відвідуваності</h3>
             </template>
-            <div class="attendance-grid">
+            <div v-if="employeeStore.isLoadingSummary" class="loading-state">
+              <div class="spinner"></div>
+              <p>Завантаження статистики...</p>
+            </div>
+            <div v-else-if="employeeStore.timeSummary" class="attendance-grid">
               <div class="attendance-item">
                 <span class="attendance-value on-time">{{
                   employeeStore.timeSummary.attendance.on_time_count
@@ -267,7 +267,7 @@ function viewStatistics() {
 /* Stats Grid */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 1.5rem;
 }
 
@@ -463,7 +463,7 @@ function viewStatistics() {
 }
 
 /* Responsive Design */
-@media (max-width: var(--bp-lg)) {
+@media (max-width: 1024px) {
   .two-column-layout {
     grid-template-columns: 1fr;
   }
@@ -473,7 +473,7 @@ function viewStatistics() {
   }
 }
 
-@media (max-width: var(--bp-sm)) {
+@media (max-width: 480px) {
   .employee-dashboard {
     padding: 1rem;
   }
@@ -483,7 +483,7 @@ function viewStatistics() {
   }
 
   .stats-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
   }
 
   .quick-actions {

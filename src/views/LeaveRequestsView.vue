@@ -1,13 +1,20 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useLeaveRequestStore } from '@/stores/leaveRequest.store'
+import { useAuthStore } from '@/stores/auth.store'
 import LeaveRequestsList from '@/components/leave-requests/LeaveRequestsList.vue'
 import LeaveRequestForm from '@/components/leave-requests/LeaveRequestForm.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import type { CreateLeaveRequestRequest } from '@/types/requests/leaveRequestRequest.interface'
 const leaveRequestStore = useLeaveRequestStore()
+const authStore = useAuthStore()
 const showFormModal = ref(false)
 const isSubmittingForm = ref(false)
+
+const canCreate = computed(() => {
+  const user = authStore.currentUser
+  return !!(user?.company && user?.manager)
+})
 
 onMounted(() => {
   loadLeaveRequests()
@@ -49,7 +56,7 @@ function handlePageChange(page: number) {
     <div class="content-section">
       <div class="section-header">
         <h2>Мої запити</h2>
-        <button @click="showFormModal = true" class="btn-primary">+ Створити запит</button>
+        <button v-if="canCreate" @click="showFormModal = true" class="btn-primary">+ Створити запит</button>
       </div>
 
       <LeaveRequestsList
@@ -57,6 +64,7 @@ function handlePageChange(page: number) {
         :is-loading="leaveRequestStore.isLoading"
         :error="leaveRequestStore.error"
         :pagination="leaveRequestStore.pagination"
+        :can-create="canCreate"
         @retry="loadLeaveRequests"
         @create="showFormModal = true"
         @page-change="handlePageChange"

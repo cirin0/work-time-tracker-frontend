@@ -110,7 +110,7 @@ function backToUserList() {
 <style scoped>
 .chat-container {
   display: flex;
-  height: calc(100vh - 4.3rem);
+  height: calc(100vh - 50px - 4rem);
   background: var(--surface);
   border-radius: 1rem;
   overflow: hidden;

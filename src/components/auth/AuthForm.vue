@@ -11,9 +11,10 @@ const props = defineProps<{
 const emit = defineEmits<{
   registerSuccess: [email: string]
   clearLoginNotice: []
+  emailNotVerified: [email: string]
 }>()
 
-const { generalError, successMessage, registeredEmail, onSubmit, resetFormState, clearErrors } =
+const { generalError, successMessage, registeredEmail, unverifiedEmail, onSubmit, resetFormState, clearErrors } =
   useAuthForm(() => props.isLogin)
 
 const visibleSuccessMessage = computed(() => {
@@ -47,6 +48,12 @@ watch(
     }
   },
 )
+
+watch(unverifiedEmail, (email) => {
+  if (email) {
+    emit('emailNotVerified', email)
+  }
+})
 </script>
 <template>
   <div>
