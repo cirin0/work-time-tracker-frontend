@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppHeader from './AppHeader.vue'
+import AppDownloadPopup from '@/components/ui/AppDownloadPopup.vue'
 </script>
 
 <template>
@@ -10,6 +11,7 @@ import AppHeader from './AppHeader.vue'
         <slot />
       </div>
     </main>
+    <AppDownloadPopup />
   </div>
 </template>
 

@@ -24,7 +24,18 @@ onMounted(() => {
       title="Розширена статистика компанії"
       subtitle="Аналіз робочого часу та відвідуваності"
       back-route="manager"
-    />
+    >
+      <template #actions>
+        <button 
+          class="btn-primary" 
+          @click="managerStore.exportCompanyStatistics()"
+          :disabled="managerStore.isExporting"
+        >
+          <span v-if="managerStore.isExporting">Завантаження...</span>
+          <span v-else>📥 Скачати звіт</span>
+        </button>
+      </template>
+    </PageHeader>
 
     <LoadingSpinner v-if="managerStore.isLoadingStats" text="Завантаження статистики..." />
 

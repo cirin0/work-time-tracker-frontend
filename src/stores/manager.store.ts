@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { apiClient, API_ROUTES } from '@/core/api'
+import { downloadBlob } from '@/core/utils/download'
 import type { User } from '@/types/interfaces/user.interface'
 import type { LeaveRequest } from '@/types/interfaces/leaveRequest.interface'
 import type { TimeEntry } from '@/types/interfaces/timeEntry.interface'
@@ -39,6 +40,9 @@ export const useManagerStore = defineStore('manager', () => {
 
   // Errors
   const error = ref<string | null>(null)
+
+  // Export
+  const isExporting = ref(false)
 
   async function fetchEmployees() {
     isLoadingEmployees.value = true
@@ -256,6 +260,38 @@ export const useManagerStore = defineStore('manager', () => {
     }
   }
 
+  async function exportCompanyStatistics() {
+    isExporting.value = true
+    error.value = null
+    try {
+      const response = await apiClient.get<Blob>(API_ROUTES.manager.company.exportStatistics, {
+        responseType: 'blob',
+      })
+      downloadBlob(response, 'company-statistics.xlsx')
+    } catch (err: unknown) {
+      error.value = 'Помилка завантаження звіту компанії'
+      throw err
+    } finally {
+      isExporting.value = false
+    }
+  }
+
+  async function exportUserStatistics(userId: number) {
+    isExporting.value = true
+    error.value = null
+    try {
+      const response = await apiClient.get<Blob>(API_ROUTES.manager.users.exportStatistics(userId), {
+        responseType: 'blob',
+      })
+      downloadBlob(response, `employee-${userId}-statistics.xlsx`)
+    } catch (err: unknown) {
+      error.value = 'Помилка завантаження звіту співробітника'
+      throw err
+    } finally {
+      isExporting.value = false
+    }
+  }
+
   function clearError() {
     error.value = null
   }
@@ -274,6 +310,7 @@ export const useManagerStore = defineStore('manager', () => {
     isLoadingStats.value = false
     isLoadingLeaveRequests.value = false
     isLoadingEmployeeDetails.value = false
+    isExporting.value = false
     error.value = null
   }
 
@@ -292,6 +329,7 @@ export const useManagerStore = defineStore('manager', () => {
     isLoadingStats,
     isLoadingLeaveRequests,
     isLoadingEmployeeDetails,
+    isExporting,
     error,
     // Actions
     fetchEmployees,
@@ -304,6 +342,8 @@ export const useManagerStore = defineStore('manager', () => {
     fetchEmployeeTimeSummary,
     fetchEmployeeTimeEntries,
     fetchEmployeeWorkSchedule,
+    exportCompanyStatistics,
+    exportUserStatistics,
     clearError,
     $reset,
   }
