@@ -9,6 +9,8 @@ import Badge from '@/components/ui/Badge.vue'
 import Modal from '@/components/ui/Modal.vue'
 import Card from '@/components/ui/Card.vue'
 import Avatar from '@/components/ui/Avatar.vue'
+import { apiClient, API_ROUTES } from '@/core/api'
+import { API_BASE_URL } from '@/core/api/client'
 import type {
   UpdateProfileRequest,
   ChangePasswordRequest,
@@ -286,6 +288,36 @@ function getWorkModeLabel(mode?: string): string {
   const labels: Record<string, string> = { office: 'Офіс', remote: 'Віддалено', hybrid: 'Гібрид' }
   return mode ? labels[mode] || mode : 'Не вказано'
 }
+
+const appDownloadUrl = ref('')
+const isDownloadingApp = ref(false)
+
+onMounted(async () => {
+  try {
+    const { data } = await apiClient.get(API_ROUTES.app.updateCheck)
+    if (data && data.downloadUrl) {
+      let finalUrl = data.downloadUrl
+      try {
+        const urlObj = new URL(data.downloadUrl)
+        const baseUrl = new URL(API_BASE_URL).origin
+        finalUrl = `${baseUrl}${urlObj.pathname}`
+      } catch {
+        if (data.downloadUrl.startsWith('/')) {
+          const baseUrl = API_BASE_URL.replace(/\/api$/, '')
+          finalUrl = `${baseUrl}${data.downloadUrl}`
+        }
+      }
+      appDownloadUrl.value = finalUrl
+    }
+  } catch { /* ignore */ }
+})
+
+function downloadApp() {
+  if (!appDownloadUrl.value) return
+  isDownloadingApp.value = true
+  window.open(appDownloadUrl.value, '_blank')
+  setTimeout(() => { isDownloadingApp.value = false }, 1000)
+}
 </script>
 
 <template>
@@ -531,6 +563,14 @@ function getWorkModeLabel(mode?: string): string {
         >
           {{ isUploadingAvatar ? 'Завантаження...' : 'Змінити фото' }}
         </button>
+        <button
+          v-if="appDownloadUrl"
+          class="sidebar-download-btn"
+          @click="downloadApp"
+          :disabled="isDownloadingApp"
+        >
+          📱 {{ isDownloadingApp ? 'Завантаження...' : 'Завантажити додаток' }}
+        </button>
       </Card>
 
       <!-- Right Main -->
@@ -761,6 +801,28 @@ function getWorkModeLabel(mode?: string): string {
   background: var(--sand);
 }
 .sidebar-photo-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.sidebar-download-btn {
+  display: block;
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 0.6rem 1rem;
+  background: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 100%);
+  border: none;
+  border-radius: 0.5rem;
+  color: var(--header-text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.sidebar-download-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px var(--shadow);
+}
+.sidebar-download-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }

@@ -180,7 +180,17 @@ const daysOfWeekLabels: Record<string, string> = {
 
       <!-- Statistics -->
       <div v-if="employeeSummary" class="stats-section">
-        <h3>Статистика роботи</h3>
+        <div class="stats-header">
+          <h3>Статистика роботи</h3>
+          <button 
+            class="btn-outline" 
+            @click="managerStore.exportUserStatistics(employeeId)"
+            :disabled="managerStore.isExporting"
+          >
+            <span v-if="managerStore.isExporting">Завантаження...</span>
+            <span v-else>📥 Скачати звіт</span>
+          </button>
+        </div>
 
         <!-- Period summary cards -->
         <div class="stats-grid">
@@ -513,7 +523,36 @@ const daysOfWeekLabels: Record<string, string> = {
   font-size: 1.25rem;
   font-weight: 600;
   color: var(--text);
-  margin: 0 0 1.5rem;
+  margin: 0;
+}
+
+.stats-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.btn-outline {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  color: var(--accent-2);
+  border: 1px solid var(--accent-2);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-outline:hover:not(:disabled) {
+  background: var(--accent-2);
+  color: var(--btn-on-accent);
+}
+
+.btn-outline:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .stats-grid {
