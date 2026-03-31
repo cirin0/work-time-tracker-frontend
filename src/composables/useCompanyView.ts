@@ -2,6 +2,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { useCompanyStore } from '@/stores/company.store'
+import { useAdminStore } from '@/stores/admin.store'
 import { useRoleGuard } from '@/composables/useRoleGuard'
 import { getAvatarUrl } from '@/core/utils/url'
 import type AdminCompanyEditModal from '@/components/admin/AdminCompanyEditModal.vue'
@@ -10,6 +11,7 @@ import type { UpdateCompanyRequest } from '@/types/requests/companyRequest.inter
 export function useCompanyView() {
   const authStore = useAuthStore()
   const companyStore = useCompanyStore()
+  const adminStore = useAdminStore()
   const router = useRouter()
   const { isAdmin } = useRoleGuard()
 
@@ -21,11 +23,32 @@ export function useCompanyView() {
   const logoInputRef = ref<HTMLInputElement | null>(null)
   const logoImageKey = ref(0)
 
-  const newEmployeeId = ref('')
+  const newEmployeeId = ref<number | null>(null)
+  const employeeSearchQuery = ref('')
+  const selectedEmployee = ref<{ id: number; name: string; email: string } | null>(null)
   const isAddingEmployee = ref(false)
   const addEmployeeError = ref<string | null>(null)
+  const addEmployeeSuccess = ref<string | null>(null)
   const removeEmployeeError = ref<string | null>(null)
   const logoUploadError = ref<string | null>(null)
+  let employeeSearchTimer: ReturnType<typeof setTimeout> | null = null
+
+  const employeeSearchResults = computed(() => {
+    const q = employeeSearchQuery.value.toLowerCase().trim()
+    if (!q || q.length < 2) return []
+
+    const currentEmployeeIds = new Set([
+      ...(company.value?.employees ?? []).map((e) => e.id),
+      company.value?.manager?.id,
+    ].filter(Boolean))
+
+    return adminStore.users
+      .filter((u) => {
+        if (currentEmployeeIds.has(u.id)) return false
+        return u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)
+      })
+      .slice(0, 6)
+  })
 
   const company = computed(() => companyStore.company)
   const companyId = computed(() => authStore.currentUser?.company?.id ?? null)
@@ -80,19 +103,54 @@ export function useCompanyView() {
     }
   }
 
+  function onEmployeeSearchInput() {
+    selectedEmployee.value = null
+    newEmployeeId.value = null
+    if (employeeSearchTimer) clearTimeout(employeeSearchTimer)
+    employeeSearchTimer = setTimeout(() => {
+      adminStore.fetchAllUsers(1, employeeSearchQuery.value)
+    }, 350)
+  }
+
+  function selectEmployee(user: { id: number; name: string; email: string }) {
+    selectedEmployee.value = user
+    newEmployeeId.value = user.id
+    employeeSearchQuery.value = user.name
+  }
+
   async function handleAddEmployee() {
-    const id = parseInt(newEmployeeId.value)
+    const id = newEmployeeId.value
     if (!id || !company.value) {
-      addEmployeeError.value = 'Введіть коректний ID співробітника'
+      addEmployeeError.value = 'Виберіть співробітника з пошуку'
       return
     }
     isAddingEmployee.value = true
     addEmployeeError.value = null
+    addEmployeeSuccess.value = null
     try {
       await companyStore.addEmployee(company.value.id, id)
-      newEmployeeId.value = ''
-    } catch {
-      addEmployeeError.value = companyStore.error ?? 'Помилка додавання'
+      addEmployeeSuccess.value = `Співробітника "${selectedEmployee.value?.name}" додано!`
+      employeeSearchQuery.value = ''
+      selectedEmployee.value = null
+      newEmployeeId.value = null
+      await companyStore.fetchById(company.value.id)
+    } catch (err: unknown) {
+      const msg =
+        err &&
+        typeof err === 'object' &&
+        'response' in err &&
+        (err as { response?: { data?: { message?: string } } }).response?.data?.message
+
+      if (typeof msg === 'string' && msg.toLowerCase().includes('already belongs')) {
+        addEmployeeError.value =
+          `Цей користувач вже належить до компанії. Оновлюємо список...`
+        employeeSearchQuery.value = ''
+        selectedEmployee.value = null
+        newEmployeeId.value = null
+        await companyStore.fetchById(company.value.id)
+      } else {
+        addEmployeeError.value = companyStore.error ?? 'Помилка додавання'
+      }
     } finally {
       isAddingEmployee.value = false
     }
@@ -126,13 +184,19 @@ export function useCompanyView() {
     isUploadingLogo,
     logoInputRef,
     newEmployeeId,
+    employeeSearchQuery,
+    selectedEmployee,
+    employeeSearchResults,
     isAddingEmployee,
     addEmployeeError,
+    addEmployeeSuccess,
     removeEmployeeError,
     logoUploadError,
     handleEditSubmit,
     triggerLogoUpload,
     handleLogoChange,
+    onEmployeeSearchInput,
+    selectEmployee,
     handleAddEmployee,
     handleRemoveEmployee,
     goToUser,

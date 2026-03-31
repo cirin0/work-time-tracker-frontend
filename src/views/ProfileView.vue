@@ -10,6 +10,10 @@ import Modal from '@/components/ui/Modal.vue'
 import Card from '@/components/ui/Card.vue'
 import UserIcon from '@/icons/UserIcon.vue'
 import EmailIcon from '@/icons/EmailIcon.vue'
+import ClockIcon from '@/icons/ClockIcon.vue'
+import BuildingIcon from '@/icons/BuildingIcon.vue'
+import CalendarIcon from '@/icons/CalendarIcon.vue'
+import LockIcon from '@/icons/LockIcon.vue'
 import Avatar from '@/components/ui/Avatar.vue'
 import { apiClient, API_ROUTES } from '@/core/api'
 import { API_BASE_URL } from '@/core/api/client'
@@ -234,7 +238,8 @@ async function changePassword() {
       'The given data was invalid.': 'Введені дані невірні.',
       'Too Many Attempts.': 'Забагато спроб. Спробуйте пізніше.',
     }
-    passwordError.value = (serverMessage && errorMap[serverMessage]) || serverMessage || 'Помилка зміни пароля'
+    passwordError.value =
+      (serverMessage && errorMap[serverMessage]) || serverMessage || 'Помилка зміни пароля'
   }
 }
 
@@ -545,28 +550,28 @@ function downloadApp() {
 
         <div class="sidebar-meta">
           <div class="meta-item">
-            <span class="meta-icon">&#128336;</span>
+            <span class="meta-icon"><ClockIcon /></span>
             <div>
               <div class="meta-label">Зареєстрований</div>
               <div class="meta-value">{{ formatDate(store.displayProfile.created_at) }}</div>
             </div>
           </div>
           <div v-if="store.displayProfile.work_mode" class="meta-item">
-            <span class="meta-icon">&#127968;</span>
+            <span class="meta-icon"><BuildingIcon /></span>
             <div>
               <div class="meta-label">Режим роботи</div>
               <div class="meta-value">{{ getWorkModeLabel(store.displayProfile.work_mode) }}</div>
             </div>
           </div>
           <div v-if="store.displayProfile.work_schedule" class="meta-item">
-            <span class="meta-icon">&#128197;</span>
+            <span class="meta-icon"><CalendarIcon /></span>
             <div>
               <div class="meta-label">Графік</div>
               <div class="meta-value">{{ store.displayProfile.work_schedule.name }}</div>
             </div>
           </div>
           <div class="meta-item">
-            <span class="meta-icon">&#128274;</span>
+            <span class="meta-icon"><LockIcon /></span>
             <div>
               <div class="meta-label">PIN код</div>
               <div class="meta-value" :class="{ 'pin-ok': store.displayProfile.has_pin_code }">
@@ -778,7 +783,11 @@ function downloadApp() {
   gap: 0.75rem;
 }
 .meta-icon {
-  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.2rem;
+  height: 1.2rem;
   flex-shrink: 0;
   margin-top: 0.1rem;
 }

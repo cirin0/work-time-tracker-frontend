@@ -13,11 +13,18 @@ import AdminEditUserModal from '@/components/admin/AdminEditUserModal.vue'
 import AdminChangeRoleModal from '@/components/admin/AdminChangeRoleModal.vue'
 import AdminChangeWorkModeModal from '@/components/admin/AdminChangeWorkModeModal.vue'
 import AdminResetPasswordModal from '@/components/admin/AdminResetPasswordModal.vue'
+import PencilIcon from '@/icons/PencilIcon.vue'
+import UserIcon from '@/icons/UserIcon.vue'
+import BriefcaseIcon from '@/icons/BriefcaseIcon.vue'
+import KeyIcon from '@/icons/KeyIcon.vue'
+import TrashIcon from '@/icons/TrashIcon.vue'
+import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 
 const store = useAdminStore()
 const authStore = useAuthStore()
 
 const currentPage = ref(1)
+const searchQuery = ref('')
 
 const editModal = ref(false)
 const roleModal = ref(false)
@@ -33,9 +40,18 @@ const passwordModalRef = ref<InstanceType<typeof AdminResetPasswordModal> | null
 
 const filteredUsers = computed(() => {
   const currentUserId = authStore.currentUser?.id
-  if (!currentUserId) return store.users
-  return store.users.filter((user) => user.id !== currentUserId)
+  return store.users.filter((user) => currentUserId ? user.id !== currentUserId : true)
 })
+
+let searchTimer: ReturnType<typeof setTimeout> | null = null
+
+function onSearchInput() {
+  if (searchTimer) clearTimeout(searchTimer)
+  searchTimer = setTimeout(() => {
+    currentPage.value = 1
+    store.fetchAllUsers(1, searchQuery.value)
+  }, 400)
+}
 
 const roleLabels: Record<UserRole, string> = {
   [UserRole.ADMIN]: 'Адмін',
@@ -57,7 +73,7 @@ const workModeLabels: Record<WorkMode, string> = {
 
 async function loadPage(page: number) {
   currentPage.value = page
-  await store.fetchAllUsers(page)
+  await store.fetchAllUsers(page, searchQuery.value)
 }
 
 function openEdit(user: User) {
@@ -167,6 +183,21 @@ onMounted(() => loadPage(1))
         </span>
       </template>
 
+      <div class="search-bar">
+        <div class="search-input-wrap">
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Пошук за іменем або email..."
+            class="search-input"
+            @input="onSearchInput"
+          />
+          <div v-if="store.isLoading" class="search-spinner">
+            <LoadingSpinner size="sm" />
+          </div>
+        </div>
+      </div>
+
       <div v-if="store.error" class="error-alert">{{ store.error }}</div>
 
       <div v-if="store.isLoading" class="loading">Завантаження...</div>
@@ -199,12 +230,20 @@ onMounted(() => loadPage(1))
             </div>
 
             <div class="user-actions">
-              <button class="action-btn" @click="openEdit(user)" title="Редагувати">✏️</button>
-              <button class="action-btn" @click="openRoleChange(user)" title="Роль">👤</button>
-              <button class="action-btn" @click="openWorkModeChange(user)" title="Режим">💼</button>
-              <button class="action-btn" @click="openPasswordReset(user)" title="Пароль">🔑</button>
+              <button class="action-btn" @click="openEdit(user)" title="Редагувати">
+                <PencilIcon />
+              </button>
+              <button class="action-btn" @click="openRoleChange(user)" title="Роль">
+                <UserIcon />
+              </button>
+              <button class="action-btn" @click="openWorkModeChange(user)" title="Режим">
+                <BriefcaseIcon />
+              </button>
+              <button class="action-btn" @click="openPasswordReset(user)" title="Пароль">
+                <KeyIcon />
+              </button>
               <button class="action-btn danger" @click="handleDelete(user)" title="Видалити">
-                🗑️
+                <TrashIcon />
               </button>
             </div>
           </div>
@@ -259,6 +298,32 @@ onMounted(() => loadPage(1))
 .users-manager {
   max-width: var(--container-max);
   margin: 0 auto;
+}
+
+.search-bar {
+  margin-bottom: 1rem;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.search-input:focus {
+  border-color: var(--accent-2);
+  box-shadow: 0 0 0 3px rgba(255, 155, 81, 0.1);
+}
+
+.search-input::placeholder {
+  color: var(--text-muted);
 }
 
 h2 {
@@ -386,29 +451,40 @@ h2 {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.375rem 0.5rem;
-  border-radius: 0.375rem;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.15s;
-  border: 1px solid var(--border);
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0.5rem;
   background: var(--surface);
-  color: var(--text);
-  min-width: 32px;
-  height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 0.625rem;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--text-muted);
+}
+
+.action-btn :deep(svg) {
+  width: 1.125rem;
+  height: 1.125rem;
 }
 
 .action-btn:hover {
   border-color: var(--accent-2);
-  background: var(--sand-light);
-  transform: scale(1.1);
+  color: var(--accent-1);
+  background: var(--surface-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.action-btn.danger {
+  color: var(--error-text);
 }
 
 .action-btn.danger:hover {
-  border-color: var(--error-border);
-  background: var(--error-bg);
-  transform: scale(1.1);
+  background: rgba(239, 68, 68, 0.05);
+  border-color: var(--error-text);
+  color: var(--error-text);
 }
+
 
 .pagination-wrapper {
   margin-top: 1.25rem;

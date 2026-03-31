@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { getAvatarUrl } from '@/core/utils/url'
 import { formatDate } from '@/core/utils/date'
 import AdminCompanyEditModal from '@/components/admin/AdminCompanyEditModal.vue'
@@ -18,20 +18,41 @@ const {
   editModalRef,
   isUploadingLogo,
   logoInputRef,
-  newEmployeeId,
+  employeeSearchQuery,
+  selectedEmployee,
+  employeeSearchResults,
   isAddingEmployee,
   addEmployeeError,
+  addEmployeeSuccess,
   removeEmployeeError,
   logoUploadError,
   handleEditSubmit,
   triggerLogoUpload,
   handleLogoChange,
+  onEmployeeSearchInput,
+  selectEmployee,
   handleAddEmployee,
   handleRemoveEmployee,
   goToUser,
 } = useCompanyView()
 
-const companyEmployees = computed(() => company.value?.employees ?? [])
+const employeeSearch = ref('')
+const companyEmployees = computed(() => {
+  const list = [...(company.value?.employees ?? [])]
+  const manager = company.value?.manager
+  if (manager && !list.some((e) => e.id === manager.id)) {
+    list.unshift(manager)
+  }
+  return list
+})
+const filteredCompanyEmployees = computed(() => {
+  const q = employeeSearch.value.toLowerCase().trim()
+  if (!q) return companyEmployees.value
+  return companyEmployees.value.filter(
+    (e) => e.name.toLowerCase().includes(q) || e.email.toLowerCase().includes(q),
+  )
+})
+const managerId = computed(() => company.value?.manager?.id ?? null)
 </script>
 
 <template>
@@ -182,22 +203,67 @@ const companyEmployees = computed(() => company.value?.employees ?? [])
       <div class="section-card">
         <div class="section-header">
           <h3>Співробітники</h3>
-          <span class="count-badge">{{ companyEmployees.length }}</span>
+          <span class="count-badge">
+            {{ employeeSearch ? `${filteredCompanyEmployees.length} / ${companyEmployees.length}` : companyEmployees.length }}
+          </span>
         </div>
 
-        <div v-if="isAdmin" class="add-employee-form">
-          <input
-            v-model="newEmployeeId"
-            type="number"
-            placeholder="ID співробітника"
-            class="id-input"
-            @keyup.enter="handleAddEmployee"
-          />
-          <button class="btn-add" :disabled="isAddingEmployee" @click="handleAddEmployee">
-            {{ isAddingEmployee ? 'Додавання...' : '+ Додати' }}
-          </button>
+        <!-- Add Employee Form (Improved Autocomplete) -->
+        <div v-if="isAdmin" class="add-employee-container">
+          <div class="add-employee-form">
+            <div class="employee-search-wrap">
+              <input
+                v-model="employeeSearchQuery"
+                type="text"
+                placeholder="Пошук користувачів (ім'я або email)..."
+                class="id-input"
+                @input="onEmployeeSearchInput"
+                autocomplete="off"
+              />
+              <ul v-if="employeeSearchResults.length && !selectedEmployee" class="search-dropdown">
+                <li
+                  v-for="user in employeeSearchResults"
+                  :key="user.id"
+                  class="search-dropdown-item"
+                  @click="selectEmployee(user)"
+                >
+                  <span class="dropdown-name">{{ user.name }}</span>
+                  <span class="dropdown-email">{{ user.email }}</span>
+                </li>
+              </ul>
+            </div>
+            <button
+              class="btn-add"
+              :disabled="isAddingEmployee || !selectedEmployee"
+              @click="handleAddEmployee"
+            >
+              {{ isAddingEmployee ? 'Зачекайте...' : '+ Додати' }}
+            </button>
+          </div>
+          <p v-if="addEmployeeError" class="add-error">{{ addEmployeeError }}</p>
+          <p v-if="addEmployeeSuccess" class="add-success">{{ addEmployeeSuccess }}</p>
         </div>
-        <p v-if="addEmployeeError" class="field-error">{{ addEmployeeError }}</p>
+
+        <div class="search-employees">
+          <div class="employee-search-box">
+            <span class="search-icon">🔍</span>
+            <input
+              v-model="employeeSearch"
+              type="text"
+              placeholder="Пошук за іменем або email..."
+              class="employee-search-input"
+            />
+            <button
+              v-if="employeeSearch"
+              class="search-clear-btn"
+              title="Очистити пошук"
+              @click="employeeSearch = ''"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+
         <p v-if="removeEmployeeError" class="field-error">{{ removeEmployeeError }}</p>
 
         <div v-if="companyStore.isLoading" class="loading-inline">
@@ -205,10 +271,14 @@ const companyEmployees = computed(() => company.value?.employees ?? [])
           Завантаження списку...
         </div>
         <div v-else-if="companyEmployees.length === 0" class="empty-employees">
-          👤 Немає прикріплених співробітників
+          Немає прикріплених співробітників
+        </div>
+        <div v-else-if="filteredCompanyEmployees.length === 0" class="empty-employees">
+          <span class="empty-search-icon">🔍</span>
+          <span>Співробітників за запитом <strong>"{{ employeeSearch }}"</strong> не знайдено</span>
         </div>
         <ul v-else class="employees-list">
-          <li v-for="user in companyEmployees" :key="user.id" class="employee-item">
+          <li v-for="user in filteredCompanyEmployees" :key="user.id" class="employee-item">
             <div class="employee-avatar" @click="goToUser(user.id)">
               <img
                 v-if="getAvatarUrl(user.avatar)"
@@ -219,12 +289,19 @@ const companyEmployees = computed(() => company.value?.employees ?? [])
               <span v-else>{{ user.name.charAt(0).toUpperCase() }}</span>
             </div>
             <div class="employee-info" @click="goToUser(user.id)">
-              <span class="employee-name">{{ user.name }}</span>
+              <div class="employee-name-row">
+                <span class="employee-name">{{ user.name }}</span>
+                <span v-if="user.id === managerId" class="role-badge-manager">👔 Менеджер</span>
+              </div>
               <span class="employee-email">{{ user.email }}</span>
             </div>
             <div class="employee-actions">
               <button class="btn-view" @click="goToUser(user.id)">Переглянути</button>
-              <button v-if="isAdmin" class="btn-remove" @click="handleRemoveEmployee(user.id)">
+              <button
+                v-if="isAdmin && user.id !== managerId"
+                class="btn-remove"
+                @click="handleRemoveEmployee(user.id)"
+              >
                 Видалити
               </button>
             </div>
@@ -570,24 +647,178 @@ const companyEmployees = computed(() => company.value?.employees ?? [])
   font-weight: 500;
 }
 
-/* ── Add employee ── */
+/* ── Employee search (Current list) ── */
+.search-employees {
+  margin-bottom: 0.875rem;
+}
+.employee-search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.search-icon {
+  position: absolute;
+  left: 0.85rem;
+  font-size: 0.85rem;
+  pointer-events: none;
+  opacity: 0.5;
+}
+.employee-search-input {
+  width: 100%;
+  padding: 0.6rem 2.5rem;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 0.625rem;
+  font-size: 0.9rem;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+.employee-search-input:focus {
+  border-color: var(--accent-2);
+  box-shadow: 0 0 0 3px rgba(255, 155, 81, 0.1);
+}
+.search-clear-btn {
+  position: absolute;
+  right: 0.6rem;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0.25rem 0.4rem;
+  border-radius: 50%;
+  line-height: 1;
+  transition: color 0.2s, background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.search-clear-btn:hover {
+  color: var(--text);
+  background: var(--surface-hover);
+}
+.empty-search-icon {
+  display: block;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.4;
+}
+
+/* ── Add Employee (Autocomplete) ── */
+.add-employee-container {
+  background: var(--surface-hover);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border);
+}
+
 .add-employee-form {
   display: flex;
   gap: 0.75rem;
-  margin-bottom: 0.625rem;
+  position: relative;
 }
-.id-input {
+
+.employee-search-wrap {
   flex: 1;
-  border: 1px solid var(--border);
-  border-radius: 0.625rem;
-  padding: 0.625rem 1rem;
+  position: relative;
+}
+
+.id-input {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.65rem 1rem;
   font-size: 0.9rem;
   outline: none;
   background: var(--surface);
   color: var(--text);
+  transition: all 0.2s;
 }
+
 .id-input:focus {
   border-color: var(--accent-2);
+  box-shadow: 0 0 3px rgba(255, 155, 81, 0.2);
+}
+
+.btn-add {
+  padding: 0 1.5rem;
+  background: var(--accent-2);
+  color: var(--btn-on-accent);
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.btn-add:hover:not(:disabled) {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.btn-add:disabled {
+  opacity: 0.6;
+  filter: grayscale(0.5);
+  cursor: not-allowed;
+}
+
+/* Dropdown */
+.search-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  list-style: none;
+  padding: 0.5rem;
+  margin: 0;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+}
+
+.search-dropdown-item {
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  transition: background 0.2s;
+}
+
+.search-dropdown-item:hover {
+  background: rgba(255, 155, 81, 0.08);
+}
+
+.dropdown-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.dropdown-email {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.add-error {
+  color: var(--error-text);
+  font-size: 0.8rem;
+  margin: 0.5rem 0 0 0;
+}
+
+.add-success {
+  color: #10b981;
+  font-size: 0.8rem;
+  margin: 0.5rem 0 0 0;
 }
 
 .id-input:focus-visible {
@@ -642,6 +873,10 @@ const companyEmployees = computed(() => company.value?.employees ?? [])
   font-size: 0.9rem;
   padding: 2rem 0;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
 }
 
 .employees-list {
@@ -700,6 +935,25 @@ const companyEmployees = computed(() => company.value?.employees ?? [])
   font-size: 0.9rem;
   font-weight: 600;
   color: var(--text);
+}
+.employee-name-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.role-badge-manager {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.15rem 0.55rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: var(--role-manager-bg);
+  color: var(--role-manager-color);
+  border: 1px solid var(--role-manager-border);
+  white-space: nowrap;
 }
 .employee-email {
   font-size: 0.8rem;

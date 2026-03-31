@@ -11,6 +11,12 @@ import StatCard from '@/components/ui/StatCard.vue'
 import Pagination from '@/components/ui/Pagination.vue'
 import Card from '@/components/ui/Card.vue'
 
+import CalendarIcon from '@/icons/CalendarIcon.vue'
+import ChartBarIcon from '@/icons/ChartBarIcon.vue'
+import ClockIcon from '@/icons/ClockIcon.vue'
+import BuildingIcon from '@/icons/BuildingIcon.vue'
+import DocumentTextIcon from '@/icons/DocumentTextIcon.vue'
+
 const router = useRouter()
 const { currentUser } = useRoleGuard()
 const authStore = useAuthStore()
@@ -108,22 +114,26 @@ function viewStatistics() {
 
       <!-- Stats Grid -->
       <div class="stats-grid">
-        <StatCard icon="📅" label="Сьогодні">
+        <StatCard label="Сьогодні">
+          <template #icon><CalendarIcon /></template>
           <span class="stat-time"
             >{{ todayStats.hours }}г {{ todayStats.minutes.toString().padStart(2, '0') }}хв</span
           >
         </StatCard>
-        <StatCard icon="📊" label="Тиждень">
+        <StatCard label="Тиждень">
+          <template #icon><ChartBarIcon /></template>
           <span class="stat-time"
             >{{ weekStats.hours }}г {{ weekStats.minutes.toString().padStart(2, '0') }}хв</span
           >
         </StatCard>
-        <StatCard icon="📈" label="Місяць">
+        <StatCard label="Місяць">
+          <template #icon><ChartBarIcon /></template>
           <span class="stat-time"
             >{{ monthStats.hours }}г {{ monthStats.minutes.toString().padStart(2, '0') }}хв</span
           >
         </StatCard>
-        <StatCard icon="✅" label="Вчасно" :sub-text="attendanceStats.subText">
+        <StatCard label="Вчасно" :sub-text="attendanceStats.subText">
+          <template #icon><ClockIcon /></template>
           <span class="stat-number">{{ attendanceStats.value }}</span>
         </StatCard>
       </div>
@@ -132,15 +142,15 @@ function viewStatistics() {
       <Card>
         <div class="quick-actions">
           <button class="quick-action-btn" @click="viewCompany">
-            <span class="qa-icon">🏢</span>
+            <span class="qa-icon"><BuildingIcon /></span>
             <span class="qa-label">Компанія</span>
           </button>
           <button class="quick-action-btn" @click="viewStatistics">
-            <span class="qa-icon">📈</span>
+            <span class="qa-icon"><ChartBarIcon /></span>
             <span class="qa-label">Розширена статистика</span>
           </button>
           <button class="quick-action-btn" @click="viewLeaveRequests">
-            <span class="qa-icon">📋</span>
+            <span class="qa-icon"><DocumentTextIcon /></span>
             <span class="qa-label">Запити на відпустку</span>
           </button>
         </div>
@@ -152,7 +162,7 @@ function viewStatistics() {
           <!-- Recent Work Log -->
           <Card>
             <template #header>
-              <h2>📝 Історія робочого часу</h2>
+              <h2><ClockIcon style="width: 24px; margin-right: 0.5rem; vertical-align: middle;" /> Історія робочого часу</h2>
             </template>
             <TimeEntryList
               :entries="employeeStore.recentEntries"
@@ -183,7 +193,7 @@ function viewStatistics() {
 
           <Card v-else-if="authStore.isLoadingUser">
             <template #header>
-              <h3>📅 Сьогоднішній графік</h3>
+              <h3><CalendarIcon style="width: 20px; margin-right: 0.5rem; vertical-align: middle;" /> Сьогоднішній графік</h3>
             </template>
             <div class="loading-state">
               <div class="spinner"></div>
@@ -194,7 +204,7 @@ function viewStatistics() {
           <!-- Attendance Stats -->
           <Card>
             <template #header>
-              <h3>📊 Статистика відвідуваності</h3>
+              <h3><ChartBarIcon style="width: 20px; margin-right: 0.5rem; vertical-align: middle;" /> Статистика відвідуваності</h3>
             </template>
             <div v-if="employeeStore.isLoadingSummary" class="loading-state">
               <div class="spinner"></div>
@@ -313,7 +323,11 @@ function viewStatistics() {
 }
 
 .qa-icon {
-  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
 }
 
 .qa-label {

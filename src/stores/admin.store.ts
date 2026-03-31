@@ -19,12 +19,14 @@ export const useAdminStore = defineStore('admin', () => {
   const error = ref<string | null>(null)
   const pagination = ref<PaginatedResponse<User>['meta'] | null>(null)
 
-  async function fetchAllUsers(page = 1) {
+  async function fetchAllUsers(page = 1, search = '') {
     isLoading.value = true
     error.value = null
     try {
+      const params = new URLSearchParams({ page: String(page) })
+      if (search.trim()) params.set('search', search.trim())
       const { data } = await apiClient.get<PaginatedResponse<User>>(
-        `${API_ROUTES.admin.users.index}?page=${page}`,
+        `${API_ROUTES.admin.users.index}?${params.toString()}`,
       )
       users.value = data.data
       pagination.value = data.meta

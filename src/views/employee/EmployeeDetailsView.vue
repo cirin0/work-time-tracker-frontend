@@ -182,8 +182,8 @@ const daysOfWeekLabels: Record<string, string> = {
       <div v-if="employeeSummary" class="stats-section">
         <div class="stats-header">
           <h3>Статистика роботи</h3>
-          <button 
-            class="btn-outline" 
+          <button
+            class="btn-outline"
             @click="managerStore.exportUserStatistics(employeeId)"
             :disabled="managerStore.isExporting"
           >
@@ -517,13 +517,6 @@ const daysOfWeekLabels: Record<string, string> = {
   border-radius: 0.75rem;
   padding: 2rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.stats-section h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--text);
-  margin: 0;
 }
 
 .stats-header {

@@ -14,6 +14,9 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import Card from '@/components/ui/Card.vue'
 import ButtonMain from '@/components/ui/ButtonMain.vue'
 import type { CreateCompanyRequest } from '@/types/requests/companyRequest.interface'
+import BuildingIcon from '@/icons/BuildingIcon.vue'
+import DocumentTextIcon from '@/icons/DocumentTextIcon.vue'
+import UserIcon from '@/icons/UserIcon.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -96,6 +99,8 @@ async function handleAssignManager(managerId: number) {
     isSubmittingAssign.value = false
   }
 }
+
+
 </script>
 
 <template>
@@ -119,7 +124,7 @@ async function handleAssignManager(managerId: number) {
       <template v-else-if="!hasCompany">
         <Card>
           <div class="info-card">
-            <div class="info-icon">🏢</div>
+            <div class="info-icon"><BuildingIcon /></div>
             <div class="info-content">
               <h3>Компанія не створена</h3>
               <p>Для початку роботи системи спочатку створіть компанію</p>
@@ -136,7 +141,7 @@ async function handleAssignManager(managerId: number) {
         <!-- No manager role in system -->
         <Card v-if="!hasManager && !hasAnyManager">
           <div class="info-card warning">
-            <div class="info-icon">⚙️</div>
+            <div class="info-icon"><UserIcon /></div>
             <div class="info-content">
               <h3>Створіть менеджера</h3>
               <p>
@@ -150,7 +155,7 @@ async function handleAssignManager(managerId: number) {
         <!-- Manager exists but not assigned -->
         <Card v-else-if="!hasManager && hasAnyManager">
           <div class="info-card">
-            <div class="info-icon">👤</div>
+            <div class="info-icon"><UserIcon /></div>
             <div class="info-content">
               <h3>Менеджер не призначений</h3>
               <p>Призначте менеджера для управління компанією</p>
@@ -165,11 +170,11 @@ async function handleAssignManager(managerId: number) {
         <Card>
           <div class="quick-actions">
             <button class="quick-action-btn" @click="viewCompany">
-              <span class="qa-icon">🏢</span>
+              <span class="qa-icon"><BuildingIcon /></span>
               <span class="qa-label">Компанія</span>
             </button>
             <router-link :to="{ name: 'admin-audit-logs' }" class="quick-action-btn">
-              <span class="qa-icon">📋</span>
+              <span class="qa-icon"><DocumentTextIcon /></span>
               <span class="qa-label">Журнал аудиту</span>
             </router-link>
           </div>
@@ -268,8 +273,17 @@ async function handleAssignManager(managerId: number) {
 }
 
 .info-icon {
-  font-size: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
   flex-shrink: 0;
+}
+
+.info-icon :deep(svg) {
+  width: 2.5rem;
+  height: 2.5rem;
 }
 
 .info-content {
@@ -329,7 +343,11 @@ async function handleAssignManager(managerId: number) {
 }
 
 .qa-icon {
-  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.1rem;
+  height: 1.1rem;
 }
 
 .qa-label {
@@ -342,6 +360,62 @@ async function handleAssignManager(managerId: number) {
   grid-template-columns: 1fr 340px;
   gap: 1.5rem;
   align-items: start;
+}
+
+.add-employee-form {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.id-input {
+  flex: 1;
+  border: 1.5px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.6rem 1rem;
+  font-size: 0.9rem;
+  outline: none;
+  background: var(--surface);
+  color: var(--text);
+  transition: border-color 0.2s;
+}
+
+.id-input:focus {
+  border-color: var(--accent-2);
+  box-shadow: 0 0 0 3px rgba(255, 155, 81, 0.1);
+}
+
+.id-input::placeholder {
+  color: var(--text-muted);
+}
+
+.btn-add {
+  padding: 0.6rem 1.25rem;
+  background: var(--accent-2);
+  color: var(--btn-on-accent);
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.btn-add:hover:not(:disabled) {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.btn-add:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.add-error {
+  color: var(--error-text);
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
 }
 
 .left-column,

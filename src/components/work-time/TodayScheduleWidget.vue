@@ -3,6 +3,10 @@ import { computed } from 'vue'
 import type { User } from '@/types/interfaces/user.interface'
 import type { DailySchedule } from '@/types/interfaces/dailySchedule.interface'
 import Card from '@/components/ui/Card.vue'
+import CalendarIcon from '@/icons/CalendarIcon.vue'
+import ClockIcon from '@/icons/ClockIcon.vue'
+import ExclamationTriangleIcon from '@/icons/ExclamationTriangleIcon.vue'
+import DocumentTextIcon from '@/icons/DocumentTextIcon.vue'
 
 interface Props {
   currentUser: User | null
@@ -93,7 +97,10 @@ const statusColor = computed(() => {
 <template>
   <Card>
     <template #header>
-      <h3 class="widget-title">📅 Сьогоднішній графік</h3>
+      <h3 class="widget-title">
+        <CalendarIcon style="width: 20px; margin-right: 0.5rem; vertical-align: middle" />
+        Сьогоднішній графік
+      </h3>
     </template>
 
     <div v-if="todaySchedule" class="schedule-content">
@@ -110,7 +117,7 @@ const statusColor = computed(() => {
       </div>
 
       <div v-if="todaySchedule.break_duration" class="break-info">
-        <span class="break-icon">☕</span>
+        <span class="break-icon"><ClockIcon /></span>
         <span>Перерва: {{ todaySchedule.break_duration }} хв</span>
       </div>
 
@@ -135,21 +142,24 @@ const statusColor = computed(() => {
       </div>
 
       <div v-if="progressStatus === 'completed'" class="status-message success">
-        ✅ Відмінно! Ви виконали денну норму
+        ✓ Відмінно! Ви виконали денну норму
       </div>
       <div v-else-if="progressStatus === 'overtime'" class="status-message warning">
-        ⚡ Понаднормова робота
+        <ExclamationTriangleIcon
+          style="width: 1.1rem; height: 1.1rem; margin-right: 0.25rem; vertical-align: middle"
+        />
+        Понаднормова робота
       </div>
     </div>
 
     <div v-else-if="hasConfiguredSchedule && todayScheduleEntry" class="schedule-empty">
-      <div class="empty-icon">🌙</div>
+      <div class="empty-icon"><CalendarIcon /></div>
       <p class="empty-text">Сьогодні вихідний день</p>
       <p class="empty-hint">У графіку цей день позначено як неробочий</p>
     </div>
 
     <div v-else class="schedule-empty">
-      <div class="empty-icon">📋</div>
+      <div class="empty-icon"><DocumentTextIcon /></div>
       <p class="empty-text">Графік роботи не налаштовано</p>
       <p class="empty-hint">Зверніться до вашого менеджера для налаштування графіку</p>
     </div>
@@ -230,7 +240,14 @@ const statusColor = computed(() => {
 }
 
 .break-icon {
-  font-size: 1.125rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.break-icon :deep(svg) {
+  width: 1.125rem;
+  height: 1.125rem;
 }
 
 .progress-section {
@@ -345,9 +362,17 @@ const statusColor = computed(() => {
 }
 
 .empty-icon {
-  font-size: 3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   margin-bottom: 1rem;
   opacity: 0.5;
+  color: var(--text-muted);
+}
+
+.empty-icon :deep(svg) {
+  width: 3rem;
+  height: 3rem;
 }
 
 .empty-text {

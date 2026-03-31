@@ -10,7 +10,9 @@ defineProps<{
 
 <template>
   <div class="stat-card" :class="{ active: variant === 'active' }">
-    <div v-if="icon" class="stat-icon">{{ icon }}</div>
+    <div v-if="$slots.icon || icon" class="stat-icon">
+      <slot name="icon">{{ icon }}</slot>
+    </div>
     <div class="stat-content">
       <div v-if="$slots.default" class="stat-value" :class="variant">
         <slot />
@@ -47,6 +49,15 @@ defineProps<{
 .stat-icon {
   font-size: 2.5rem;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-icon :deep(svg) {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--accent-1);
 }
 
 .stat-content {
