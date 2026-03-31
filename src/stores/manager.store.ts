@@ -21,6 +21,10 @@ export const useManagerStore = defineStore('manager', () => {
   const employees = ref<User[]>([])
   const isLoadingEmployees = ref(false)
 
+  // Active Team Activity
+  const activeTeamEntries = ref<TimeEntry[]>([])
+  const isLoadingActiveTeam = ref(false)
+
   // Company Statistics
   const companyStats = ref<CompanyStatistics | null>(null)
   const isLoadingStats = ref(false)
@@ -99,6 +103,20 @@ export const useManagerStore = defineStore('manager', () => {
       throw err
     } finally {
       isLoadingLeaveRequests.value = false
+    }
+  }
+
+  async function fetchActiveTeamEntries() {
+    isLoadingActiveTeam.value = true
+    try {
+      const response = await apiClient.get<ApiResponse<TimeEntry[]>>(
+        API_ROUTES.manager.timeEntries.active,
+      )
+      activeTeamEntries.value = response.data.data || []
+    } catch (err: unknown) {
+      console.error('Failed to load active team entries:', err)
+    } finally {
+      isLoadingActiveTeam.value = false
     }
   }
 
@@ -301,6 +319,7 @@ export const useManagerStore = defineStore('manager', () => {
     companyStats.value = null
     leaveRequests.value = []
     allLeaveRequests.value = []
+    activeTeamEntries.value = []
     leaveRequestsPagination.value = null
     selectedEmployee.value = null
     selectedEmployeeSummary.value = null
@@ -309,6 +328,7 @@ export const useManagerStore = defineStore('manager', () => {
     isLoadingEmployees.value = false
     isLoadingStats.value = false
     isLoadingLeaveRequests.value = false
+    isLoadingActiveTeam.value = false
     isLoadingEmployeeDetails.value = false
     isExporting.value = false
     error.value = null
@@ -320,6 +340,7 @@ export const useManagerStore = defineStore('manager', () => {
     companyStats,
     leaveRequests,
     allLeaveRequests,
+    activeTeamEntries,
     leaveRequestsPagination,
     selectedEmployee,
     selectedEmployeeSummary,
@@ -328,12 +349,14 @@ export const useManagerStore = defineStore('manager', () => {
     isLoadingEmployees,
     isLoadingStats,
     isLoadingLeaveRequests,
+    isLoadingActiveTeam,
     isLoadingEmployeeDetails,
     isExporting,
     error,
     // Actions
     fetchEmployees,
     fetchCompanyStatistics,
+    fetchActiveTeamEntries,
     fetchPendingLeaveRequests,
     fetchAllLeaveRequests,
     approveLeaveRequest,

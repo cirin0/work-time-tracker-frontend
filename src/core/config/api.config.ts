@@ -48,6 +48,9 @@ export const API_ROUTES = {
       workSchedule: (userId: number | string) => `/managers/users/${userId}/work-schedule`,
       updateWorkSchedule: (userId: number | string) => `/managers/users/${userId}/work-schedule`,
     },
+    timeEntries: {
+      active: '/managers/time-entries/active',
+    },
     leaveRequests: {
       index: '/managers/leave-requests',
       pending: '/managers/leave-requests/pending',

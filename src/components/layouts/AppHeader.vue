@@ -3,7 +3,7 @@ import { useAuthStore } from '@/stores/auth.store'
 import { useProfileStore } from '@/stores/profile.store'
 import { useChatStore } from '@/stores/chat.store'
 import { useRoleGuard } from '@/composables/useRoleGuard'
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import LogoProfile from '../profile/LogoProfile.vue'
 
@@ -29,12 +29,23 @@ async function handleLogout() {
   chatStore.resetAll()
   router.push({ name: 'auth' })
 }
+
+const isMenuOpen = ref(false)
+function toggleMenu() {
+  isMenuOpen.value = !isMenuOpen.value
+}
+watch(() => router.currentRoute.value.path, () => {
+  isMenuOpen.value = false
+})
 </script>
 
 <template>
   <header class="header">
     <div class="header-left">
       <h1>Work Time Tracker</h1>
+    </div>
+
+    <div class="header-menu" :class="{ 'is-open': isMenuOpen }">
       <nav class="nav-links">
         <router-link to="/" class="nav-link">Головна</router-link>
         <router-link :to="{ name: 'chat' }" class="nav-link chat-link">
@@ -50,17 +61,26 @@ async function handleLogout() {
           Панель менеджера
         </router-link>
       </nav>
-    </div>
-    <div class="header-right">
-      <router-link v-if="profileRoute && currentProfile" :to="profileRoute" class="profile-link">
-        <LogoProfile :user="currentProfile" />
-      </router-link>
 
-      <div v-else-if="authStore.isLoadingUser || profileStore.isLoading" class="profile-loading">
-        Завантаження...
+      <div class="header-actions">
+        <router-link v-if="profileRoute && currentProfile" :to="profileRoute" class="profile-link">
+          <LogoProfile :user="currentProfile" />
+        </router-link>
+
+        <div v-else-if="authStore.isLoadingUser || profileStore.isLoading" class="profile-loading">
+          Завантаження...
+        </div>
+        <div v-else class="profile-loading">Профіль</div>
+        <button @click="handleLogout" class="logout-button">Вихід</button>
       </div>
-      <div v-else class="profile-loading">Профіль</div>
-      <button @click="handleLogout" class="logout-button">Вихід</button>
+    </div>
+
+    <div class="mobile-actions">
+      <button class="burger-btn" @click="toggleMenu" :class="{ 'is-active': isMenuOpen }">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
     </div>
   </header>
 </template>
@@ -81,18 +101,33 @@ async function handleLogout() {
   z-index: 100;
 }
 
+.burger-btn {
+  display: none;
+}
+
 .header-left {
   display: flex;
   align-items: center;
-  gap: 2rem;
 }
 
-.header-right {
+.header-menu {
+  display: flex;
+  flex: 1;
+  justify-content: space-between;
+  align-items: center;
+  margin-left: 2rem;
+}
+
+.header-actions {
   display: flex;
   align-items: center;
   gap: 1rem;
   flex-wrap: wrap;
   justify-content: flex-end;
+}
+
+.mobile-actions {
+  display: none;
 }
 
 .header h1 {
@@ -201,39 +236,114 @@ async function handleLogout() {
 
 @media (max-width: 768px) {
   .header {
-    padding: 0 0.75rem;
-    height: 56px;
+    padding: 0 1rem;
+    height: 60px;
     flex-wrap: nowrap;
   }
 
+  .mobile-actions {
+    display: flex;
+    align-items: center;
+  }
+
+  .burger-btn {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 24px;
+    height: 18px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+  }
+  .burger-btn span {
+    width: 100%;
+    height: 2px;
+    background: var(--header-text);
+    transition: all 0.3s ease;
+    border-radius: 2px;
+  }
+  .burger-btn.is-active span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+  }
+  .burger-btn.is-active span:nth-child(2) {
+    opacity: 0;
+  }
+  .burger-btn.is-active span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+  }
+
   .header-left {
-    gap: 0.25rem;
-    flex-shrink: 1;
     min-width: 0;
   }
 
   .header h1 {
-    display: none;
+    font-size: 1.15rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .header-menu {
+    position: absolute;
+    top: 60px;
+    left: 0;
+    right: 0;
+    background: var(--header-bg);
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1.5rem;
+    margin-left: 0;
+    box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    z-index: -1;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-menu.is-open {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .nav-links {
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
   .nav-link {
-    padding: 0.4rem 0.5rem;
-    font-size: 0.82rem;
+    width: 100%;
+    text-align: center;
+    padding: 0.8rem;
+    font-size: 1.05rem;
   }
 
-  .header-right {
-    flex-shrink: 0;
-    gap: 0.5rem;
-    flex-wrap: nowrap;
+  .chat-link {
+    justify-content: center;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    justify-content: center;
+  }
+
+  .profile-link {
+    justify-content: center;
   }
 
   .logout-button {
-    padding: 0.4rem 0.6rem;
-    font-size: 0.82rem;
-  }
-
-  .profile-link :deep(.user-info) {
-    display: none;
+    width: 100%;
+    padding: 0.7rem;
+    font-size: 1rem;
+    text-align: center;
   }
 }
 </style>
