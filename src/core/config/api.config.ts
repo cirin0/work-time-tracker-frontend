@@ -54,6 +54,7 @@ export const API_ROUTES = {
     leaveRequests: {
       index: '/managers/leave-requests',
       pending: '/managers/leave-requests/pending',
+      show: (leaveRequestId: number | string) => `/managers/leave-requests/${leaveRequestId}`,
       approve: (leaveRequestId: number) => `/managers/leave-requests/${leaveRequestId}/approve`,
       reject: (leaveRequestId: number) => `/managers/leave-requests/${leaveRequestId}/reject`,
     },

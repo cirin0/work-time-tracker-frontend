@@ -37,10 +37,11 @@ export function useCompanyView() {
     const q = employeeSearchQuery.value.toLowerCase().trim()
     if (!q || q.length < 2) return []
 
-    const currentEmployeeIds = new Set([
-      ...(company.value?.employees ?? []).map((e) => e.id),
-      company.value?.manager?.id,
-    ].filter(Boolean))
+    const currentEmployeeIds = new Set(
+      [...(company.value?.employees ?? []).map((e) => e.id), company.value?.manager?.id].filter(
+        Boolean,
+      ),
+    )
 
     return adminStore.users
       .filter((u) => {
@@ -142,8 +143,7 @@ export function useCompanyView() {
         (err as { response?: { data?: { message?: string } } }).response?.data?.message
 
       if (typeof msg === 'string' && msg.toLowerCase().includes('already belongs')) {
-        addEmployeeError.value =
-          `Цей користувач вже належить до компанії. Оновлюємо список...`
+        addEmployeeError.value = `Цей користувач вже належить до компанії. Оновлюємо список...`
         employeeSearchQuery.value = ''
         selectedEmployee.value = null
         newEmployeeId.value = null
