@@ -56,7 +56,9 @@ function handlePageChange(page: number) {
     <div class="content-section">
       <div class="section-header">
         <h2>Мої запити</h2>
-        <button v-if="canCreate" @click="showFormModal = true" class="btn-primary">+ Створити запит</button>
+        <button v-if="canCreate" @click="showFormModal = true" class="btn-primary">
+          + Створити запит
+        </button>
       </div>
 
       <LeaveRequestsList

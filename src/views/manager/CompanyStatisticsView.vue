@@ -26,8 +26,8 @@ onMounted(() => {
       back-route="manager"
     >
       <template #actions>
-        <button 
-          class="btn-primary" 
+        <button
+          class="btn-primary"
           @click="managerStore.exportCompanyStatistics()"
           :disabled="managerStore.isExporting"
         >
