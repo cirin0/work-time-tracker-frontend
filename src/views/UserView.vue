@@ -1,18 +1,24 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useUsersStore } from '@/stores/users.store'
 import { getAvatarUrl } from '@/core/utils/url'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
+import ChatIcon from '@/icons/ChatIcon.vue'
 
 const route = useRoute()
+const router = useRouter()
 const store = useUsersStore()
 
 onMounted(() => {
   const id = route.params.id as string
   store.fetchUserById(id)
 })
+
+function openChat() {
+  router.push({ name: 'chat' })
+}
 </script>
 
 <template>
@@ -49,6 +55,11 @@ onMounted(() => {
           <p class="user-email">{{ store.currentUser.email }}</p>
           <div class="user-id-badge">ID: {{ store.currentUser.id }}</div>
         </div>
+
+        <button class="btn-message" @click="openChat" title="Написати повідомлення">
+          <ChatIcon />
+          <span>Написати</span>
+        </button>
       </div>
 
       <div class="info-grid">
@@ -119,6 +130,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 1.5rem;
+  flex-wrap: wrap;
 }
 
 .avatar-wrapper {
@@ -149,6 +161,7 @@ onMounted(() => {
 
 .user-meta {
   flex: 1;
+  min-width: 200px;
 }
 
 .user-name {
@@ -172,6 +185,39 @@ onMounted(() => {
   border-radius: 9999px;
   font-size: 0.8rem;
   font-weight: 600;
+}
+
+.btn-message {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-radius: 0.625rem;
+  color: var(--header-text);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+}
+
+.btn-message:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-message:focus-visible {
+  outline: 2px solid var(--header-text);
+  outline-offset: 3px;
+}
+
+.btn-message :deep(svg) {
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 .info-grid {

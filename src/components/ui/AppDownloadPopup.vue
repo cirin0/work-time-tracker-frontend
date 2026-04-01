@@ -14,7 +14,6 @@ onMounted(async () => {
   try {
     const { data } = await apiClient.get(API_ROUTES.app.updateCheck)
     if (data && data.updateAvailable && data.downloadUrl) {
-
       let finalUrl = data.downloadUrl
       try {
         const urlObj = new URL(data.downloadUrl)

@@ -6,17 +6,12 @@ interface Props {
   leaveRequests: LeaveRequest[]
   isLoading: boolean
   error: string | null
-  processingId?: number | null
 }
 
-withDefaults(defineProps<Props>(), {
-  processingId: null,
-})
+defineProps<Props>()
 
 defineEmits<{
   retry: []
-  approve: [id: number]
-  reject: [id: number]
 }>()
 </script>
 
@@ -40,9 +35,6 @@ defineEmits<{
         v-for="request in leaveRequests"
         :key="request.id"
         :leave-request="request"
-        :is-processing="processingId === request.id"
-        @approve="$emit('approve', $event)"
-        @reject="$emit('reject', $event)"
       />
     </div>
   </div>
@@ -100,5 +92,6 @@ defineEmits<{
 
 .requests-container {
   width: 100%;
+  margin-top: 5px;
 }
 </style>

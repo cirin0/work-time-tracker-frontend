@@ -99,8 +99,6 @@ async function handleAssignManager(managerId: number) {
     isSubmittingAssign.value = false
   }
 }
-
-
 </script>
 
 <template>

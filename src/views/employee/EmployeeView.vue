@@ -10,6 +10,7 @@ import TimeEntryList from '@/components/work-time/TimeEntryList.vue'
 import StatCard from '@/components/ui/StatCard.vue'
 import Pagination from '@/components/ui/Pagination.vue'
 import Card from '@/components/ui/Card.vue'
+import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 
 import CalendarIcon from '@/icons/CalendarIcon.vue'
 import ChartBarIcon from '@/icons/ChartBarIcon.vue'
@@ -162,7 +163,10 @@ function viewStatistics() {
           <!-- Recent Work Log -->
           <Card>
             <template #header>
-              <h2><ClockIcon style="width: 24px; margin-right: 0.5rem; vertical-align: middle;" /> Історія робочого часу</h2>
+              <h2>
+                <ClockIcon style="width: 24px; margin-right: 0.5rem; vertical-align: middle" />
+                Історія робочого часу
+              </h2>
             </template>
             <TimeEntryList
               :entries="employeeStore.recentEntries"
@@ -193,23 +197,26 @@ function viewStatistics() {
 
           <Card v-else-if="authStore.isLoadingUser">
             <template #header>
-              <h3><CalendarIcon style="width: 20px; margin-right: 0.5rem; vertical-align: middle;" /> Сьогоднішній графік</h3>
+              <h3>
+                <CalendarIcon style="width: 20px; margin-right: 0.5rem; vertical-align: middle" />
+                Сьогоднішній графік
+              </h3>
             </template>
-            <div class="loading-state">
-              <div class="spinner"></div>
-              <p>Завантаження графіку...</p>
-            </div>
+            <LoadingSpinner text="Завантаження графіку..." />
           </Card>
 
           <!-- Attendance Stats -->
           <Card>
             <template #header>
-              <h3><ChartBarIcon style="width: 20px; margin-right: 0.5rem; vertical-align: middle;" /> Статистика відвідуваності</h3>
+              <h3>
+                <ChartBarIcon style="width: 20px; margin-right: 0.5rem; vertical-align: middle" />
+                Статистика відвідуваності
+              </h3>
             </template>
-            <div v-if="employeeStore.isLoadingSummary" class="loading-state">
-              <div class="spinner"></div>
-              <p>Завантаження статистики...</p>
-            </div>
+            <LoadingSpinner
+              v-if="employeeStore.isLoadingSummary"
+              text="Завантаження статистики..."
+            />
             <div v-else-if="employeeStore.timeSummary" class="attendance-grid">
               <div class="attendance-item">
                 <span class="attendance-value on-time">{{
@@ -442,38 +449,6 @@ function viewStatistics() {
   font-weight: 600;
   cursor: pointer;
   padding: 0.25rem 0.5rem;
-}
-
-/* Loading State */
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem 1rem;
-  color: var(--text-muted);
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid var(--border);
-  border-top-color: var(--accent-2);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin-bottom: 1rem;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.loading-state p {
-  font-family: var(--font-body);
-  margin: 0;
-  font-size: 0.875rem;
 }
 
 /* Responsive Design */

@@ -14,8 +14,15 @@ const emit = defineEmits<{
   emailNotVerified: [email: string]
 }>()
 
-const { generalError, successMessage, registeredEmail, unverifiedEmail, onSubmit, resetFormState, clearErrors } =
-  useAuthForm(() => props.isLogin)
+const {
+  generalError,
+  successMessage,
+  registeredEmail,
+  unverifiedEmail,
+  onSubmit,
+  resetFormState,
+  clearErrors,
+} = useAuthForm(() => props.isLogin)
 
 const visibleSuccessMessage = computed(() => {
   if (successMessage.value) return successMessage.value
