@@ -502,6 +502,24 @@ h2 {
   }
 }
 
+@media (max-width: 620px) {
+  .user-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.875rem;
+  }
+
+  .user-main {
+    width: 100%;
+  }
+
+  .user-actions {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
 @media (max-width: var(--bp-sm)) {
   h2 {
     font-size: 1.1rem;

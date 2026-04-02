@@ -1067,4 +1067,168 @@ const managerId = computed(() => company.value?.manager?.id ?? null)
     justify-content: flex-end;
   }
 }
+
+@media (max-width: 620px) {
+  .company-view {
+    padding: 0.875rem;
+  }
+
+  .company-card,
+  .section-card {
+    padding: 1.25rem;
+  }
+
+  .company-hero {
+    gap: 1.25rem;
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .company-title h2 {
+    font-size: 1.5rem;
+  }
+
+  .btn-edit {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .info-grid {
+    gap: 0.75rem;
+  }
+
+  .info-item {
+    padding: 0.875rem;
+  }
+
+  .add-employee-form {
+    flex-direction: column;
+  }
+
+  .btn-add {
+    width: 100%;
+    padding: 0.75rem;
+  }
+
+  .employee-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.875rem;
+    padding: 1rem;
+  }
+
+  .employee-info {
+    width: 100%;
+  }
+
+  .employee-actions {
+    width: 100%;
+    justify-content: center;
+    gap: 0.625rem;
+  }
+
+  .btn-view,
+  .btn-remove {
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+  }
+}
+
+@media (max-width: var(--bp-sm)) {
+  .company-view {
+    padding: 0.75rem;
+  }
+
+  .company-card,
+  .section-card {
+    padding: 1rem;
+    border-radius: 0.75rem;
+  }
+
+  .company-hero {
+    gap: 1rem;
+    padding-bottom: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .company-logo,
+  .logo-placeholder {
+    width: 80px;
+    height: 80px;
+  }
+
+  .logo-placeholder {
+    font-size: 2rem;
+  }
+
+  .company-title h2 {
+    font-size: 1.375rem;
+  }
+
+  .company-badges {
+    gap: 0.375rem;
+  }
+
+  .badge-employees,
+  .badge-schedules {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.625rem;
+  }
+
+  .section-header h3 {
+    font-size: 1rem;
+  }
+
+  .employee-item {
+    padding: 0.875rem;
+  }
+
+  .employee-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 0.9rem;
+  }
+
+  .employee-name {
+    font-size: 0.875rem;
+  }
+
+  .employee-email {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .company-view {
+    padding: 0.5rem;
+  }
+
+  .company-card,
+  .section-card {
+    padding: 0.875rem;
+  }
+
+  .company-logo,
+  .logo-placeholder {
+    width: 72px;
+    height: 72px;
+  }
+
+  .company-title h2 {
+    font-size: 1.25rem;
+  }
+
+  .employee-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .btn-view,
+  .btn-remove {
+    width: 100%;
+  }
+}
 </style>

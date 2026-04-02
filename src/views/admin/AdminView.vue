@@ -421,7 +421,7 @@ async function handleAssignManager(managerId: number) {
   min-width: 0;
 }
 
-@media (max-width: var(--bp-lg)) {
+@media (max-width: 1024px) {
   .admin-panel {
     padding: 1.5rem;
   }
@@ -441,21 +441,114 @@ async function handleAssignManager(managerId: number) {
   }
 }
 
-@media (max-width: var(--bp-sm)) {
+@media (max-width: 768px) {
   .admin-panel {
     padding: 1rem;
+  }
+
+  .panel-header {
+    margin-bottom: 1.5rem;
   }
 
   .panel-header h1 {
     font-size: 1.5rem;
   }
 
+  .content-wrapper {
+    gap: 1rem;
+  }
+
   .info-card {
-    padding: 1.25rem;
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .info-content h3 {
+    font-size: 1rem;
+  }
+
+  .info-content p {
+    font-size: 0.875rem;
+  }
+
+  .quick-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .quick-action-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 0.75rem 1rem;
+  }
+
+  .two-column-layout {
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-panel {
+    padding: 0.75rem;
+  }
+
+  .panel-header {
+    margin-bottom: 1rem;
+  }
+
+  .panel-header h1 {
+    font-size: 1.375rem;
+  }
+
+  .content-wrapper {
+    gap: 0.875rem;
+  }
+
+  .info-card {
+    padding: 0.875rem;
+    gap: 0.875rem;
   }
 
   .info-icon {
-    font-size: 2rem;
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .info-icon :deep(svg) {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .info-content h3 {
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .info-content p {
+    font-size: 0.8rem;
+    line-height: 1.4;
+  }
+
+  .quick-action-btn {
+    padding: 0.65rem 0.875rem;
+    font-size: 0.875rem;
+  }
+
+  .qa-icon {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .denied-content {
+    padding: 1.5rem 1rem;
+  }
+
+  .denied-content h2 {
+    font-size: 1.125rem;
+  }
+
+  .denied-content p {
+    font-size: 0.875rem;
   }
 }
 </style>

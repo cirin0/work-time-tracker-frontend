@@ -24,6 +24,16 @@ const durationMinutes = computed(() => {
   return Math.floor((props.entry.duration || 0) / 60)
 })
 
+const formatMinutesToHoursAndMinutes = (minutes: number) => {
+  const absMinutes = Math.abs(minutes)
+  const hours = Math.floor(absMinutes / 60)
+  const mins = absMinutes % 60
+  if (hours > 0) {
+    return `${hours}г ${mins.toString().padStart(2, '0')}хв`
+  }
+  return `${mins}хв`
+}
+
 const badges = computed(() => {
   const result = []
 
@@ -33,13 +43,13 @@ const badges = computed(() => {
       result.push({
         type: 'late',
         icon: '⏰',
-        text: `Запізнення ${props.entry.lateness_minutes}хв`,
+        text: `Запізнення ${formatMinutesToHoursAndMinutes(props.entry.lateness_minutes)}`,
       })
     } else if (props.entry.lateness_minutes < 0) {
       result.push({
         type: 'early',
         icon: '🌅',
-        text: `Раніше на ${Math.abs(props.entry.lateness_minutes)}хв`,
+        text: `Раніше на ${formatMinutesToHoursAndMinutes(props.entry.lateness_minutes)}`,
       })
     }
   }
@@ -49,7 +59,7 @@ const badges = computed(() => {
     result.push({
       type: 'early-leave',
       icon: '🚪',
-      text: `Раніше на ${props.entry.early_leave_minutes}хв`,
+      text: `Раніше на ${formatMinutesToHoursAndMinutes(props.entry.early_leave_minutes)}`,
     })
   }
 
@@ -58,7 +68,7 @@ const badges = computed(() => {
     result.push({
       type: 'overtime',
       icon: '⚡',
-      text: `Понаднормово ${props.entry.overtime_minutes}хв`,
+      text: `Понаднормово ${formatMinutesToHoursAndMinutes(props.entry.overtime_minutes)}`,
     })
   }
 

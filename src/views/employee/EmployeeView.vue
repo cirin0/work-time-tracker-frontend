@@ -47,9 +47,15 @@ const monthStats = computed(() => {
 const attendanceStats = computed(() => {
   const onTime = employeeStore.timeSummary?.attendance.on_time_count ?? 0
   const late = employeeStore.timeSummary?.attendance.late_count ?? 0
+  const totalLateMinutes = employeeStore.timeSummary?.attendance.total_late_minutes ?? 0
+  const lateHours = Math.floor(totalLateMinutes / 60)
+  const lateMinutes = totalLateMinutes % 60
+  const lateText = lateHours > 0
+    ? `${lateHours}г ${lateMinutes.toString().padStart(2, '0')}хв`
+    : `${lateMinutes}хв`
   return {
     value: onTime,
-    subText: `Запізнень: ${late}`,
+    subText: `Запізнень: ${late} (${lateText})`,
   }
 })
 

@@ -77,8 +77,10 @@ function close() {
         >
           <Avatar :fallback-text="emp.name" size="small" />
           <div class="emp-info">
-            <div class="emp-name">{{ emp.name }}</div>
-            <div class="emp-email">{{ emp.email }}</div>
+            <div class="emp-name-row">
+              <span class="emp-name">{{ emp.name }}</span>
+              <span class="emp-email">{{ emp.email }}</span>
+            </div>
             <div v-if="emp.work_schedule" class="emp-current-schedule">
               Поточний: {{ emp.work_schedule.name }}
             </div>
@@ -196,6 +198,13 @@ function close() {
   min-width: 0;
 }
 
+.emp-name-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 .emp-name {
   font-family: var(--font-body);
   font-size: 0.9rem;
@@ -210,6 +219,8 @@ function close() {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  flex-shrink: 1;
+  min-width: 0;
 }
 
 .emp-current-schedule {
