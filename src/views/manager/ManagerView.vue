@@ -4,7 +4,6 @@ import { useRouter } from 'vue-router'
 import { useRoleGuard } from '@/composables/useRoleGuard.ts'
 import { useManagerStore } from '@/stores/manager.store.ts'
 import ManagerLeaveRequestsList from '@/components/leave-requests/ManagerLeaveRequestsList.vue'
-import RejectModal from '@/components/leave-requests/RejectModal.vue'
 import QRCodeDisplay from '@/components/qr-code/QRCodeDisplay.vue'
 import StatCard from '@/components/ui/StatCard.vue'
 import Avatar from '@/components/ui/Avatar.vue'
@@ -21,10 +20,6 @@ import EmailIcon from '@/icons/EmailIcon.vue'
 const router = useRouter()
 const { isManager, isAdmin } = useRoleGuard()
 const managerStore = useManagerStore()
-
-const showRejectModal = ref(false)
-const rejectingRequestId = ref<number | null>(null)
-const processingRequestId = ref<number | null>(null)
 
 const pendingRequestsCount = computed(() => {
   return managerStore.leaveRequests.length
@@ -45,7 +40,7 @@ onMounted(() => {
   managerStore.fetchCompanyStatistics()
   managerStore.fetchPendingLeaveRequests()
   managerStore.fetchActiveTeamEntries()
-  
+
   timer = window.setInterval(() => {
     now.value = new Date()
   }, 60000)
@@ -58,10 +53,10 @@ onUnmounted(() => {
 function getActiveDuration(startTime: string | null) {
   if (!startTime) return '0 хв'
   const start = new Date(startTime).getTime()
-  const diffMinutes = Math.floor((Math.max(0, now.value.getTime() - start)) / 60000)
+  const diffMinutes = Math.floor(Math.max(0, now.value.getTime() - start) / 60000)
   const hours = Math.floor(diffMinutes / 60)
   const minutes = diffMinutes % 60
-  
+
   if (hours > 0) return `${hours} год ${minutes} хв`
   return `${minutes} хв`
 }
@@ -70,7 +65,7 @@ function formatLateness(minutes?: number | null) {
   if (!minutes || minutes <= 0) return ''
   const hours = Math.floor(minutes / 60)
   const mins = minutes % 60
-  
+
   if (hours > 0) return `(спізнення: ${hours} год ${mins > 0 ? mins + ' хв' : ''})`.trim()
   return `(спізнення: ${mins} хв)`
 }
@@ -78,37 +73,6 @@ function formatLateness(minutes?: number | null) {
 function goToEmployee(id?: number) {
   if (id) {
     router.push({ name: 'employee-details', params: { id } })
-  }
-}
-
-async function handleApprove(id: number) {
-  if (!confirm('Ви впевнені, що хочете схвалити цей запит?')) return
-  processingRequestId.value = id
-  try {
-    await managerStore.approveLeaveRequest(id)
-  } catch (error) {
-    console.error('Failed to approve leave request:', error)
-  } finally {
-    processingRequestId.value = null
-  }
-}
-
-function handleRejectClick(id: number) {
-  rejectingRequestId.value = id
-  showRejectModal.value = true
-}
-
-async function handleRejectSubmit(comments: string) {
-  if (!rejectingRequestId.value) return
-  processingRequestId.value = rejectingRequestId.value
-  try {
-    await managerStore.rejectLeaveRequest(rejectingRequestId.value, { manager_comment: comments })
-    showRejectModal.value = false
-    rejectingRequestId.value = null
-  } catch (error) {
-    console.error('Failed to reject:', error)
-  } finally {
-    processingRequestId.value = null
   }
 }
 </script>
@@ -131,7 +95,7 @@ async function handleRejectSubmit(comments: string) {
       <div class="metrics-row">
         <div class="metric-card primary-metric">
           <div class="metric-icon">
-             <UserIcon />
+            <UserIcon />
           </div>
           <div class="metric-info">
             <span class="label">Команда (онлайн/всього)</span>
@@ -141,31 +105,43 @@ async function handleRejectSubmit(comments: string) {
               <span class="value total">{{ managerStore.companyStats?.employee_count ?? 0 }}</span>
             </div>
             <div class="progress-bar">
-              <div class="progress-fill" :style="{ width: managerStore.companyStats?.employee_count ? (activeEmployees / managerStore.companyStats.employee_count * 100) + '%' : '0%' }"></div>
+              <div
+                class="progress-fill"
+                :style="{
+                  width: managerStore.companyStats?.employee_count
+                    ? (activeEmployees / managerStore.companyStats.employee_count) * 100 + '%'
+                    : '0%',
+                }"
+              ></div>
             </div>
           </div>
         </div>
-        
+
         <StatCard label="Годин (місяць)" :value="totalTeamHours.toFixed(1)" class="standard-metric">
           <template #icon><ClockIcon /></template>
         </StatCard>
-        
-        <StatCard label="Запитів очікує" :value="pendingRequestsCount" class="standard-metric">
+
+        <StatCard
+          label="Запитів очікує"
+          :value="pendingRequestsCount"
+          class="standard-metric clickable-stat-card"
+          @click="router.push({ name: 'manager-leave-requests' })"
+        >
           <template #icon><EmailIcon /></template>
         </StatCard>
-        
+
         <div class="quick-links">
-          <button @click="router.push({name: 'manager-employees'})" class="link-btn">
-             <UserIcon class="link-icon" /> Співробітники
+          <button @click="router.push({ name: 'manager-employees' })" class="link-btn">
+            <UserIcon class="link-icon" /> Співробітники
           </button>
-          <button @click="router.push({name: 'work-schedules'})" class="link-btn">
-             <CalendarIcon class="link-icon" /> Розклад
+          <button @click="router.push({ name: 'work-schedules' })" class="link-btn">
+            <CalendarIcon class="link-icon" /> Розклад
           </button>
-          <button @click="router.push({name: 'manager-statistics'})" class="link-btn">
-             <ChartBarIcon class="link-icon" /> Статистика
+          <button @click="router.push({ name: 'manager-statistics' })" class="link-btn">
+            <ChartBarIcon class="link-icon" /> Статистика
           </button>
-          <button @click="router.push({name: 'company'})" class="link-btn">
-             <BuildingIcon class="link-icon" /> Компанія
+          <button @click="router.push({ name: 'company' })" class="link-btn">
+            <BuildingIcon class="link-icon" /> Компанія
           </button>
         </div>
       </div>
@@ -174,31 +150,40 @@ async function handleRejectSubmit(comments: string) {
       <div class="main-layout">
         <!-- Dashboard Left: Team Activity -->
         <div class="activity-section">
-          <h2>
-             <ClockIcon class="section-icon" /> Активність команди
-          </h2>
-          <div class="activity-items">
-            <div v-if="managerStore.isLoadingActiveTeam" class="loading-state">
-              <p>Завантаження...</p>
-            </div>
-            <div v-else-if="managerStore.activeTeamEntries.length === 0" class="empty-state">
-              <p>Наразі немає активних працівників.</p>
-            </div>
-            <div v-else class="active-user-card" v-for="entry in managerStore.activeTeamEntries" :key="entry.id" @click="goToEmployee(entry.user?.id)">
-              <div class="status-dot green"></div>
-              <Avatar 
-                :src="entry.user?.avatar || undefined" 
-                :fallbackText="entry.user?.name" 
-                size="small" 
-                class="user-avatar" 
-              />
-              <div class="user-info-wrapper">
-                <div class="user-name">{{ entry.user?.name }}</div>
-                <div v-if="entry.lateness_minutes && entry.lateness_minutes > 0" class="lateness-badge">
-                  {{ formatLateness(entry.lateness_minutes) }}
-                </div>
+          <h2><ClockIcon class="section-icon" /> Активність команди</h2>
+          <div class="flex">
+            <div class="activity-items">
+              <div v-if="managerStore.isLoadingActiveTeam" class="loading-state">
+                <p>Завантаження...</p>
               </div>
-              <div class="user-time">{{ getActiveDuration(entry.start_time) }}</div>
+              <div v-else-if="managerStore.activeTeamEntries.length === 0" class="empty-state">
+                <p>Наразі немає активних працівників.</p>
+              </div>
+              <div
+                v-else
+                class="active-user-card"
+                v-for="entry in managerStore.activeTeamEntries"
+                :key="entry.id"
+                @click="goToEmployee(entry.user?.id)"
+              >
+                <div class="status-dot green"></div>
+                <Avatar
+                  :src="entry.user?.avatar || undefined"
+                  :fallbackText="entry.user?.name"
+                  size="small"
+                  class="user-avatar"
+                />
+                <div class="user-info-wrapper">
+                  <div class="user-name">{{ entry.user?.name }}</div>
+                  <div
+                    v-if="entry.lateness_minutes && entry.lateness_minutes > 0"
+                    class="lateness-badge"
+                  >
+                    {{ formatLateness(entry.lateness_minutes) }}
+                  </div>
+                </div>
+                <div class="user-time">{{ getActiveDuration(entry.start_time) }}</div>
+              </div>
             </div>
           </div>
         </div>
@@ -207,43 +192,31 @@ async function handleRejectSubmit(comments: string) {
         <div class="action-center">
           <div class="action-box">
             <div class="box-header">
-              <h2>
-                 <ExclamationTriangleIcon class="section-icon text-warning" /> Потребує уваги
-              </h2>
-              <span v-if="pendingRequestsCount > 0" class="badge red">{{ pendingRequestsCount }}</span>
+              <h2><ExclamationTriangleIcon class="section-icon text-warning" /> Потребує уваги</h2>
+              <span v-if="pendingRequestsCount > 0" class="badge red">{{
+                pendingRequestsCount
+              }}</span>
             </div>
             <div class="requests-scroll-area">
               <ManagerLeaveRequestsList
                 :leave-requests="managerStore.leaveRequests"
                 :is-loading="managerStore.isLoadingLeaveRequests"
                 :error="managerStore.error"
-                :processing-id="processingRequestId"
                 @retry="managerStore.fetchPendingLeaveRequests"
-                @approve="handleApprove"
-                @reject="handleRejectClick"
               />
             </div>
           </div>
 
           <div class="action-box qr-box">
-             <div class="box-header">
-               <h2>
-                 <MapPinIcon class="section-icon" /> Трекінг часу (QR)
-               </h2>
-             </div>
-             <div class="qr-compact-container">
-               <QRCodeDisplay />
-             </div>
+            <div class="box-header">
+              <h2><MapPinIcon class="section-icon" /> Трекінг часу (QR)</h2>
+            </div>
+            <div class="qr-compact-container">
+              <QRCodeDisplay />
+            </div>
           </div>
         </div>
       </div>
-
-      <RejectModal
-        :show-modal="showRejectModal"
-        :is-submitting="processingRequestId !== null"
-        @close="showRejectModal = false"
-        @submit="handleRejectSubmit"
-      />
     </div>
   </div>
 </template>
@@ -331,9 +304,19 @@ async function handleRejectSubmit(comments: string) {
   margin: 0.3rem 0;
 }
 
-.value.active { font-size: 1.8rem; font-weight: 700; color: #10b981; }
-.value.total { font-size: 1.2rem; color: var(--text-muted); }
-.divider { font-size: 1.2rem; color: var(--text-muted); }
+.value.active {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #10b981;
+}
+.value.total {
+  font-size: 1.2rem;
+  color: var(--text-muted);
+}
+.divider {
+  font-size: 1.2rem;
+  color: var(--text-muted);
+}
 
 .progress-bar {
   height: 6px;
@@ -386,6 +369,17 @@ async function handleRejectSubmit(comments: string) {
   color: var(--accent-1);
 }
 
+.standard-metric.clickable-stat-card {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.standard-metric.clickable-stat-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent-1);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+}
+
 .main-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -417,7 +411,8 @@ h2 {
   color: #f59e0b;
 }
 
-.activity-section, .action-box {
+.activity-section,
+.action-box {
   background: var(--surface);
   border-radius: 12px;
   padding: 1.5rem;
@@ -462,7 +457,8 @@ h2 {
   transform-origin: top center;
 }
 
-.loading-state, .empty-state {
+.loading-state,
+.empty-state {
   color: var(--text-muted);
   font-size: 0.95rem;
   line-height: 1.5;
@@ -498,10 +494,21 @@ h2 {
   margin-right: 0.8rem;
 }
 
-.status-dot { width: 10px; height: 10px; border-radius: 50%; margin-right: 1rem; }
-.status-dot.green { background: #10b981; }
-.status-dot.orange { background: #f59e0b; }
-.status-dot.gray { background: #9ca3af; }
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 1rem;
+}
+.status-dot.green {
+  background: #10b981;
+}
+.status-dot.orange {
+  background: #f59e0b;
+}
+.status-dot.gray {
+  background: #9ca3af;
+}
 
 .user-info-wrapper {
   flex: 1;
@@ -520,5 +527,9 @@ h2 {
   margin-top: 0.15rem;
 }
 
-.user-time { font-family: monospace; font-size: 1rem; color: var(--text-muted); }
+.user-time {
+  font-family: monospace;
+  font-size: 1rem;
+  color: var(--text-muted);
+}
 </style>

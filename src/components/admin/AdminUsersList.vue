@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores/auth.store'
 import { UserRole } from '@/types/enums/enums.types'
 import type { User } from '@/types/interfaces/user.interface'
 import type { WorkMode } from '@/types/enums/enums.types'
+import { getAvatarUrl } from '@/core/utils/url'
 import Card from '@/components/ui/Card.vue'
 import Avatar from '@/components/ui/Avatar.vue'
 import Badge from '@/components/ui/Badge.vue'
@@ -40,7 +41,7 @@ const passwordModalRef = ref<InstanceType<typeof AdminResetPasswordModal> | null
 
 const filteredUsers = computed(() => {
   const currentUserId = authStore.currentUser?.id
-  return store.users.filter((user) => currentUserId ? user.id !== currentUserId : true)
+  return store.users.filter((user) => (currentUserId ? user.id !== currentUserId : true))
 })
 
 let searchTimer: ReturnType<typeof setTimeout> | null = null
@@ -209,7 +210,7 @@ onMounted(() => loadPage(1))
           <div v-for="user in filteredUsers" :key="user.id" class="user-card">
             <div class="user-main">
               <Avatar
-                :src="user.avatar || undefined"
+                :src="getAvatarUrl(user.avatar) || undefined"
                 :alt="user.name"
                 :fallback-text="user.name"
                 size="medium"
@@ -484,7 +485,6 @@ h2 {
   border-color: var(--error-text);
   color: var(--error-text);
 }
-
 
 .pagination-wrapper {
   margin-top: 1.25rem;

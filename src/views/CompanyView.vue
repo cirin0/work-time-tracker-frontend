@@ -204,7 +204,11 @@ const managerId = computed(() => company.value?.manager?.id ?? null)
         <div class="section-header">
           <h3>Співробітники</h3>
           <span class="count-badge">
-            {{ employeeSearch ? `${filteredCompanyEmployees.length} / ${companyEmployees.length}` : companyEmployees.length }}
+            {{
+              employeeSearch
+                ? `${filteredCompanyEmployees.length} / ${companyEmployees.length}`
+                : companyEmployees.length
+            }}
           </span>
         </div>
 
@@ -275,7 +279,9 @@ const managerId = computed(() => company.value?.manager?.id ?? null)
         </div>
         <div v-else-if="filteredCompanyEmployees.length === 0" class="empty-employees">
           <span class="empty-search-icon">🔍</span>
-          <span>Співробітників за запитом <strong>"{{ employeeSearch }}"</strong> не знайдено</span>
+          <span
+            >Співробітників за запитом <strong>"{{ employeeSearch }}"</strong> не знайдено</span
+          >
         </div>
         <ul v-else class="employees-list">
           <li v-for="user in filteredCompanyEmployees" :key="user.id" class="employee-item">
@@ -672,7 +678,9 @@ const managerId = computed(() => company.value?.manager?.id ?? null)
   font-size: 0.9rem;
   color: var(--text);
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
   box-sizing: border-box;
 }
 .employee-search-input:focus {
@@ -690,7 +698,9 @@ const managerId = computed(() => company.value?.manager?.id ?? null)
   padding: 0.25rem 0.4rem;
   border-radius: 50%;
   line-height: 1;
-  transition: color 0.2s, background 0.2s;
+  transition:
+    color 0.2s,
+    background 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -8,6 +8,7 @@ import InputField from '@/components/ui/InputField.vue'
 import Badge from '@/components/ui/Badge.vue'
 import Modal from '@/components/ui/Modal.vue'
 import Card from '@/components/ui/Card.vue'
+import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import UserIcon from '@/icons/UserIcon.vue'
 import EmailIcon from '@/icons/EmailIcon.vue'
 import ClockIcon from '@/icons/ClockIcon.vue'
@@ -341,386 +342,382 @@ function downloadApp() {
 </script>
 
 <template>
-  <div class="profile-page">
-    <Modal v-model="isEditMode" title="Редагувати профіль">
-      <div v-if="formError" class="modal-error">{{ formError }}</div>
-      <div class="form-field">
-        <label class="edit-label">Ім'я</label>
-        <div class="edit-input-wrapper">
-          <UserIcon class="edit-icon" />
-          <input
-            v-model="editForm.name"
-            type="text"
-            class="edit-input with-icon"
-            placeholder="Введіть ім'я"
-          />
-        </div>
-      </div>
-      <div class="form-field">
-        <label class="edit-label">Email</label>
-        <div class="edit-input-wrapper">
-          <EmailIcon class="edit-icon" />
-          <input
-            v-model="editForm.email"
-            type="email"
-            class="edit-input with-icon"
-            placeholder="Введіть email"
-          />
-        </div>
-      </div>
-      <template #footer>
-        <button class="btn-secondary" @click="cancelEdit" :disabled="store.isSaving">
-          Скасувати
-        </button>
-        <button class="btn-primary" @click="saveProfile" :disabled="store.isSaving">
-          {{ store.isSaving ? 'Збереження...' : 'Зберегти' }}
-        </button>
-      </template>
-    </Modal>
-
-    <Modal v-model="isPasswordModalOpen" title="Зміна пароля">
-      <div v-if="passwordSuccess" class="modal-success">{{ passwordSuccess }}</div>
-      <div v-if="passwordError" class="modal-error">{{ passwordError }}</div>
-      <div class="password-code-row">
-        <div class="form-field password-code-field">
-          <InputField
-            name="code"
-            label="Код підтвердження"
-            v-model="passwordForm.code"
-            type="text"
-            icon="email"
-            placeholder="Введіть 6-значний код"
-          />
-        </div>
-        <button
-          class="btn-secondary btn-code"
-          :disabled="isPasswordCodeButtonDisabled"
-          @click="requestPasswordCode"
-        >
-          {{
-            isRequestingPasswordCode
-              ? 'Надсилання...'
-              : passwordCodeCooldown > 0
-                ? `Повторно через ${passwordCodeCooldown}с`
-                : 'Надіслати код'
-          }}
-        </button>
-      </div>
-      <div class="form-field">
-        <InputField
-          name="current_password"
-          label="Поточний пароль"
-          v-model="passwordForm.current_password"
-          type="password"
-          icon="lock"
-          placeholder="Поточний пароль"
-        />
-      </div>
-      <div class="form-field">
-        <InputField
-          name="new_password"
-          label="Новий пароль"
-          v-model="passwordForm.new_password"
-          type="password"
-          icon="lock"
-          placeholder="Мінімум 8 символів"
-        />
-      </div>
-      <div class="form-field">
-        <InputField
-          name="new_password_confirmation"
-          label="Підтвердження пароля"
-          v-model="passwordForm.new_password_confirmation"
-          type="password"
-          icon="lock"
-          placeholder="Повторіть новий пароль"
-        />
-      </div>
-      <template #footer>
-        <button
-          class="btn-secondary"
-          @click="cancelPasswordChange"
-          :disabled="isPasswordSubmitDisabled"
-        >
-          Скасувати
-        </button>
-        <button class="btn-primary" @click="changePassword" :disabled="isPasswordSubmitDisabled">
-          {{ store.isSaving ? 'Збереження...' : 'Змінити пароль' }}
-        </button>
-      </template>
-    </Modal>
-
-    <Modal v-model="isPinSetupModalOpen" title="Налаштування PIN коду">
-      <div v-if="pinError" class="modal-error">{{ pinError }}</div>
-      <div class="form-field">
-        <InputField
-          name="pin_code"
-          label="PIN код (4 цифри)"
-          v-model="pinSetupForm.pin_code"
-          type="password"
-          icon="lock"
-          placeholder="0000"
-          maxlength="4"
-        />
-      </div>
-      <template #footer>
-        <button class="btn-secondary" @click="cancelPinSetup" :disabled="store.isSaving">
-          Скасувати
-        </button>
-        <button class="btn-primary" @click="setupPinCode" :disabled="store.isSaving">
-          {{ store.isSaving ? 'Збереження...' : 'Налаштувати' }}
-        </button>
-      </template>
-    </Modal>
-
-    <Modal v-model="isPinChangeModalOpen" title="Зміна PIN коду">
-      <div v-if="pinError" class="modal-error">{{ pinError }}</div>
-      <div class="form-field">
-        <InputField
-          name="current_pin_code"
-          label="Поточний PIN"
-          v-model="pinChangeForm.current_pin_code"
-          type="password"
-          placeholder="0000"
-          maxlength="4"
-          icon="lock"
-        />
-      </div>
-      <div class="form-field">
-        <InputField
-          name="new_pin_code"
-          label="Новий PIN"
-          v-model="pinChangeForm.new_pin_code"
-          type="password"
-          placeholder="0000"
-          maxlength="4"
-          icon="lock"
-        />
-      </div>
-      <template #footer>
-        <button class="btn-secondary" @click="cancelPinChange" :disabled="store.isSaving">
-          Скасувати
-        </button>
-        <button class="btn-primary" @click="changePinCode" :disabled="store.isSaving">
-          {{ store.isSaving ? 'Збереження...' : 'Змінити PIN' }}
-        </button>
-      </template>
-    </Modal>
-
-    <!-- Page content -->
+  <div>
+    <!-- Loading State -->
     <div v-if="store.isLoading" class="state-center">
-      <div class="spinner"></div>
-      <p>Завантаження...</p>
+      <LoadingSpinner text="Завантаження..." />
     </div>
 
+    <!-- Error State -->
     <div v-else-if="store.error" class="state-center">
       <p class="error-text">{{ store.error }}</p>
       <button class="btn-primary" @click="store.fetchProfile()">Повторити</button>
     </div>
 
-    <div v-else-if="store.displayProfile" class="profile-layout">
-      <!-- Left Sidebar -->
-      <Card class="profile-sidebar">
-        <div class="sidebar-avatar-wrap">
-          <Avatar
-            :src="avatarUrl || undefined"
-            :fallback-text="store.displayProfile.name"
-            size="large"
-            bordered
-            :key="imageKey"
+    <!-- Main Content -->
+    <div v-else class="profile-page">
+      <Modal v-model="isEditMode" title="Редагувати профіль">
+        <div v-if="formError" class="modal-error">{{ formError }}</div>
+        <div class="form-field">
+          <label class="edit-label">Ім'я</label>
+          <div class="edit-input-wrapper">
+            <UserIcon class="edit-icon" />
+            <input
+              v-model="editForm.name"
+              type="text"
+              class="edit-input with-icon"
+              placeholder="Введіть ім'я"
+            />
+          </div>
+        </div>
+        <div class="form-field">
+          <label class="edit-label">Email</label>
+          <div class="edit-input-wrapper">
+            <EmailIcon class="edit-icon" />
+            <input
+              v-model="editForm.email"
+              type="email"
+              class="edit-input with-icon"
+              placeholder="Введіть email"
+            />
+          </div>
+        </div>
+        <template #footer>
+          <button class="btn-secondary" @click="cancelEdit" :disabled="store.isSaving">
+            Скасувати
+          </button>
+          <button class="btn-primary" @click="saveProfile" :disabled="store.isSaving">
+            {{ store.isSaving ? 'Збереження...' : 'Зберегти' }}
+          </button>
+        </template>
+      </Modal>
+
+      <Modal v-model="isPasswordModalOpen" title="Зміна пароля">
+        <div v-if="passwordSuccess" class="modal-success">{{ passwordSuccess }}</div>
+        <div v-if="passwordError" class="modal-error">{{ passwordError }}</div>
+        <div class="password-code-row">
+          <div class="form-field password-code-field">
+            <InputField
+              name="code"
+              label="Код підтвердження"
+              v-model="passwordForm.code"
+              type="text"
+              icon="email"
+              placeholder="Введіть 6-значний код"
+            />
+          </div>
+          <button
+            class="btn-secondary btn-code"
+            :disabled="isPasswordCodeButtonDisabled"
+            @click="requestPasswordCode"
+          >
+            {{
+              isRequestingPasswordCode
+                ? 'Надсилання...'
+                : passwordCodeCooldown > 0
+                  ? `Повторно через ${passwordCodeCooldown}с`
+                  : 'Надіслати код'
+            }}
+          </button>
+        </div>
+        <div class="form-field">
+          <InputField
+            name="current_password"
+            label="Поточний пароль"
+            v-model="passwordForm.current_password"
+            type="password"
+            icon="lock"
+            placeholder="Поточний пароль"
           />
-          <div v-if="isUploadingAvatar" class="avatar-uploading">...</div>
         </div>
-        <input
-          ref="avatarInput"
-          type="file"
-          accept="image/*"
-          style="display: none"
-          @change="handleAvatarChange"
-        />
+        <div class="form-field">
+          <InputField
+            name="new_password"
+            label="Новий пароль"
+            v-model="passwordForm.new_password"
+            type="password"
+            icon="lock"
+            placeholder="Мінімум 8 символів"
+          />
+        </div>
+        <div class="form-field">
+          <InputField
+            name="new_password_confirmation"
+            label="Підтвердження пароля"
+            v-model="passwordForm.new_password_confirmation"
+            type="password"
+            icon="lock"
+            placeholder="Повторіть новий пароль"
+          />
+        </div>
+        <template #footer>
+          <button
+            class="btn-secondary"
+            @click="cancelPasswordChange"
+            :disabled="isPasswordSubmitDisabled"
+          >
+            Скасувати
+          </button>
+          <button class="btn-primary" @click="changePassword" :disabled="isPasswordSubmitDisabled">
+            {{ store.isSaving ? 'Збереження...' : 'Змінити пароль' }}
+          </button>
+        </template>
+      </Modal>
 
-        <h2 class="sidebar-name">{{ store.displayProfile.name }}</h2>
-        <p class="sidebar-email">{{ store.displayProfile.email }}</p>
-        <Badge
-          :variant="`role-${store.displayProfile.role}` as any"
-          :label="store.displayProfile.role"
-        />
+      <Modal v-model="isPinSetupModalOpen" title="Налаштування PIN коду">
+        <div v-if="pinError" class="modal-error">{{ pinError }}</div>
+        <div class="form-field">
+          <InputField
+            name="pin_code"
+            label="PIN код (4 цифри)"
+            v-model="pinSetupForm.pin_code"
+            type="password"
+            icon="lock"
+            placeholder="0000"
+            maxlength="4"
+          />
+        </div>
+        <template #footer>
+          <button class="btn-secondary" @click="cancelPinSetup" :disabled="store.isSaving">
+            Скасувати
+          </button>
+          <button class="btn-primary" @click="setupPinCode" :disabled="store.isSaving">
+            {{ store.isSaving ? 'Збереження...' : 'Налаштувати' }}
+          </button>
+        </template>
+      </Modal>
 
-        <div class="sidebar-divider"></div>
+      <Modal v-model="isPinChangeModalOpen" title="Зміна PIN коду">
+        <div v-if="pinError" class="modal-error">{{ pinError }}</div>
+        <div class="form-field">
+          <InputField
+            name="current_pin_code"
+            label="Поточний PIN"
+            v-model="pinChangeForm.current_pin_code"
+            type="password"
+            placeholder="0000"
+            maxlength="4"
+            icon="lock"
+          />
+        </div>
+        <div class="form-field">
+          <InputField
+            name="new_pin_code"
+            label="Новий PIN"
+            v-model="pinChangeForm.new_pin_code"
+            type="password"
+            placeholder="0000"
+            maxlength="4"
+            icon="lock"
+          />
+        </div>
+        <template #footer>
+          <button class="btn-secondary" @click="cancelPinChange" :disabled="store.isSaving">
+            Скасувати
+          </button>
+          <button class="btn-primary" @click="changePinCode" :disabled="store.isSaving">
+            {{ store.isSaving ? 'Збереження...' : 'Змінити PIN' }}
+          </button>
+        </template>
+      </Modal>
 
-        <div class="sidebar-meta">
-          <div class="meta-item">
-            <span class="meta-icon"><ClockIcon /></span>
-            <div>
-              <div class="meta-label">Зареєстрований</div>
-              <div class="meta-value">{{ formatDate(store.displayProfile.created_at) }}</div>
-            </div>
+      <!-- Page content -->
+      <div v-if="store.displayProfile" class="profile-layout">
+        <!-- Left Sidebar -->
+        <Card class="profile-sidebar">
+          <div class="sidebar-avatar-wrap">
+            <Avatar
+              :src="avatarUrl || undefined"
+              :fallback-text="store.displayProfile.name"
+              size="large"
+              bordered
+              :key="imageKey"
+            />
+            <div v-if="isUploadingAvatar" class="avatar-uploading">...</div>
           </div>
-          <div v-if="store.displayProfile.work_mode" class="meta-item">
-            <span class="meta-icon"><BuildingIcon /></span>
-            <div>
-              <div class="meta-label">Режим роботи</div>
-              <div class="meta-value">{{ getWorkModeLabel(store.displayProfile.work_mode) }}</div>
-            </div>
-          </div>
-          <div v-if="store.displayProfile.work_schedule" class="meta-item">
-            <span class="meta-icon"><CalendarIcon /></span>
-            <div>
-              <div class="meta-label">Графік</div>
-              <div class="meta-value">{{ store.displayProfile.work_schedule.name }}</div>
-            </div>
-          </div>
-          <div class="meta-item">
-            <span class="meta-icon"><LockIcon /></span>
-            <div>
-              <div class="meta-label">PIN код</div>
-              <div class="meta-value" :class="{ 'pin-ok': store.displayProfile.has_pin_code }">
-                {{ store.displayProfile.has_pin_code ? 'Налаштовано' : 'Не налаштовано' }}
+          <input
+            ref="avatarInput"
+            type="file"
+            accept="image/*"
+            style="display: none"
+            @change="handleAvatarChange"
+          />
+
+          <h2 class="sidebar-name">{{ store.displayProfile.name }}</h2>
+          <p class="sidebar-email">{{ store.displayProfile.email }}</p>
+          <Badge
+            :variant="`role-${store.displayProfile.role}` as any"
+            :label="store.displayProfile.role"
+          />
+
+          <div class="sidebar-divider"></div>
+
+          <div class="sidebar-meta">
+            <div class="meta-item">
+              <span class="meta-icon"><ClockIcon /></span>
+              <div>
+                <div class="meta-label">Зареєстрований</div>
+                <div class="meta-value">{{ formatDate(store.displayProfile.created_at) }}</div>
               </div>
             </div>
-          </div>
-        </div>
-
-        <button
-          class="sidebar-photo-btn"
-          @click="avatarInput?.click()"
-          :disabled="isUploadingAvatar"
-        >
-          {{ isUploadingAvatar ? 'Завантаження...' : 'Змінити фото' }}
-        </button>
-        <button
-          v-if="appDownloadUrl"
-          class="sidebar-download-btn"
-          @click="downloadApp"
-          :disabled="isDownloadingApp"
-        >
-          📱 {{ isDownloadingApp ? 'Завантаження...' : 'Завантажити додаток' }}
-        </button>
-      </Card>
-
-      <!-- Right Main -->
-      <div class="profile-main">
-        <Card>
-          <template #header>
-            <h2>Деталі профілю</h2>
-            <button class="btn-primary" @click="openEditMode">Редагувати</button>
-          </template>
-
-          <div class="detail-grid">
-            <div class="detail-item">
-              <span class="detail-label">Повне ім'я</span>
-              <span class="detail-value">{{ store.displayProfile.name }}</span>
+            <div v-if="store.displayProfile.work_mode" class="meta-item">
+              <span class="meta-icon"><BuildingIcon /></span>
+              <div>
+                <div class="meta-label">Режим роботи</div>
+                <div class="meta-value">{{ getWorkModeLabel(store.displayProfile.work_mode) }}</div>
+              </div>
             </div>
-            <div class="detail-item">
-              <span class="detail-label">Email адреса</span>
-              <span class="detail-value">{{ store.displayProfile.email }}</span>
+            <div v-if="store.displayProfile.work_schedule" class="meta-item">
+              <span class="meta-icon"><CalendarIcon /></span>
+              <div>
+                <div class="meta-label">Графік</div>
+                <div class="meta-value">{{ store.displayProfile.work_schedule.name }}</div>
+              </div>
             </div>
-            <div class="detail-item">
-              <span class="detail-label">Роль в системі</span>
-              <span class="detail-value">{{ store.displayProfile.role }}</span>
-            </div>
-            <div v-if="store.displayProfile.company" class="detail-item">
-              <span class="detail-label">Компанія</span>
-              <button class="company-link" @click="router.push({ name: 'company' })">
-                {{ store.displayProfile.company.name }}
-              </button>
-            </div>
-          </div>
-
-          <template #footer>
-            <div v-if="store.displayProfile.manager" class="manager-section">
-              <div class="manager-label">Менеджер</div>
-              <div class="manager-card">
-                <Avatar
-                  :src="managerAvatarUrl || undefined"
-                  :fallback-text="store.displayProfile.manager.name"
-                  size="medium"
-                  bordered
-                />
-                <div>
-                  <div class="manager-name">{{ store.displayProfile.manager.name }}</div>
-                  <div class="manager-email">{{ store.displayProfile.manager.email }}</div>
+            <div class="meta-item">
+              <span class="meta-icon"><LockIcon /></span>
+              <div>
+                <div class="meta-label">PIN код</div>
+                <div class="meta-value" :class="{ 'pin-ok': store.displayProfile.has_pin_code }">
+                  {{ store.displayProfile.has_pin_code ? 'Налаштовано' : 'Не налаштовано' }}
                 </div>
               </div>
             </div>
-          </template>
+          </div>
+
+          <button
+            class="sidebar-photo-btn"
+            @click="avatarInput?.click()"
+            :disabled="isUploadingAvatar"
+          >
+            {{ isUploadingAvatar ? 'Завантаження...' : 'Змінити фото' }}
+          </button>
+          <button
+            v-if="appDownloadUrl"
+            class="sidebar-download-btn"
+            @click="downloadApp"
+            :disabled="isDownloadingApp"
+          >
+            📱 {{ isDownloadingApp ? 'Завантаження...' : 'Завантажити додаток' }}
+          </button>
         </Card>
 
-        <Card class="security-card">
-          <template #header>
-            <h2>Безпека</h2>
-          </template>
-          <div class="security-actions">
-            <div class="security-item">
-              <div class="security-info">
-                <div class="security-title">Пароль облікового запису</div>
-                <div class="security-desc">Регулярно змінюйте пароль для безпеки</div>
+        <!-- Right Main -->
+        <div class="profile-main">
+          <Card>
+            <template #header>
+              <h2>Деталі профілю</h2>
+              <button class="btn-primary" @click="openEditMode">Редагувати</button>
+            </template>
+
+            <div class="detail-grid">
+              <div class="detail-item">
+                <span class="detail-label">Повне ім'я</span>
+                <span class="detail-value">{{ store.displayProfile.name }}</span>
               </div>
-              <button class="btn-secondary" @click="openPasswordModal">Змінити пароль</button>
+              <div class="detail-item">
+                <span class="detail-label">Email адреса</span>
+                <span class="detail-value">{{ store.displayProfile.email }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Роль в системі</span>
+                <span class="detail-value">{{ store.displayProfile.role }}</span>
+              </div>
+              <div v-if="store.displayProfile.company" class="detail-item">
+                <span class="detail-label">Компанія</span>
+                <button class="company-link" @click="router.push({ name: 'company' })">
+                  {{ store.displayProfile.company.name }}
+                </button>
+              </div>
             </div>
-            <div class="security-divider"></div>
-            <div class="security-item">
-              <div class="security-info">
-                <div class="security-title">PIN код</div>
-                <div class="security-desc">
-                  {{
-                    store.displayProfile.has_pin_code
-                      ? 'PIN активний — для підтвердження завершення роботи'
-                      : 'PIN не встановлено'
-                  }}
+
+            <template #footer>
+              <div v-if="store.displayProfile.manager" class="manager-section">
+                <div class="manager-label">Менеджер</div>
+                <div class="manager-card">
+                  <Avatar
+                    :src="managerAvatarUrl || undefined"
+                    :fallback-text="store.displayProfile.manager.name"
+                    size="medium"
+                    bordered
+                  />
+                  <div>
+                    <div class="manager-name">{{ store.displayProfile.manager.name }}</div>
+                    <div class="manager-email">{{ store.displayProfile.manager.email }}</div>
+                  </div>
                 </div>
               </div>
-              <button
-                v-if="!store.displayProfile.has_pin_code"
-                class="btn-secondary"
-                @click="openPinSetupModal"
-              >
-                Налаштувати PIN
-              </button>
-              <button
-                v-if="store.displayProfile.has_pin_code"
-                class="btn-secondary"
-                @click="openPinChangeModal"
-              >
-                Змінити PIN
-              </button>
+            </template>
+          </Card>
+
+          <Card class="security-card">
+            <template #header>
+              <h2>Безпека</h2>
+            </template>
+            <div class="security-actions">
+              <div class="security-item">
+                <div class="security-info">
+                  <div class="security-title">Пароль облікового запису</div>
+                  <div class="security-desc">Регулярно змінюйте пароль для безпеки</div>
+                </div>
+                <button class="btn-secondary" @click="openPasswordModal">Змінити пароль</button>
+              </div>
+              <div class="security-divider"></div>
+              <div class="security-item">
+                <div class="security-info">
+                  <div class="security-title">PIN код</div>
+                  <div class="security-desc">
+                    {{
+                      store.displayProfile.has_pin_code
+                        ? 'PIN активний — для підтвердження завершення роботи'
+                        : 'PIN не встановлено'
+                    }}
+                  </div>
+                </div>
+                <button
+                  v-if="!store.displayProfile.has_pin_code"
+                  class="btn-secondary"
+                  @click="openPinSetupModal"
+                >
+                  Налаштувати PIN
+                </button>
+                <button
+                  v-if="store.displayProfile.has_pin_code"
+                  class="btn-secondary"
+                  @click="openPinChangeModal"
+                >
+                  Змінити PIN
+                </button>
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+.state-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 2rem;
+  color: var(--text-muted);
+}
+
+.error-text {
+  color: var(--error-text);
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
 .profile-page {
   max-width: var(--container-max);
   margin: 2rem auto;
   padding: 0 1.5rem 3rem;
-}
-
-.state-center {
-  text-align: center;
-  padding: 4rem 2rem;
-  color: var(--text-muted);
-}
-.error-text {
-  color: var(--error-text);
-  margin-bottom: 1rem;
-}
-.spinner {
-  width: 36px;
-  height: 36px;
-  border: 3px solid var(--border);
-  border-top-color: var(--accent-2);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin: 0 auto 1rem;
-}
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 .profile-layout {

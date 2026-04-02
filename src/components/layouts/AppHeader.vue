@@ -34,9 +34,12 @@ const isMenuOpen = ref(false)
 function toggleMenu() {
   isMenuOpen.value = !isMenuOpen.value
 }
-watch(() => router.currentRoute.value.path, () => {
-  isMenuOpen.value = false
-})
+watch(
+  () => router.currentRoute.value.path,
+  () => {
+    isMenuOpen.value = false
+  },
+)
 </script>
 
 <template>
@@ -295,7 +298,7 @@ watch(() => router.currentRoute.value.path, () => {
     align-items: stretch;
     padding: 1.5rem;
     margin-left: 0;
-    box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
     transform: translateY(-100%);
     opacity: 0;
     pointer-events: none;

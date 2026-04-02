@@ -141,10 +141,11 @@ export const useManagerStore = defineStore('manager', () => {
     }
   }
 
-  async function approveLeaveRequest(id: number) {
+  async function approveLeaveRequest(id: number, data?: { manager_comment?: string }) {
     try {
       const response = await apiClient.post<ApiResponse<LeaveRequest>>(
         API_ROUTES.manager.leaveRequests.approve(id),
+        data,
       )
 
       // Видаляємо з pending списку
@@ -166,6 +167,27 @@ export const useManagerStore = defineStore('manager', () => {
           ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
           : undefined
       error.value = errorMessage || 'Помилка схвалення запиту'
+      throw err
+    }
+  }
+
+  async function fetchLeaveRequestById(id: number | string): Promise<LeaveRequest> {
+    try {
+      const response = await apiClient.get<ApiResponse<LeaveRequest>>(
+        API_ROUTES.manager.leaveRequests.show(id),
+      )
+
+      if (!response.data.data) {
+        throw new Error('Leave request not found')
+      }
+
+      return response.data.data
+    } catch (err: unknown) {
+      const errorMessage =
+        err && typeof err === 'object' && 'response' in err
+          ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
+          : undefined
+      error.value = errorMessage || 'Помилка завантаження запиту'
       throw err
     }
   }
@@ -298,9 +320,12 @@ export const useManagerStore = defineStore('manager', () => {
     isExporting.value = true
     error.value = null
     try {
-      const response = await apiClient.get<Blob>(API_ROUTES.manager.users.exportStatistics(userId), {
-        responseType: 'blob',
-      })
+      const response = await apiClient.get<Blob>(
+        API_ROUTES.manager.users.exportStatistics(userId),
+        {
+          responseType: 'blob',
+        },
+      )
       downloadBlob(response, `employee-${userId}-statistics.xlsx`)
     } catch (err: unknown) {
       error.value = 'Помилка завантаження звіту співробітника'
@@ -359,6 +384,7 @@ export const useManagerStore = defineStore('manager', () => {
     fetchActiveTeamEntries,
     fetchPendingLeaveRequests,
     fetchAllLeaveRequests,
+    fetchLeaveRequestById,
     approveLeaveRequest,
     rejectLeaveRequest,
     fetchEmployeeById,

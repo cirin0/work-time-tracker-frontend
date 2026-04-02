@@ -1,21 +1,16 @@
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import type { LeaveRequest } from '@/types/interfaces/leaveRequest.interface'
 import { LeaveRequestStatus, LeaveRequestType } from '@/types/enums/enums.types'
 import { formatDate } from '@/core/utils/date'
 
 interface Props {
   leaveRequest: LeaveRequest
-  isProcessing?: boolean
 }
 
-withDefaults(defineProps<Props>(), {
-  isProcessing: false,
-})
+const props = defineProps<Props>()
 
-defineEmits<{
-  approve: [id: number]
-  reject: [id: number]
-}>()
+const router = useRouter()
 
 function getTypeLabel(type: LeaveRequestType): string {
   const labels: Record<LeaveRequestType, string> = {
@@ -36,24 +31,28 @@ function getStatusLabel(status: LeaveRequestStatus): string {
   }
   return labels[status] || status
 }
+
+function goToDetails() {
+  router.push({ name: 'manager-leave-request-detail', params: { id: props.leaveRequest.id } })
+}
 </script>
 
 <template>
-  <div class="manager-leave-request-item">
+  <div class="manager-leave-request-item" @click="goToDetails">
     <div class="request-header">
       <div class="request-info">
         <div class="employee-info">
-          <span class="employee-name">{{ leaveRequest.user?.name || 'Невідомий' }}</span>
-          <span class="employee-email">{{ leaveRequest.user?.email }}</span>
+          <span class="employee-name">{{ props.leaveRequest.user?.name || 'Невідомий' }}</span>
+          <span class="employee-email">{{ props.leaveRequest.user?.email }}</span>
         </div>
         <div class="request-type">
-          <span class="type-badge" :class="`type-${leaveRequest.type}`">
-            {{ getTypeLabel(leaveRequest.type) }}
+          <span class="type-badge" :class="`type-${props.leaveRequest.type}`">
+            {{ getTypeLabel(props.leaveRequest.type) }}
           </span>
         </div>
       </div>
-      <div class="request-status" :class="`status-${leaveRequest.status}`">
-        {{ getStatusLabel(leaveRequest.status) }}
+      <div class="request-status" :class="`status-${props.leaveRequest.status}`">
+        {{ getStatusLabel(props.leaveRequest.status) }}
       </div>
     </div>
 
@@ -61,36 +60,25 @@ function getStatusLabel(status: LeaveRequestStatus): string {
       <div class="request-dates">
         <span class="dates-label">Період:</span>
         <span class="dates-value">
-          {{ formatDate(leaveRequest.start_date) }} — {{ formatDate(leaveRequest.end_date) }}
+          {{ formatDate(props.leaveRequest.start_date) }} —
+          {{ formatDate(props.leaveRequest.end_date) }}
         </span>
       </div>
 
-      <div v-if="leaveRequest.reason" class="request-reason">
+      <div v-if="props.leaveRequest.reason" class="request-reason">
         <span class="reason-label">Причина:</span>
-        <p class="reason-text">{{ leaveRequest.reason }}</p>
+        <p class="reason-text">{{ props.leaveRequest.reason }}</p>
       </div>
 
-      <div v-if="leaveRequest.manager_comment" class="manager-comments">
+      <div v-if="props.leaveRequest.manager_comment" class="manager-comments">
         <span class="comments-label">Коментар менеджера:</span>
-        <p class="comments-text">{{ leaveRequest.manager_comment }}</p>
+        <p class="comments-text">{{ props.leaveRequest.manager_comment }}</p>
       </div>
-    </div>
-
-    <div v-if="leaveRequest.status === 'pending'" class="request-actions">
-      <button
-        @click="$emit('approve', leaveRequest.id)"
-        class="btn-approve"
-        :disabled="isProcessing"
-      >
-        ✓ Схвалити
-      </button>
-      <button @click="$emit('reject', leaveRequest.id)" class="btn-reject" :disabled="isProcessing">
-        ✗ Відхилити
-      </button>
     </div>
 
     <div class="request-footer">
-      <span class="created-date">Створено: {{ formatDate(leaveRequest.created_at) }}</span>
+      <span class="created-date">Створено: {{ formatDate(props.leaveRequest.created_at) }}</span>
+      <span class="view-hint">Натисніть для перегляду деталей →</span>
     </div>
   </div>
 </template>
@@ -103,11 +91,13 @@ function getStatusLabel(status: LeaveRequestStatus): string {
   padding: 1.5rem;
   margin-bottom: 1rem;
   transition: all 0.2s;
+  cursor: pointer;
 }
 
 .manager-leave-request-item:hover {
-  border-color: #9333ea;
-  box-shadow: 0 4px 6px rgba(147, 51, 234, 0.1);
+  border-color: var(--accent-2);
+  box-shadow: 0 4px 12px rgba(255, 155, 81, 0.15);
+  transform: translateY(-2px);
 }
 
 .request-header {
@@ -245,57 +235,7 @@ function getStatusLabel(status: LeaveRequestStatus): string {
   background: #f8f9fa;
   padding: 0.75rem;
   border-radius: 0.5rem;
-  border-left: 3px solid #9333ea;
-}
-
-.request-actions {
-  display: flex;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #f0f0f0;
-}
-
-.btn-approve,
-.btn-reject {
-  flex: 1;
-  padding: 0.625rem 1.25rem;
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.btn-approve {
-  background: var(--accent-2);
-  color: var(--btn-on-accent);
-}
-
-.btn-approve:hover:not(:disabled) {
-  background: #c3e6cb;
-  transform: translateY(-1px);
-}
-
-.btn-reject {
-  background: #f8d7da;
-  color: #721c24;
-}
-
-.btn-reject:hover:not(:disabled) {
-  background: #f1b0b7;
-  transform: translateY(-1px);
-}
-
-.btn-approve:disabled,
-.btn-reject:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  border-left: 3px solid var(--accent-2);
 }
 
 .request-footer {
@@ -303,6 +243,15 @@ function getStatusLabel(status: LeaveRequestStatus): string {
   color: #9ca3af;
   padding-top: 0.75rem;
   border-top: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.view-hint {
+  color: var(--accent-2);
+  font-weight: 500;
+  font-size: 0.8rem;
 }
 
 @media (max-width: var(--bp-md)) {
@@ -310,8 +259,8 @@ function getStatusLabel(status: LeaveRequestStatus): string {
     flex-direction: column;
   }
 
-  .request-actions {
-    flex-direction: column;
+  .view-hint {
+    display: none;
   }
 }
 </style>
