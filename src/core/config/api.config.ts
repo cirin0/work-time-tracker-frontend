@@ -6,6 +6,8 @@ export const API_ROUTES = {
     refresh: '/auth/refresh',
     verifyEmail: '/auth/verify-email',
     resendVerificationCode: '/auth/resend-verification-code',
+    forgotPassword: '/auth/forgot-password',
+    resetPassword: '/auth/reset-password',
   },
   me: {
     show: '/me',
