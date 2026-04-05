@@ -78,6 +78,23 @@ export const useAuthStore = defineStore('auth', () => {
     return data
   }
 
+  async function forgotPassword(email: string) {
+    const { data } = await apiClient.post<{ message: string }>(API_ROUTES.auth.forgotPassword, {
+      email,
+    })
+    return data
+  }
+
+  async function resetPassword(email: string, code: string, password: string) {
+    const { data } = await apiClient.post<{ message: string }>(API_ROUTES.auth.resetPassword, {
+      email,
+      code,
+      password,
+      password_confirmation: password,
+    })
+    return data
+  }
+
   async function refreshToken(): Promise<string> {
     const { data } = await apiClient.post<RefreshResponse>(API_ROUTES.auth.refresh)
     setToken(data.access_token)
@@ -142,6 +159,8 @@ export const useAuthStore = defineStore('auth', () => {
     register,
     verifyEmail,
     resendVerificationCode,
+    forgotPassword,
+    resetPassword,
     login,
     logout,
     refreshToken,

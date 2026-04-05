@@ -12,6 +12,7 @@ const emit = defineEmits<{
   registerSuccess: [email: string]
   clearLoginNotice: []
   emailNotVerified: [email: string]
+  forgotPassword: []
 }>()
 
 const {
@@ -97,7 +98,7 @@ watch(unverifiedEmail, (email) => {
         @focus="handleInputStart"
       />
       <div v-if="isLogin" class="forgot-password">
-        <a href="#" class="forgot-link">Забули пароль?</a>
+        <a href="#" class="forgot-link" @click.prevent="emit('forgotPassword')">Забули пароль?</a>
       </div>
 
       <button class="submit-button" type="submit">

@@ -109,7 +109,8 @@ async function assignSchedule() {
   }
 }
 
-function formatDuration(minutes: number) {
+function formatDuration(seconds: number) {
+  const minutes = Math.floor(seconds / 60)
   return formatMinutes(minutes)
 }
 
