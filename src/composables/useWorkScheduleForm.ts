@@ -16,7 +16,7 @@ const VALIDATION_MESSAGES = {
   },
   time: {
     required: 'Вкажіть час для робочого дня',
-    endAfterStart: 'Час кінця має бути пізніше часу початку',
+    endDifferentFromStart: 'Час початку та завершення не можуть співпадати',
   },
 } as const
 
@@ -67,11 +67,15 @@ const workScheduleSchema = yup.object({
         then: (s) =>
           s
             .required(VALIDATION_MESSAGES.time.required)
-            .test('end-after-start', VALIDATION_MESSAGES.time.endAfterStart, function (value) {
-              const { start_time } = this.parent
-              if (!start_time || !value) return true
-              return value > start_time
-            }),
+            .test(
+              'end-not-equal-start',
+              VALIDATION_MESSAGES.time.endDifferentFromStart,
+              function (value) {
+                const { start_time } = this.parent
+                if (!start_time || !value) return true
+                return value !== start_time
+              },
+            ),
         otherwise: (s) => s.optional(),
       }),
       break_duration: yup.number().min(0).nullable(),

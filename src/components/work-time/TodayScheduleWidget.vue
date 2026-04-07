@@ -58,7 +58,10 @@ const expectedHours = computed(() => {
   const endMinutes = (endHour || 0) * 60 + (endMin || 0)
   const breakMinutes = todaySchedule.value.break_duration || 0
 
-  const totalMinutes = endMinutes - startMinutes - breakMinutes
+  const minutesInDay = 24 * 60
+  const rawDurationMinutes =
+    endMinutes > startMinutes ? endMinutes - startMinutes : minutesInDay - startMinutes + endMinutes
+  const totalMinutes = Math.max(rawDurationMinutes - breakMinutes, 0)
 
   return totalMinutes / 60
 })

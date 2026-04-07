@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useRoleGuard } from '@/composables/useRoleGuard.ts'
 import { useEmployeeStore } from '@/stores/employee.store.ts'
@@ -22,6 +22,7 @@ const router = useRouter()
 const { currentUser } = useRoleGuard()
 const authStore = useAuthStore()
 const employeeStore = useEmployeeStore()
+const currentEntriesPage = ref(1)
 
 const todayStats = computed(() => {
   const hours = employeeStore.timeSummary?.summary.today.hours ?? 0
@@ -64,7 +65,7 @@ onMounted(() => {
   authStore.fetchMyWorkSchedule()
   employeeStore.fetchTimeSummary()
   employeeStore.fetchActiveEntry()
-  employeeStore.fetchTimeEntries()
+  employeeStore.fetchTimeEntries(currentEntriesPage.value)
 })
 
 async function handleStartWork() {
@@ -81,12 +82,14 @@ async function handleStopWork(pinCode: string) {
       stop_comment: undefined,
       pin_code: pinCode,
     })
+    await employeeStore.fetchTimeEntries(currentEntriesPage.value)
   } catch (error) {
     console.error('Failed to stop work:', error)
   }
 }
 
 async function handlePageChange(page: number) {
+  currentEntriesPage.value = page
   await employeeStore.fetchTimeEntries(page)
 }
 
