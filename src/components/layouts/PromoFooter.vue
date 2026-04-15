@@ -5,7 +5,7 @@
         <div class="footer-main">
           <div class="footer-brand">
             <div class="footer-brand-logo-row">
-              <img src="@/assets/logo.svg" alt="Logo" class="footer-logo" />
+              <img src="@/assets/logo.png" alt="Logo" class="footer-logo" />
               <span class="footer-brand-name">Work Time Tracker</span>
             </div>
             <p class="footer-tagline">Керуйте часом ефективно</p>

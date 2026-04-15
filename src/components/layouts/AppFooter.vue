@@ -3,7 +3,7 @@
     <div class="footer-container">
       <div class="footer-content">
         <div class="footer-brand">
-          <img src="@/assets/logo.svg" alt="Logo" class="footer-logo" />
+          <img src="@/assets/logo.png" alt="Logo" class="footer-logo" />
           <p class="footer-tagline">Ефективне управління робочим часом</p>
         </div>
 

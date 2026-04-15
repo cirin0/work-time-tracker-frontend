@@ -2,12 +2,16 @@
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useManagerStore } from '@/stores/manager.store.ts'
+import { useEmployeeSearch } from '@/composables/useEmployeeSearch.ts'
 import { getAvatarUrl } from '@/core/utils/url.ts'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
+import SearchIcon from '@/icons/SearchIcon.vue'
 
 const router = useRouter()
 const managerStore = useManagerStore()
+
+const { searchQuery, filteredEmployees } = useEmployeeSearch(() => managerStore.employees)
 
 onMounted(() => {
   managerStore.fetchEmployees()
@@ -26,6 +30,32 @@ function viewEmployeeDetails(id: number) {
       back-route="manager"
     />
 
+    <div
+      v-if="!managerStore.isLoadingEmployees && managerStore.employees.length > 0"
+      class="search-container"
+    >
+      <div class="search-box">
+        <SearchIcon class="search-icon" />
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Пошук за ім'ям, email або розкладом..."
+          class="search-input"
+        />
+        <button
+          v-if="searchQuery"
+          @click="searchQuery = ''"
+          class="clear-btn"
+          aria-label="Очистити пошук"
+        >
+          ✕
+        </button>
+      </div>
+      <div v-if="searchQuery" class="search-results-info">
+        Знайдено: {{ filteredEmployees.length }} з {{ managerStore.employees.length }}
+      </div>
+    </div>
+
     <LoadingSpinner v-if="managerStore.isLoadingEmployees" text="Завантаження..." />
 
     <div v-else-if="managerStore.error" class="error-state">
@@ -40,9 +70,15 @@ function viewEmployeeDetails(id: number) {
       <p>Співробітники з'являться тут після призначення</p>
     </div>
 
+    <div v-else-if="filteredEmployees.length === 0" class="empty-state">
+      <div class="empty-icon">🔍</div>
+      <h3>Нічого не знайдено</h3>
+      <p>Спробуйте змінити параметри пошуку</p>
+    </div>
+
     <div v-else class="employees-grid">
       <div
-        v-for="employee in managerStore.employees"
+        v-for="employee in filteredEmployees"
         :key="employee.id"
         class="employee-card"
         @click="viewEmployeeDetails(employee.id)"
@@ -78,6 +114,74 @@ function viewEmployeeDetails(id: number) {
   max-width: var(--container-max);
   margin: 0 auto;
   padding: 2rem;
+}
+
+.search-container {
+  margin-bottom: 1.5rem;
+}
+
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  transition: all 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.search-box:focus-within {
+  border-color: var(--accent-1);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.search-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--text-muted);
+  margin-right: 0.75rem;
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 0.95rem;
+  color: var(--text);
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.clear-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.clear-btn:hover {
+  background: var(--background);
+  color: var(--text);
+}
+
+.search-results-info {
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  padding-left: 0.5rem;
 }
 
 .error-state {

@@ -2,7 +2,7 @@
   <header class="landing-header" :class="{ scrolled: isScrolled }">
     <div class="header-container">
       <div class="header-logo">
-        <img src="@/assets/logo.svg" alt="Work Time Tracker" class="logo-image" />
+        <img src="@/assets/logo.png" alt="Work Time Tracker" class="logo-image" />
         <span class="logo-text">Work Time Tracker</span>
       </div>
 
