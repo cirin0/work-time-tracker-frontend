@@ -110,13 +110,11 @@ function backToUserList() {
 <style scoped>
 .chat-container {
   display: flex;
-  height: calc(100vh - 50px - 4rem);
   background: var(--surface);
   border-radius: 1rem;
   overflow: hidden;
-  box-shadow: 0 2px 12px var(--shadow);
-  border: 1px solid var(--border);
   position: relative;
+  margin-bottom: 0.5rem;
 }
 
 .chat-sidebar-wrapper {
