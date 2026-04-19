@@ -12,6 +12,17 @@ import { getAvatarUrl } from '@/core/utils/url.ts'
 import StatCard from '@/components/ui/StatCard.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
+import CalendarIcon from '@/icons/CalendarIcon.vue'
+import ChartBarIcon from '@/icons/ChartBarIcon.vue'
+import TrendingUpIcon from '@/icons/TrendingUpIcon.vue'
+import ClockIcon from '@/icons/ClockIcon.vue'
+import CheckCircleIcon from '@/icons/CheckCircleIcon.vue'
+import ExclamationTriangleIcon from '@/icons/ExclamationTriangleIcon.vue'
+import XCircleIcon from '@/icons/XCircleIcon.vue'
+import FireIcon from '@/icons/FireIcon.vue'
+import DownloadIcon from '@/icons/DownloadIcon.vue'
+import PencilIcon from '@/icons/PencilIcon.vue'
+import ArrowRightIcon from '@/icons/ArrowRightIcon.vue'
 
 const route = useRoute()
 const managerStore = useManagerStore()
@@ -188,68 +199,77 @@ const daysOfWeekLabels: Record<string, string> = {
             @click="managerStore.exportUserStatistics(employeeId)"
             :disabled="managerStore.isExporting"
           >
+            <DownloadIcon class="btn-icon" />
             <span v-if="managerStore.isExporting">Завантаження...</span>
-            <span v-else>📥 Скачати звіт</span>
+            <span v-else>Скачати звіт</span>
           </button>
         </div>
 
         <!-- Period summary cards -->
         <div class="stats-grid">
           <StatCard
-            icon="📅"
             label="Сьогодні"
             :value="`${employeeSummary.summary.today.hours}г ${employeeSummary.summary.today.minutes}хв`"
             :sub="`Днів: ${employeeSummary.summary.today.working_days} · Запізнень: ${employeeSummary.summary.today.late_count} · Ранніх: ${employeeSummary.summary.today.early_count}`"
-          />
+          >
+            <template #icon><CalendarIcon /></template>
+          </StatCard>
           <StatCard
-            icon="📊"
             label="Цього тижня"
             :value="`${employeeSummary.summary.week.hours}г ${employeeSummary.summary.week.minutes}хв`"
             :sub="`Днів: ${employeeSummary.summary.week.working_days} · Запізнень: ${employeeSummary.summary.week.late_count} · Ранніх: ${employeeSummary.summary.week.early_count}`"
-          />
+          >
+            <template #icon><ChartBarIcon /></template>
+          </StatCard>
           <StatCard
-            icon="📈"
             label="Цього місяця"
             :value="`${employeeSummary.summary.month.hours}г ${employeeSummary.summary.month.minutes}хв`"
             :sub="`Днів: ${employeeSummary.summary.month.working_days} · Запізнень: ${employeeSummary.summary.month.late_count} · Ранніх: ${employeeSummary.summary.month.early_count}`"
-          />
+          >
+            <template #icon><TrendingUpIcon /></template>
+          </StatCard>
           <StatCard
-            icon="⏱️"
             label="Робочих днів"
             :value="employeeSummary.working_days"
             :sub="`Сер. ${formatDuration(employeeSummary.average_work_time)}`"
-          />
+          >
+            <template #icon><ClockIcon /></template>
+          </StatCard>
         </div>
 
         <!-- Attendance details -->
         <h3 class="stats-subsection-title">Відвідуваність та дисципліна</h3>
         <div class="stats-grid">
           <StatCard
-            icon="✅"
             label="Вчасно"
             :value="employeeSummary.attendance.on_time_count"
             variant="success"
-          />
+          >
+            <template #icon><CheckCircleIcon /></template>
+          </StatCard>
           <StatCard
-            icon="🕐"
             label="Запізнень"
             :value="employeeSummary.attendance.late_count"
             variant="danger"
             :sub="`Сер. ${employeeSummary.attendance.average_late_minutes} хв · Всього ${employeeSummary.attendance.total_late_minutes} хв`"
-          />
+          >
+            <template #icon><ExclamationTriangleIcon /></template>
+          </StatCard>
           <StatCard
-            icon="🚪"
             label="Ранніх виходів"
             :value="employeeSummary.attendance.early_leave_count"
             :sub="`Сер. ${employeeSummary.attendance.average_early_leave_minutes} хв · Всього ${employeeSummary.attendance.total_early_leave_minutes} хв`"
-          />
+          >
+            <template #icon><XCircleIcon /></template>
+          </StatCard>
           <StatCard
-            icon="💪"
             label="Понаднормових"
             :value="employeeSummary.attendance.overtime_count"
             variant="success"
             :sub="`Сер. ${employeeSummary.attendance.average_overtime_minutes} хв · Всього ${formatDuration(employeeSummary.attendance.total_overtime_minutes)}`"
-          />
+          >
+            <template #icon><FireIcon /></template>
+          </StatCard>
         </div>
       </div>
 
@@ -310,7 +330,7 @@ const daysOfWeekLabels: Record<string, string> = {
                 <div class="entry-details">
                   <div class="entry-time">
                     <span>{{ formatTime(entry.start_time) }}</span>
-                    <span>→</span>
+                    <ArrowRightIcon class="arrow-icon" />
                     <span>{{ formatTime(entry.stop_time) }}</span>
                   </div>
                   <div class="entry-duration">Тривалість: {{ formatDuration(entry.duration) }}</div>
@@ -325,11 +345,13 @@ const daysOfWeekLabels: Record<string, string> = {
             <!-- Success / error notifications -->
             <Transition name="fade">
               <div v-if="scheduleAssignSuccess" class="schedule-notify success">
-                ✓ {{ scheduleAssignSuccess }}
+                <CheckCircleIcon class="notify-icon" />
+                {{ scheduleAssignSuccess }}
               </div>
             </Transition>
             <Transition name="fade">
               <div v-if="scheduleAssignError" class="schedule-notify error">
+                <XCircleIcon class="notify-icon" />
                 {{ scheduleAssignError }}
               </div>
             </Transition>
@@ -348,7 +370,8 @@ const daysOfWeekLabels: Record<string, string> = {
                   class="btn-change-schedule"
                   @click="isEditingSchedule = true"
                 >
-                  ✏️ Змінити графік
+                  <PencilIcon class="btn-icon-small" />
+                  Змінити графік
                 </button>
               </div>
               <div class="schedule-list">
@@ -537,6 +560,19 @@ const daysOfWeekLabels: Record<string, string> = {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.btn-icon-small {
+  width: 16px;
+  height: 16px;
 }
 
 .btn-outline:hover:not(:disabled) {
@@ -670,6 +706,13 @@ const daysOfWeekLabels: Record<string, string> = {
 .entry-time {
   display: flex;
   gap: 0.5rem;
+  align-items: center;
+  color: var(--text-muted);
+}
+
+.arrow-icon {
+  width: 16px;
+  height: 16px;
   color: var(--text-muted);
 }
 
@@ -792,6 +835,9 @@ const daysOfWeekLabels: Record<string, string> = {
   font-weight: 600;
   cursor: pointer;
   transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .btn-change-schedule:hover {
@@ -890,6 +936,15 @@ const daysOfWeekLabels: Record<string, string> = {
   font-size: 0.85rem;
   font-weight: 500;
   margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.notify-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
 }
 
 .schedule-notify.success {

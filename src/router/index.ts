@@ -5,12 +5,18 @@ import { UserRole } from '@/types/enums/enums.types'
 export const router = createRouter({
   routes: [
     {
-      path: '/:pathMath(.*)*',
+      path: '/:pathMatch(.*)*',
       name: 'NotFound',
       component: () => import('../views/NonFoundView.vue'),
     },
     {
       path: '/',
+      name: 'landing',
+      component: () => import('../views/LandingView.vue'),
+      meta: { requiresAuth: false },
+    },
+    {
+      path: '/dashboard',
       name: 'main',
       component: () => import('../views/IndexView.vue'),
       meta: { layout: 'main', requiresAuth: true },
@@ -171,7 +177,7 @@ router.beforeEach(async (to) => {
   const authStore = useAuthStore()
   const requiresAuth = to.meta.requiresAuth !== false
 
-  if (authStore.isAuthenticated && to.name === 'auth') {
+  if (authStore.isAuthenticated && (to.name === 'landing' || to.name === 'auth')) {
     return { name: 'main' }
   }
 

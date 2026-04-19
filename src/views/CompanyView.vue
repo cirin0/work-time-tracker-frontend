@@ -588,6 +588,7 @@ const managerId = computed(() => company.value?.manager?.id ?? null)
   justify-content: center;
   color: var(--text);
   font-size: 0.875rem;
+  color: white;
   font-weight: 700;
 }
 .manager-avatar-img {
