@@ -27,9 +27,8 @@ export const API_ROUTES = {
     index: (receiverId: number | string) => `/messages/${receiverId}`,
     store: '/messages',
   },
-  companies: {
-    showById: (id: number) => `/companies/${id}`,
-    showByName: (name: string) => `/companies/name/${name}`,
+  company: {
+    show: '/company',
   },
   leaveRequests: {
     index: '/leave-requests',
@@ -82,15 +81,14 @@ export const API_ROUTES = {
     daily: '/qr-code/daily',
   },
   admin: {
-    companies: {
-      store: '/admin/companies',
-      update: (id: number | string) => `/admin/companies/${id}`,
-      updateLogo: (id: number | string) => `/admin/companies/${id}/logo`,
-      delete: (id: number | string) => `/admin/companies/${id}`,
-      assignManager: (id: number | string) => `/admin/companies/${id}/assign-manager`,
-      addEmployee: (id: number | string) => `/admin/companies/${id}/add-employee`,
-      removeEmployee: (id: number | string) => `/admin/companies/${id}/remove-employee`,
-      getUsersByCompany: (id: number | string) => `/admin/companies/${id}/users`,
+    company: {
+      store: '/admin/company',
+      update: '/admin/company',
+      updateLogo: '/admin/company/logo',
+      delete: '/admin/company',
+      assignManager: '/admin/company/assign-manager',
+      addEmployee: '/admin/company/add-employee',
+      removeEmployee: '/admin/company/remove-employee',
     },
     users: {
       index: '/admin/users',

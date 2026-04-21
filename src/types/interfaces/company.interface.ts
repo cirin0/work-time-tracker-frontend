@@ -13,6 +13,8 @@ export interface Company extends BaseModel {
   latitude: string | null
   longitude: string | null
   radius_meters: number | null
+  lateness_grace_minutes?: number
+  overtime_threshold_hours?: number
   employees?: UserBasic[]
   employee_count?: number
   work_schedules?: WorkSchedule[]

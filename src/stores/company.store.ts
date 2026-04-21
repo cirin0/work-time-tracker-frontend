@@ -65,58 +65,38 @@ export const useCompanyStore = defineStore('company', () => {
     return data
   }
 
-  async function fetchByName(name: string) {
+  async function fetchCompany() {
     return withLoading(async () => {
-      const { data } = await apiClient.get<Company>(API_ROUTES.companies.showByName(name))
+      const { data } = await apiClient.get<Company>(API_ROUTES.company.show)
       setCompanyFromResponse(data)
     }, 'Помилка завантаження компанії')
-  }
-
-  async function fetchById(id: number) {
-    return withLoading(async () => {
-      const { data } = await apiClient.get<Company>(API_ROUTES.companies.showById(id))
-      setCompanyFromResponse(data)
-    }, 'Помилка завантаження компанії')
-  }
-
-  async function fetchCompanyUsers(id: number | string) {
-    isLoadingUsers.value = true
-    try {
-      const { data } = await apiClient.get<ApiResponse<User[]>>(
-        API_ROUTES.admin.companies.getUsersByCompany(id),
-      )
-      companyUsers.value = data.data ?? []
-    } catch (err) {
-      error.value = extractMessage(err) ?? 'Помилка завантаження співробітників'
-    } finally {
-      isLoadingUsers.value = false
-    }
   }
 
   async function createCompany(payload: CreateCompanyRequest) {
     return request(async () => {
       const { data } = await apiClient.post<ApiResponse<Company>>(
-        API_ROUTES.admin.companies.store,
+        API_ROUTES.admin.company.store,
         payload,
       )
+      setCompanyFromResponse(data.data)
       return data.data
     }, 'Помилка створення компанії')
   }
 
-  async function updateCompany(id: number | string, payload: UpdateCompanyRequest) {
+  async function updateCompany(payload: UpdateCompanyRequest) {
     return request(async () => {
       const { data } = await apiClient.patch<ApiResponse<Company>>(
-        API_ROUTES.admin.companies.update(id),
+        API_ROUTES.admin.company.update,
         payload,
       )
       return setCompanyFromResponse(data.data)
     }, 'Помилка оновлення компанії')
   }
 
-  async function updateCompanyLogo(id: number | string, formData: FormData) {
+  async function updateCompanyLogo(formData: FormData) {
     return request(async () => {
       const { data } = await apiClient.post<ApiResponse<Company>>(
-        API_ROUTES.admin.companies.updateLogo(id),
+        API_ROUTES.admin.company.updateLogo,
         formData,
         { headers: { 'Content-Type': 'multipart/form-data' } },
       )
@@ -124,37 +104,37 @@ export const useCompanyStore = defineStore('company', () => {
     }, 'Помилка оновлення логотипу')
   }
 
-  async function assignManager(companyId: number | string, managerId: number | string) {
+  async function assignManager(managerId: number | string) {
     return request(async () => {
       const { data } = await apiClient.post<ApiResponse<Company>>(
-        API_ROUTES.admin.companies.assignManager(companyId),
+        API_ROUTES.admin.company.assignManager,
         { manager_id: managerId },
       )
       return setCompanyFromResponse(data.data)
     }, 'Помилка призначення менеджера')
   }
 
-  async function addEmployee(companyId: number | string, employee_id: number | string) {
+  async function addEmployee(employee_id: number | string) {
     return request(async () => {
-      await apiClient.post(API_ROUTES.admin.companies.addEmployee(companyId), {
+      await apiClient.post(API_ROUTES.admin.company.addEmployee, {
         employee_id: employee_id,
       })
-      await fetchById(Number(companyId))
+      await fetchCompany()
     }, 'Помилка додавання співробітника')
   }
 
-  async function removeEmployee(companyId: number | string, employee_id: number | string) {
+  async function removeEmployee(employee_id: number | string) {
     return request(async () => {
-      await apiClient.delete(API_ROUTES.admin.companies.removeEmployee(companyId), {
+      await apiClient.delete(API_ROUTES.admin.company.removeEmployee, {
         data: { employee_id },
       })
-      await fetchById(Number(companyId))
+      await fetchCompany()
     }, 'Помилка видалення співробітника')
   }
 
-  async function deleteCompany(id: number | string) {
+  async function deleteCompany() {
     return request(async () => {
-      await apiClient.delete(API_ROUTES.admin.companies.delete(id))
+      await apiClient.delete(API_ROUTES.admin.company.delete)
       company.value = null
     }, 'Помилка видалення компанії')
   }
@@ -177,9 +157,7 @@ export const useCompanyStore = defineStore('company', () => {
     isLoading,
     isLoadingUsers,
     error,
-    fetchByName,
-    fetchById,
-    fetchCompanyUsers,
+    fetchCompany,
     createCompany,
     updateCompany,
     updateCompanyLogo,

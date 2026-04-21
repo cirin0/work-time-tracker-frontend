@@ -46,9 +46,8 @@ onMounted(async () => {
   isLoadingInitialData.value = true
 
   try {
-    const companyId = authStore.currentUser?.company?.id
-    if (companyId) {
-      await companyStore.fetchById(companyId)
+    if (hasCompany.value) {
+      await companyStore.fetchCompany()
     }
 
     await adminStore.fetchAllUsers(1)
@@ -71,7 +70,7 @@ async function handleCreateSubmit(payload: CreateCompanyRequest) {
         authStore.currentUser.company = company
       }
       showCreateModal.value = false
-      await companyStore.fetchById(company.id)
+      await companyStore.fetchCompany()
     }
   } catch {
     createModalRef.value?.setError(companyStore.error ?? 'Помилка створення компанії')
@@ -81,14 +80,11 @@ async function handleCreateSubmit(payload: CreateCompanyRequest) {
 }
 
 async function handleAssignManager(managerId: number) {
-  const companyId = authStore.currentUser?.company?.id
-  if (!companyId) return
-
   isSubmittingAssign.value = true
   try {
-    await companyStore.assignManager(companyId, managerId)
+    await companyStore.assignManager(managerId)
     showAssignManagerModal.value = false
-    await companyStore.fetchById(companyId)
+    await companyStore.fetchCompany()
     await adminStore.fetchAllUsers(1)
     if (authStore.currentUser && companyStore.company) {
       authStore.currentUser.company = companyStore.company

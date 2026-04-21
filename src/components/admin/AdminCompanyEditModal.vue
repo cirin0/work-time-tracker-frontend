@@ -26,6 +26,8 @@ interface FormState {
   latitude: string
   longitude: string
   radius_meters: string
+  lateness_grace_minutes: string
+  overtime_threshold_hours: string
 }
 
 const form = ref<FormState>({
@@ -37,6 +39,8 @@ const form = ref<FormState>({
   latitude: '',
   longitude: '',
   radius_meters: '',
+  lateness_grace_minutes: '',
+  overtime_threshold_hours: '',
 })
 
 const error = ref<string | null>(null)
@@ -55,6 +59,14 @@ watch(
       latitude: c.latitude != null ? String(c.latitude) : '',
       longitude: c.longitude != null ? String(c.longitude) : '',
       radius_meters: c.radius_meters != null ? String(c.radius_meters) : '',
+      lateness_grace_minutes:
+        c.lateness_grace_minutes != null && c.lateness_grace_minutes !== undefined
+          ? String(c.lateness_grace_minutes)
+          : '0',
+      overtime_threshold_hours:
+        c.overtime_threshold_hours != null && c.overtime_threshold_hours !== undefined
+          ? String(c.overtime_threshold_hours)
+          : '0',
     }
   },
   { immediate: true },
@@ -64,7 +76,32 @@ watch(
   () => props.show,
   (v) => {
     isOpen.value = v
-    if (!v) error.value = null
+    if (!v) {
+      error.value = null
+    } else if (props.company) {
+      // Reload form data when modal opens
+      form.value = {
+        name: props.company.name,
+        email: props.company.email ?? '',
+        phone: props.company.phone ?? '',
+        address: props.company.address ?? '',
+        description: props.company.description ?? '',
+        latitude: props.company.latitude != null ? String(props.company.latitude) : '',
+        longitude: props.company.longitude != null ? String(props.company.longitude) : '',
+        radius_meters:
+          props.company.radius_meters != null ? String(props.company.radius_meters) : '',
+        lateness_grace_minutes:
+          props.company.lateness_grace_minutes != null &&
+          props.company.lateness_grace_minutes !== undefined
+            ? String(props.company.lateness_grace_minutes)
+            : '0',
+        overtime_threshold_hours:
+          props.company.overtime_threshold_hours != null &&
+          props.company.overtime_threshold_hours !== undefined
+            ? String(props.company.overtime_threshold_hours)
+            : '0',
+      }
+    }
   },
 )
 
@@ -94,6 +131,12 @@ function onSubmit() {
     latitude: form.value.latitude ? Number(form.value.latitude) : null,
     longitude: form.value.longitude ? Number(form.value.longitude) : null,
     radius_meters: form.value.radius_meters ? Number(form.value.radius_meters) : null,
+    lateness_grace_minutes: form.value.lateness_grace_minutes
+      ? Number(form.value.lateness_grace_minutes)
+      : 0,
+    overtime_threshold_hours: form.value.overtime_threshold_hours
+      ? Number(form.value.overtime_threshold_hours)
+      : 0,
   }
 
   emit('submit', payload)
@@ -188,6 +231,30 @@ defineExpose({ setError })
         placeholder="100"
         icon="ruler"
       />
+
+      <div class="row">
+        <InputField
+          v-model="form.lateness_grace_minutes"
+          name="lateness_grace_minutes"
+          label="Допуск запізнення (хв)"
+          type="number"
+          min="0"
+          max="60"
+          placeholder="5"
+          icon="clock"
+        />
+        <InputField
+          v-model="form.overtime_threshold_hours"
+          name="overtime_threshold_hours"
+          label="Поріг овертайму (год)"
+          type="number"
+          step="0.25"
+          min="0"
+          max="24"
+          placeholder="0.5"
+          icon="clock"
+        />
+      </div>
     </form>
 
     <template #footer>

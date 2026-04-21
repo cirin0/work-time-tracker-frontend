@@ -183,7 +183,9 @@ onUnmounted(() => {
   background: var(--accent-2);
   transform-origin: left;
   will-change: transform;
-  transition: transform 0.3s, opacity 0.3s;
+  transition:
+    transform 0.3s,
+    opacity 0.3s;
   opacity: 0;
 }
 

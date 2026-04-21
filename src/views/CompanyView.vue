@@ -45,6 +45,25 @@ const companyEmployees = computed(() => {
   }
   return list
 })
+
+// Format time duration smartly
+function formatDuration(hours: number): string {
+  const totalMinutes = Math.round(hours * 60)
+
+  if (totalMinutes < 60) {
+    return `${totalMinutes} хв`
+  }
+
+  const h = Math.floor(totalMinutes / 60)
+  const m = totalMinutes % 60
+
+  if (m === 0) {
+    return `${h} год`
+  }
+
+  return `${h} год ${m} хв`
+}
+
 const filteredCompanyEmployees = computed(() => {
   const q = employeeSearch.value.toLowerCase().trim()
   if (!q) return companyEmployees.value
@@ -69,9 +88,7 @@ const managerId = computed(() => company.value?.manager?.id ?? null)
     <div v-else-if="!company" class="empty-state">
       <div class="empty-icon">⚠️</div>
       <p>Дані компанії не знайдені.</p>
-      <button class="btn-primary" @click="companyId && companyStore.fetchById(companyId)">
-        Спробувати знову
-      </button>
+      <button class="btn-primary" @click="companyStore.fetchCompany()">Спробувати знову</button>
     </div>
 
     <div v-else class="content">
@@ -163,6 +180,16 @@ const managerId = computed(() => company.value?.manager?.id ?? null)
           <div v-if="company.radius_meters" class="info-item">
             <span class="info-label">Радіус офісу</span>
             <span class="info-value">{{ company.radius_meters }} м</span>
+          </div>
+
+          <div v-if="company.lateness_grace_minutes !== undefined" class="info-item">
+            <span class="info-label">Допуск запізнення</span>
+            <span class="info-value">{{ company.lateness_grace_minutes }} хв</span>
+          </div>
+
+          <div v-if="company.overtime_threshold_hours !== undefined" class="info-item">
+            <span class="info-label">Поріг овертайму</span>
+            <span class="info-value">{{ formatDuration(company.overtime_threshold_hours) }}</span>
           </div>
 
           <div v-if="company.latitude && company.longitude" class="info-item">
