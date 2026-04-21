@@ -10,8 +10,12 @@
         <nav class="footer-links">
           <RouterLink :to="{ name: 'about' }" class="footer-link">Про нас</RouterLink>
           <RouterLink :to="{ name: 'support' }" class="footer-link">Підтримка</RouterLink>
-          <RouterLink :to="{ name: 'privacy-policy' }" class="footer-link">Конфіденційність</RouterLink>
-          <RouterLink :to="{ name: 'terms-of-use' }" class="footer-link">Умови використання</RouterLink>
+          <RouterLink :to="{ name: 'privacy-policy' }" class="footer-link"
+            >Конфіденційність</RouterLink
+          >
+          <RouterLink :to="{ name: 'terms-of-use' }" class="footer-link"
+            >Умови використання</RouterLink
+          >
         </nav>
 
         <!-- <div class="footer-social">
@@ -115,7 +119,9 @@
   background: var(--accent-2);
   transform-origin: left;
   will-change: transform;
-  transition: transform 0.3s, opacity 0.3s;
+  transition:
+    transform 0.3s,
+    opacity 0.3s;
   opacity: 0;
 }
 

@@ -8,6 +8,8 @@ export interface CreateCompanyRequest {
   latitude?: number | null
   longitude?: number | null
   radius_meters?: number | null
+  lateness_grace_minutes?: number
+  overtime_threshold_hours?: number
 }
 
 export interface UpdateCompanyRequest {
@@ -20,4 +22,6 @@ export interface UpdateCompanyRequest {
   latitude?: number | null
   longitude?: number | null
   radius_meters?: number | null
+  lateness_grace_minutes?: number
+  overtime_threshold_hours?: number
 }

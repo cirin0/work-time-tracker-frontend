@@ -75,12 +75,7 @@ useInfiniteScroll(
   <div class="users-sidebar">
     <div class="sidebar-header">
       <h2>Користувачі</h2>
-      <input
-        v-model="searchQuery"
-        type="text"
-        placeholder="Пошук..."
-        class="search-input"
-      />
+      <input v-model="searchQuery" type="text" placeholder="Пошук..." class="search-input" />
     </div>
     <div ref="usersListRef" class="users-list">
       <div v-if="isLoadingUsers && users.length === 0" class="loading-state">Завантаження...</div>

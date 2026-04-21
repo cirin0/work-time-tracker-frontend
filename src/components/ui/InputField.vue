@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import EmailIcon from '@/icons/EmailIcon.vue'
 import BuildingIcon from '@/icons/BuildingIcon.vue'
+import ClockIcon from '@/icons/ClockIcon.vue'
 import CompassIcon from '@/icons/CompassIcon.vue'
 import LockIcon from '@/icons/LockIcon.vue'
 import MapPinIcon from '@/icons/MapPinIcon.vue'
 import PhoneIcon from '@/icons/PhoneIcon.vue'
 import RulerIcon from '@/icons/RulerIcon.vue'
 import UserIcon from '@/icons/UserIcon.vue'
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { useField } from 'vee-validate'
 
 const props = defineProps<{
@@ -33,11 +34,23 @@ const icons = {
   ruler: RulerIcon,
   email: EmailIcon,
   lock: LockIcon,
+  clock: ClockIcon,
 }
 
 const iconComponent = computed(() => icons[props.icon as keyof typeof icons] || UserIcon)
 
 const { value: inputValue, errorMessage } = useField<string>(() => props.name)
+
+// Sync inputValue with modelValue prop
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    if (newValue !== undefined && newValue !== inputValue.value) {
+      inputValue.value = newValue
+    }
+  },
+  { immediate: true },
+)
 
 function handleInput(event: Event) {
   const value = (event.target as HTMLInputElement)?.value ?? ''

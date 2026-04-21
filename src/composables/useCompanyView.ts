@@ -63,16 +63,15 @@ export function useCompanyView() {
   )
 
   onMounted(async () => {
-    const id = companyId.value
-    if (!id) return
-    await companyStore.fetchById(id)
+    await companyStore.fetchCompany()
   })
 
   async function handleEditSubmit(payload: UpdateCompanyRequest) {
     if (!company.value) return
     isSubmittingEdit.value = true
     try {
-      await companyStore.updateCompany(company.value.id, payload)
+      await companyStore.updateCompany(payload)
+      await companyStore.fetchCompany() // Reload full company data
       showEditModal.value = false
     } catch {
       editModalRef.value?.setError(companyStore.error ?? 'Помилка збереження')
@@ -95,7 +94,7 @@ export function useCompanyView() {
     logoUploadError.value = null
     isUploadingLogo.value = true
     try {
-      await companyStore.updateCompanyLogo(company.value.id, formData)
+      await companyStore.updateCompanyLogo(formData)
     } catch {
       logoUploadError.value = companyStore.error ?? 'Помилка завантаження логотипу'
     } finally {
@@ -129,12 +128,12 @@ export function useCompanyView() {
     addEmployeeError.value = null
     addEmployeeSuccess.value = null
     try {
-      await companyStore.addEmployee(company.value.id, id)
+      await companyStore.addEmployee(id)
       addEmployeeSuccess.value = `Співробітника "${selectedEmployee.value?.name}" додано!`
       employeeSearchQuery.value = ''
       selectedEmployee.value = null
       newEmployeeId.value = null
-      await companyStore.fetchById(company.value.id)
+      await companyStore.fetchCompany()
     } catch (err: unknown) {
       const msg =
         err &&
@@ -147,7 +146,7 @@ export function useCompanyView() {
         employeeSearchQuery.value = ''
         selectedEmployee.value = null
         newEmployeeId.value = null
-        await companyStore.fetchById(company.value.id)
+        await companyStore.fetchCompany()
       } else {
         addEmployeeError.value = companyStore.error ?? 'Помилка додавання'
       }
@@ -161,7 +160,7 @@ export function useCompanyView() {
     if (!confirm('Видалити цього співробітника з компанії?')) return
     removeEmployeeError.value = null
     try {
-      await companyStore.removeEmployee(company.value.id, employeeId)
+      await companyStore.removeEmployee(employeeId)
     } catch {
       removeEmployeeError.value = companyStore.error ?? 'Помилка видалення'
     }
