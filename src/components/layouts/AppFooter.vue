@@ -8,10 +8,10 @@
         </div>
 
         <nav class="footer-links">
-          <a href="#" class="footer-link">Про нас</a>
-          <a href="#" class="footer-link">Підтримка</a>
-          <a href="#" class="footer-link">Конфіденційність</a>
-          <a href="#" class="footer-link">Умови використання</a>
+          <RouterLink :to="{ name: 'about' }" class="footer-link">Про нас</RouterLink>
+          <RouterLink :to="{ name: 'support' }" class="footer-link">Підтримка</RouterLink>
+          <RouterLink :to="{ name: 'privacy-policy' }" class="footer-link">Конфіденційність</RouterLink>
+          <RouterLink :to="{ name: 'terms-of-use' }" class="footer-link">Умови використання</RouterLink>
         </nav>
 
         <!-- <div class="footer-social">
