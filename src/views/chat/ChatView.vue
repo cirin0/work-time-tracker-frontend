@@ -115,6 +115,8 @@ function backToUserList() {
   overflow: hidden;
   position: relative;
   margin-bottom: 0.5rem;
+  height: calc(100vh - 8rem);
+  min-height: 500px;
 }
 
 .chat-sidebar-wrapper {

@@ -181,7 +181,10 @@ onUnmounted(() => {
   width: 0;
   height: 2px;
   background: var(--accent-2);
-  transition: width 0.3s;
+  transform-origin: left;
+  will-change: transform;
+  transition: transform 0.3s, opacity 0.3s;
+  opacity: 0;
 }
 
 .nav-link:hover {
@@ -189,7 +192,8 @@ onUnmounted(() => {
 }
 
 .nav-link:hover::after {
-  width: 100%;
+  transform: scaleX(1);
+  opacity: 1;
 }
 
 .header-actions {

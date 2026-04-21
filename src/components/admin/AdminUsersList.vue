@@ -44,15 +44,16 @@ const filteredUsers = computed(() => {
   return store.users.filter((user) => (currentUserId ? user.id !== currentUserId : true))
 })
 
-let searchTimer: ReturnType<typeof setTimeout> | null = null
-
-function onSearchInput() {
-  if (searchTimer) clearTimeout(searchTimer)
-  searchTimer = setTimeout(() => {
-    currentPage.value = 1
-    store.fetchAllUsers(1, searchQuery.value)
-  }, 400)
-}
+const onSearchInput = (() => {
+  let searchTimer: ReturnType<typeof setTimeout> | null = null
+  return () => {
+    if (searchTimer) clearTimeout(searchTimer)
+    searchTimer = setTimeout(() => {
+      currentPage.value = 1
+      store.fetchAllUsers(1, searchQuery.value)
+    }, 300)
+  }
+})()
 
 const roleLabels: Record<UserRole, string> = {
   [UserRole.ADMIN]: 'Адмін',
