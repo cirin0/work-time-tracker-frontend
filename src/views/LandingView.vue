@@ -28,7 +28,7 @@
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
             </button>
-            <button class="btn-secondary">
+            <button class="btn-secondary" @click="goToDemo">
               Дивитись демо
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M8 5v14l11-7z" />
@@ -384,6 +384,20 @@ const benefits = [
 
 const goToAuth = () => {
   router.push({ name: 'auth' })
+}
+
+const goToDemo = () => {
+  const element = document.getElementById('how-it-works')
+  if (!element) return
+
+  const headerOffset = 80
+  const elementPosition = element.getBoundingClientRect().top
+  const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+
+  window.scrollTo({
+    top: offsetPosition,
+    behavior: 'smooth',
+  })
 }
 
 onMounted(() => {

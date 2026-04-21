@@ -4,6 +4,7 @@ import { useAdminStore } from '@/stores/admin.store'
 import { useAuthStore } from '@/stores/auth.store'
 import { UserRole } from '@/types/enums/enums.types'
 import type { User } from '@/types/interfaces/user.interface'
+import { useEmployeeSearch } from '@/composables/useEmployeeSearch'
 import Modal from '@/components/ui/Modal.vue'
 import Avatar from '@/components/ui/Avatar.vue'
 import Badge from '@/components/ui/Badge.vue'
@@ -24,10 +25,8 @@ const authStore = useAuthStore()
 
 const selectedManagerId = ref<number | null>(null)
 const error = ref<string | null>(null)
-const searchQuery = ref('')
 const isOpen = ref(false)
 
-// Filter users to show only employees/managers (exclude admins and current user)
 const availableManagers = ref<User[]>([])
 
 watch(
@@ -37,19 +36,14 @@ watch(
     if (v) {
       error.value = null
       selectedManagerId.value = null
-      searchQuery.value = ''
 
-      // Load all users
       if (adminStore.users.length === 0) {
         await adminStore.fetchAllUsers(1)
       }
 
-      // Filter users
       const currentUserId = authStore.currentUser?.id
       availableManagers.value = adminStore.users.filter((user) => {
-        // Exclude current admin
         if (user.id === currentUserId) return false
-        // Only show managers and employees
         return user.role === UserRole.MANAGER || user.role === UserRole.EMPLOYEE
       })
     }
@@ -62,21 +56,8 @@ watch(isOpen, (open) => {
   }
 })
 
-const filteredManagers = ref<User[]>([])
-
-watch(
-  [() => availableManagers.value, () => searchQuery.value],
-  ([managers, query]) => {
-    if (!query.trim()) {
-      filteredManagers.value = managers
-    } else {
-      const q = query.toLowerCase()
-      filteredManagers.value = managers.filter(
-        (u) => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q),
-      )
-    }
-  },
-  { immediate: true },
+const { searchQuery, filteredEmployees: filteredManagers } = useEmployeeSearch(
+  () => availableManagers.value,
 )
 
 function setError(msg: string) {

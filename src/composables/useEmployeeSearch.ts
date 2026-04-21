@@ -1,23 +1,25 @@
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { User } from '@/types/interfaces/user.interface'
+import { debounce } from '@/core/utils/debounce'
 
 export function useEmployeeSearch(employees: () => User[]) {
   const searchQuery = ref('')
+  const debouncedQuery = ref('')
+
+  const debouncedSearch = debounce((value: string) => {
+    debouncedQuery.value = value
+  }, 300)
+
+  watch(searchQuery, (newValue) => {
+    debouncedSearch(newValue)
+  })
 
   const filteredEmployees = computed(() => {
-    const query = searchQuery.value.toLowerCase().trim()
-
-    if (!query) {
-      return employees()
-    }
-
-    return employees().filter((employee) => {
-      const nameMatch = employee.name.toLowerCase().includes(query)
-      const emailMatch = employee.email.toLowerCase().includes(query)
-      const scheduleMatch = employee.work_schedule?.name.toLowerCase().includes(query)
-
-      return nameMatch || emailMatch || scheduleMatch
-    })
+    const q = debouncedQuery.value.toLowerCase()
+    if (!q) return employees()
+    return employees().filter(
+      (e) => e.name.toLowerCase().includes(q) || e.email.toLowerCase().includes(q),
+    )
   })
 
   return {

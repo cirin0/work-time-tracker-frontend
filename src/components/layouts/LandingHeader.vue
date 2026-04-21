@@ -1,7 +1,7 @@
 <template>
   <header class="landing-header" :class="{ scrolled: isScrolled }">
     <div class="header-container">
-      <div class="header-logo">
+      <div class="header-logo" @click="goToHome">
         <img src="@/assets/logo.png" alt="Work Time Tracker" class="logo-image" />
         <span class="logo-text">Work Time Tracker</span>
       </div>
@@ -16,7 +16,7 @@
         <a href="#benefits" class="nav-link" @click.prevent="scrollToSection('benefits')"
           >Переваги</a
         >
-        <a href="#pricing" class="nav-link" @click.prevent="scrollToSection('pricing')">Ціни</a>
+        <a href="#features" class="nav-link" @click.prevent="scrollToSection('features')">Ціни</a>
       </nav>
 
       <div class="header-actions">
@@ -54,8 +54,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
+const route = useRoute()
 const router = useRouter()
 const isScrolled = ref(false)
 const isMobileMenuOpen = ref(false)
@@ -89,6 +90,15 @@ const scrollToSection = (sectionId: string) => {
 
 const goToAuth = () => {
   router.push({ name: 'auth' })
+}
+
+const goToHome = () => {
+  closeMenu()
+  if (route.name === 'landing') {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    return
+  }
+  router.push({ name: 'landing' })
 }
 
 onMounted(() => {
@@ -171,7 +181,10 @@ onUnmounted(() => {
   width: 0;
   height: 2px;
   background: var(--accent-2);
-  transition: width 0.3s;
+  transform-origin: left;
+  will-change: transform;
+  transition: transform 0.3s, opacity 0.3s;
+  opacity: 0;
 }
 
 .nav-link:hover {
@@ -179,7 +192,8 @@ onUnmounted(() => {
 }
 
 .nav-link:hover::after {
-  width: 100%;
+  transform: scaleX(1);
+  opacity: 1;
 }
 
 .header-actions {

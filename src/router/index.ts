@@ -16,6 +16,42 @@ export const router = createRouter({
       meta: { requiresAuth: false },
     },
     {
+      path: '/about',
+      name: 'about',
+      component: () => import('../views/guest/AboutView.vue'),
+      meta: { requiresAuth: false },
+    },
+    {
+      path: '/support',
+      name: 'support',
+      component: () => import('../views/guest/SupportView.vue'),
+      meta: { requiresAuth: false },
+    },
+    {
+      path: '/documentation',
+      name: 'documentation',
+      component: () => import('../views/guest/DocumentationView.vue'),
+      meta: { requiresAuth: false },
+    },
+    {
+      path: '/contacts',
+      name: 'contacts',
+      component: () => import('../views/guest/ContactsView.vue'),
+      meta: { requiresAuth: false },
+    },
+    {
+      path: '/privacy-policy',
+      name: 'privacy-policy',
+      component: () => import('../views/guest/PrivacyPolicyView.vue'),
+      meta: { requiresAuth: false },
+    },
+    {
+      path: '/terms-of-use',
+      name: 'terms-of-use',
+      component: () => import('../views/guest/TermsOfUseView.vue'),
+      meta: { requiresAuth: false },
+    },
+    {
       path: '/dashboard',
       name: 'main',
       component: () => import('../views/IndexView.vue'),
@@ -171,6 +207,21 @@ export const router = createRouter({
     },
   ],
   history: createWebHistory(),
+  scrollBehavior(to, _, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    }
+
+    if (to.hash) {
+      return {
+        el: to.hash,
+        top: 80,
+        behavior: 'smooth',
+      }
+    }
+
+    return { top: 0 }
+  },
 })
 
 router.beforeEach(async (to) => {

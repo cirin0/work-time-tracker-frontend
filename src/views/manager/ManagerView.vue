@@ -329,7 +329,9 @@ function goToEmployee(id?: number) {
 .progress-fill {
   height: 100%;
   background: #10b981;
-  transition: width 0.5s ease;
+  transform-origin: left;
+  will-change: transform;
+  transition: transform 0.5s ease;
 }
 
 .quick-links {

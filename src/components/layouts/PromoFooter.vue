@@ -13,14 +13,20 @@
 
           <nav class="footer-nav">
             <div class="footer-nav-group">
-              <a href="#" class="footer-nav-link">Головна</a>
-              <a href="#" class="footer-nav-link">Функції</a>
-              <a href="#" class="footer-nav-link">Ціни</a>
+              <RouterLink :to="{ path: '/' }" class="footer-nav-link">Головна</RouterLink>
+              <RouterLink :to="{ path: '/', hash: '#features' }" class="footer-nav-link"
+                >Функції</RouterLink
+              >
+              <RouterLink :to="{ path: '/', hash: '#features' }" class="footer-nav-link"
+                >Ціни</RouterLink
+              >
             </div>
             <div class="footer-nav-group">
-              <a href="#" class="footer-nav-link">Підтримка</a>
-              <a href="#" class="footer-nav-link">Документація</a>
-              <a href="#" class="footer-nav-link">Контакти</a>
+              <RouterLink :to="{ name: 'support' }" class="footer-nav-link">Підтримка</RouterLink>
+              <RouterLink :to="{ name: 'documentation' }" class="footer-nav-link"
+                >Документація</RouterLink
+              >
+              <RouterLink :to="{ name: 'contacts' }" class="footer-nav-link">Контакти</RouterLink>
             </div>
           </nav>
         </div>
@@ -30,11 +36,11 @@
             © {{ currentYear }} Work Time Tracker. Створено з ❤️ в Україні
           </p>
           <div class="footer-legal">
-            <a href="#" class="legal-link">Конфіденційність</a>
+            <RouterLink :to="{ name: 'privacy-policy' }" class="legal-link"
+              >Конфіденційність</RouterLink
+            >
             <span class="separator">•</span>
-            <a href="#" class="legal-link">Умови</a>
-            <span class="separator">•</span>
-            <a href="#" class="legal-link">Cookies</a>
+            <RouterLink :to="{ name: 'terms-of-use' }" class="legal-link">Умови</RouterLink>
           </div>
         </div>
       </div>
@@ -126,15 +132,16 @@ const currentYear = computed(() => new Date().getFullYear())
   text-decoration: none;
   font-size: 0.9375rem;
   font-weight: 500;
+  display: inline-block;
   transition:
     color 0.2s,
-    padding-left 0.2s;
+    transform 0.2s;
   white-space: nowrap;
 }
 
 .footer-nav-link:hover {
   color: var(--accent-2);
-  padding-left: 3px;
+  transform: translateX(3px);
 }
 
 /* Bottom bar */

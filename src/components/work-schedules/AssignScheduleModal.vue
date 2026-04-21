@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import Modal from '@/components/ui/Modal.vue'
 import Avatar from '@/components/ui/Avatar.vue'
 import type { WorkSchedule } from '@/types/interfaces/workSchedule.interface'
 import type { User } from '@/types/interfaces/user.interface'
+import { useEmployeeSearch } from '@/composables/useEmployeeSearch'
 
 interface Props {
   modelValue: boolean
@@ -19,16 +20,9 @@ const emit = defineEmits<{
   assign: [userId: number, scheduleId: number]
 }>()
 
-const searchQuery = ref('')
 const selectedEmployeeId = ref<number | null>(null)
 
-const filteredEmployees = computed(() => {
-  const q = searchQuery.value.toLowerCase()
-  if (!q) return props.employees
-  return props.employees.filter(
-    (e) => e.name.toLowerCase().includes(q) || e.email.toLowerCase().includes(q),
-  )
-})
+const { searchQuery, filteredEmployees } = useEmployeeSearch(() => props.employees)
 
 function selectEmployee(id: number) {
   selectedEmployeeId.value = selectedEmployeeId.value === id ? null : id

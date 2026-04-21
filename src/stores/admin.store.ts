@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { apiClient, API_ROUTES } from '@/core/api'
+import { cacheInvalidation } from '@/core/cache/cacheInvalidation'
 import type { User } from '@/types/interfaces/user.interface'
 import type { PaginatedResponse } from '@/types/responses/pagination.interface'
 import type { ApiResponse } from '@/types/responses/apiResponse.interface'
@@ -60,6 +61,7 @@ export const useAdminStore = defineStore('admin', () => {
         payload,
       )
       if (data.data) syncUser(data.data)
+      cacheInvalidation.onUserUpdate()
       return data.data
     } catch (err: unknown) {
       error.value = extractMessage(err) || 'Помилка оновлення користувача'
@@ -74,6 +76,7 @@ export const useAdminStore = defineStore('admin', () => {
         payload,
       )
       if (data.data) syncUser(data.data)
+      cacheInvalidation.onUserUpdate()
       return data.data
     } catch (err: unknown) {
       error.value = extractMessage(err) || 'Помилка зміни ролі'
@@ -88,6 +91,7 @@ export const useAdminStore = defineStore('admin', () => {
         payload,
       )
       if (data.data) syncUser(data.data)
+      cacheInvalidation.onUserUpdate()
       return data.data
     } catch (err: unknown) {
       error.value = extractMessage(err) || 'Помилка зміни режиму роботи'
@@ -115,6 +119,7 @@ export const useAdminStore = defineStore('admin', () => {
       if (selectedUser.value?.id === id) {
         selectedUser.value = null
       }
+      cacheInvalidation.onUserUpdate()
     } catch (err: unknown) {
       error.value = extractMessage(err) || 'Помилка видалення користувача'
       throw err

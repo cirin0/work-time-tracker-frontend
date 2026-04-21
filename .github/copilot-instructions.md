@@ -6,7 +6,7 @@
 ## Architecture Overview
 
 **Stack**: Vue 3 (Composition API) + TypeScript + Vite + Pinia + Vue Router + VueUse  
-**Backend**: Laravel API at `http://localhost:8000/api` with Laravel Echo (Reverb) WebSockets
+**Backend**: Laravel API at `http://localhost:8000/api` with Laravel Echo (Ably) WebSockets
 
 ### Core Structure
 
@@ -355,7 +355,6 @@ When reviewing or writing code, verify:
 ## Integration Points
 
 - **Backend API**: Laravel Sanctum tokens, expects `withCredentials: true` for cookies
-- **WebSocket**: Laravel Reverb on `ws://localhost:8080` (config in `src/core/config/websocket.config.ts`)
 - **Broadcasting**: Private channel authorization via `/broadcasting/auth` endpoint (handled by Echo authorizer)
 
 ## When Modifying Core Systems

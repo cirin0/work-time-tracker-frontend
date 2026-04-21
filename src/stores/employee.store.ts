@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { apiClient, API_ROUTES } from '@/core/api'
 import { downloadBlob } from '@/core/utils/download'
+import { cacheInvalidation } from '@/core/cache/cacheInvalidation'
 import type { TimeEntry } from '@/types/interfaces/timeEntry.interface'
 import type { TimeEntrySummary } from '@/types/interfaces/timeEntrySummary.interface'
 import type { ApiResponse } from '@/types/responses/apiResponse.interface'
@@ -94,6 +95,7 @@ export const useEmployeeStore = defineStore('employee', () => {
       if (data.data) {
         activeEntry.value = data.data
       }
+      cacheInvalidation.onTimeEntryChange()
       await fetchTimeSummary()
       return data.data
     } catch (err: unknown) {
@@ -110,6 +112,7 @@ export const useEmployeeStore = defineStore('employee', () => {
         payload,
       )
       activeEntry.value = null
+      cacheInvalidation.onTimeEntryChange()
       await fetchTimeSummary()
       return data.data
     } catch (err: unknown) {

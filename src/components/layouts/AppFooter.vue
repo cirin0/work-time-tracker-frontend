@@ -8,10 +8,10 @@
         </div>
 
         <nav class="footer-links">
-          <a href="#" class="footer-link">Про нас</a>
-          <a href="#" class="footer-link">Підтримка</a>
-          <a href="#" class="footer-link">Конфіденційність</a>
-          <a href="#" class="footer-link">Умови використання</a>
+          <RouterLink :to="{ name: 'about' }" class="footer-link">Про нас</RouterLink>
+          <RouterLink :to="{ name: 'support' }" class="footer-link">Підтримка</RouterLink>
+          <RouterLink :to="{ name: 'privacy-policy' }" class="footer-link">Конфіденційність</RouterLink>
+          <RouterLink :to="{ name: 'terms-of-use' }" class="footer-link">Умови використання</RouterLink>
         </nav>
 
         <!-- <div class="footer-social">
@@ -113,7 +113,10 @@
   width: 0;
   height: 2px;
   background: var(--accent-2);
-  transition: width 0.3s;
+  transform-origin: left;
+  will-change: transform;
+  transition: transform 0.3s, opacity 0.3s;
+  opacity: 0;
 }
 
 .footer-link:hover {
@@ -121,7 +124,8 @@
 }
 
 .footer-link:hover::after {
-  width: 100%;
+  transform: scaleX(1);
+  opacity: 1;
 }
 
 .footer-social {

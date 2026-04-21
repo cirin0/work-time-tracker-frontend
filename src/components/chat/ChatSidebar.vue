@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useInfiniteScroll } from '@vueuse/core'
 import type { User } from '@/types/interfaces/user.interface'
 import UserListItem from './UserListItem.vue'
 import { useChatStore } from '@/stores/chat.store'
+import { debounce } from '@/core/utils/debounce'
 
 const props = defineProps<{
   users: User[]
@@ -20,6 +21,30 @@ const emit = defineEmits<{
 const chatStore = useChatStore()
 const usersListRef = ref<HTMLElement | null>(null)
 const canLoadMore = ref(false)
+const searchQuery = ref('')
+const debouncedQuery = ref('')
+
+const debouncedSearch = debounce((value: string) => {
+  debouncedQuery.value = value
+}, 300)
+
+watch(searchQuery, (newValue) => {
+  debouncedSearch(newValue)
+})
+
+function handleSelectUser(user: User) {
+  searchQuery.value = ''
+  debouncedQuery.value = ''
+  emit('selectUser', user)
+}
+
+const filteredUsers = computed(() => {
+  const q = debouncedQuery.value.toLowerCase().trim()
+  if (!q) return props.users
+  return props.users.filter(
+    (u) => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q),
+  )
+})
 
 watch(
   () => props.users.length,
@@ -50,23 +75,31 @@ useInfiniteScroll(
   <div class="users-sidebar">
     <div class="sidebar-header">
       <h2>Користувачі</h2>
+      <input
+        v-model="searchQuery"
+        type="text"
+        placeholder="Пошук..."
+        class="search-input"
+      />
     </div>
     <div ref="usersListRef" class="users-list">
       <div v-if="isLoadingUsers && users.length === 0" class="loading-state">Завантаження...</div>
-      <template v-else-if="users.length > 0">
+      <template v-else-if="filteredUsers.length > 0">
         <UserListItem
-          v-for="user in users"
+          v-for="user in filteredUsers"
           :key="user.id"
           :user="user"
           :is-active="selectedUserId === user.id"
           :unread-count="chatStore.getUnreadCount(user.id)"
-          @select="emit('selectUser', user)"
+          @select="handleSelectUser(user)"
         />
         <div v-if="isLoadingUsers && users.length > 0" class="loading-more">
           Завантаження більше...
         </div>
       </template>
-      <div v-else class="loading-state">Завантаження...</div>
+      <div v-else class="loading-state">
+        {{ searchQuery ? 'Нічого не знайдено' : 'Завантаження...' }}
+      </div>
     </div>
   </div>
 </template>
@@ -85,6 +118,12 @@ useInfiniteScroll(
   padding: 1.5rem;
   border-bottom: 1px solid var(--border);
   background-color: var(--surface);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .sidebar-header h2 {
@@ -93,6 +132,29 @@ useInfiniteScroll(
   font-weight: 600;
   font-family: var(--font-heading);
   color: var(--text);
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--text);
+  background: var(--surface);
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.search-input:focus {
+  border-color: var(--accent-2);
+  box-shadow: 0 0 0 3px rgba(255, 155, 81, 0.1);
+}
+
+.search-input::placeholder {
+  color: var(--text-muted);
 }
 
 .users-list {
