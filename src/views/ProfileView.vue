@@ -1065,9 +1065,9 @@ function downloadApp() {
   color: var(--text-muted);
 }
 .modal-success {
-  background: rgba(74, 222, 128, 0.12);
-  border: 1px solid rgba(74, 222, 128, 0.3);
-  color: var(--pin-ok-color);
+  background: var(--success-bg);
+  border: 1px solid var(--success-border);
+  color: var(--success-text);
   padding: 0.65rem 0.875rem;
   border-radius: 0.5rem;
   margin-bottom: 1rem;

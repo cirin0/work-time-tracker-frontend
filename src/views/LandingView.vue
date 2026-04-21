@@ -1098,7 +1098,7 @@ onMounted(() => {
 
 /* CTA Section */
 .cta-section {
-  background: linear-gradient(135deg, var(--accent-1) 0%, #1a2630 100%);
+  background: linear-gradient(135deg, var(--accent-1) 0%, var(--header-bg) 100%);
   color: var(--header-text);
 }
 

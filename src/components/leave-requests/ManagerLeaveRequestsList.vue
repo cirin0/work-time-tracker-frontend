@@ -54,23 +54,23 @@ defineEmits<{
 
 .loading-state p {
   font-size: 1rem;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .error-state {
-  background: #fee2e2;
-  border: 1px solid #fecaca;
+  background: var(--error-bg);
+  border: 1px solid var(--error-border);
   border-radius: 0.75rem;
 }
 
 .error-message {
-  color: #991b1b;
+  color: var(--error-text);
   margin-bottom: 1rem;
   font-size: 1rem;
 }
 
 .retry-button {
-  background: #dc2626;
+  background: var(--error-text);
   color: white;
   border: none;
   padding: 0.625rem 1.25rem;
@@ -82,12 +82,12 @@ defineEmits<{
 }
 
 .retry-button:hover {
-  background: #b91c1c;
+  filter: brightness(0.9);
 }
 
 .empty-state p {
   font-size: 1rem;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .requests-container {

@@ -17,9 +17,14 @@
           >Переваги</a
         >
         <a href="#features" class="nav-link" @click.prevent="scrollToSection('features')">Ціни</a>
+        <div class="mobile-theme-toggle">
+          <span>Тема:</span>
+          <ThemeToggle />
+        </div>
       </nav>
 
       <div class="header-actions">
+        <ThemeToggle class="landing-theme-toggle" />
         <button class="btn-login" @click="goToAuth">Увійти</button>
         <button class="btn-signup" @click="goToAuth">Почати безкоштовно</button>
       </div>
@@ -55,6 +60,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import ThemeToggle from '../ui/ThemeToggle.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -230,13 +236,27 @@ onUnmounted(() => {
 .btn-signup {
   background: var(--accent-2);
   color: var(--btn-on-accent);
-  box-shadow: 0 2px 8px rgba(255, 155, 81, 0.3);
+  box-shadow: 0 2px 8px var(--accent-2-shadow);
 }
 
 .btn-signup:hover {
   background: var(--accent-2-hover);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 155, 81, 0.4);
+  box-shadow: 0 4px 12px var(--accent-2-shadow);
+}
+
+.landing-theme-toggle {
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+.landing-theme-toggle:hover {
+  border-color: var(--accent-2) !important;
+  color: var(--accent-2) !important;
+}
+
+.mobile-theme-toggle {
+  display: none;
 }
 
 .mobile-menu-btn {
@@ -267,6 +287,18 @@ onUnmounted(() => {
   .header-nav.open {
     transform: translateY(0);
     opacity: 1;
+  }
+
+  .mobile-theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    width: 100%;
+    color: var(--text);
   }
 
   .header-actions {

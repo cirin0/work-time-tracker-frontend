@@ -85,8 +85,8 @@ function goToDetails() {
 
 <style scoped>
 .manager-leave-request-item {
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 0.75rem;
   padding: 1.5rem;
   margin-bottom: 1rem;
@@ -96,7 +96,7 @@ function goToDetails() {
 
 .manager-leave-request-item:hover {
   border-color: var(--accent-2);
-  box-shadow: 0 4px 12px rgba(255, 155, 81, 0.15);
+  box-shadow: 0 4px 12px var(--shadow);
   transform: translateY(-2px);
 }
 
@@ -106,7 +106,7 @@ function goToDetails() {
   align-items: flex-start;
   margin-bottom: 1rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--border);
   gap: 1rem;
 }
 
@@ -126,12 +126,12 @@ function goToDetails() {
 .employee-name {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
 }
 
 .employee-email {
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .request-type {
@@ -148,18 +148,33 @@ function goToDetails() {
 }
 
 .type-vacation {
-  background: #e3f2fd;
-  color: #1565c0;
+  background: var(--info-bg);
+  color: var(--info-text);
+  border: 1px solid var(--info-border);
 }
 
 .type-sick {
-  background: #fce4ec;
-  color: #c2185b;
+  background: var(--pink-bg);
+  color: var(--pink-text);
+  border: 1px solid var(--pink-border);
 }
 
 .type-personal {
-  background: #f3e5f5;
-  color: #7b1fa2;
+  background: var(--purple-bg);
+  color: var(--purple-text);
+  border: 1px solid var(--purple-border);
+}
+
+.type-unpaid {
+  background: var(--sand-light);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+.type-business_trip {
+  background: var(--role-admin-bg);
+  color: var(--role-admin-color);
+  border: 1px solid var(--role-admin-border);
 }
 
 .request-status {
@@ -172,18 +187,21 @@ function goToDetails() {
 }
 
 .status-pending {
-  background: #fff3cd;
-  color: #856404;
+  background: var(--warning-bg);
+  color: var(--warning-text);
+  border: 1px solid var(--warning-border);
 }
 
 .status-approved {
-  background: #d4edda;
-  color: #155724;
+  background: var(--success-bg);
+  color: var(--success-text);
+  border: 1px solid var(--success-border);
 }
 
 .status-rejected {
-  background: #f8d7da;
-  color: #721c24;
+  background: var(--error-bg);
+  color: var(--error-text);
+  border: 1px solid var(--error-border);
 }
 
 .request-body {
@@ -200,13 +218,13 @@ function goToDetails() {
 .dates-label {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .dates-value {
   font-size: 1rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
 }
 
 .request-reason,
@@ -219,7 +237,7 @@ function goToDetails() {
   display: block;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--text-muted);
   margin-bottom: 0.25rem;
 }
 
@@ -227,12 +245,12 @@ function goToDetails() {
 .comments-text {
   margin: 0;
   font-size: 0.875rem;
-  color: #1f2937;
+  color: var(--text);
   line-height: 1.5;
 }
 
 .manager-comments {
-  background: #f8f9fa;
+  background: var(--bg);
   padding: 0.75rem;
   border-radius: 0.5rem;
   border-left: 3px solid var(--accent-2);
@@ -240,9 +258,9 @@ function goToDetails() {
 
 .request-footer {
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: var(--text-muted);
   padding-top: 0.75rem;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
   align-items: center;

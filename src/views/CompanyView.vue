@@ -553,7 +553,7 @@ const managerId = computed(() => company.value?.manager?.id ?? null)
 /* ── Info grid ── */
 .info-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1rem;
 }
 .info-item {
@@ -600,8 +600,7 @@ const managerId = computed(() => company.value?.manager?.id ?? null)
 .manager-chip {
   display: flex;
   align-items: center;
-  gap: 0.625rem;
-  margin-top: 0.1rem;
+  gap: 0.75rem;
 }
 .manager-avatar-sm {
   width: 36px;
@@ -613,9 +612,8 @@ const managerId = computed(() => company.value?.manager?.id ?? null)
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text);
   font-size: 0.875rem;
-  color: white;
+  color: var(--header-text);
   font-weight: 700;
 }
 .manager-avatar-img {
@@ -713,7 +711,7 @@ const managerId = computed(() => company.value?.manager?.id ?? null)
 }
 .employee-search-input:focus {
   border-color: var(--accent-2);
-  box-shadow: 0 0 0 3px rgba(255, 155, 81, 0.1);
+  box-shadow: 0 0 0 3px var(--shadow);
 }
 .search-clear-btn {
   position: absolute;
@@ -735,7 +733,7 @@ const managerId = computed(() => company.value?.manager?.id ?? null)
 }
 .search-clear-btn:hover {
   color: var(--text);
-  background: var(--surface-hover);
+  background: var(--sand-light);
 }
 .empty-search-icon {
   display: block;
@@ -746,7 +744,7 @@ const managerId = computed(() => company.value?.manager?.id ?? null)
 
 /* ── Add Employee (Autocomplete) ── */
 .add-employee-container {
-  background: var(--surface-hover);
+  background: var(--sand-light);
   border-radius: 0.75rem;
   padding: 1rem;
   margin-bottom: 1.5rem;
@@ -778,7 +776,7 @@ const managerId = computed(() => company.value?.manager?.id ?? null)
 
 .id-input:focus {
   border-color: var(--accent-2);
-  box-shadow: 0 0 3px rgba(255, 155, 81, 0.2);
+  box-shadow: 0 0 3px var(--shadow);
 }
 
 .btn-add {
@@ -814,12 +812,11 @@ const managerId = computed(() => company.value?.manager?.id ?? null)
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 0.75rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 25px var(--shadow);
   list-style: none;
   padding: 0.5rem;
   margin: 0;
   z-index: 100;
-  backdrop-filter: blur(8px);
 }
 
 .search-dropdown-item {
@@ -833,7 +830,7 @@ const managerId = computed(() => company.value?.manager?.id ?? null)
 }
 
 .search-dropdown-item:hover {
-  background: rgba(255, 155, 81, 0.08);
+  background: var(--sand-light);
 }
 
 .dropdown-name {
@@ -854,7 +851,7 @@ const managerId = computed(() => company.value?.manager?.id ?? null)
 }
 
 .add-success {
-  color: #10b981;
+  color: var(--success-text);
   font-size: 0.8rem;
   margin: 0.5rem 0 0 0;
 }

@@ -70,7 +70,7 @@ function reload() {
 .error-content {
   max-width: 600px;
   width: 100%;
-  background: white;
+  background: var(--surface);
   border-radius: 1rem;
   padding: 2.5rem;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
@@ -99,12 +99,12 @@ function reload() {
 .error-title {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #dc2626;
+  color: var(--error-text);
   margin-bottom: 0.75rem;
 }
 
 .error-message {
-  color: #6b7280;
+  color: var(--text-muted);
   font-size: 1rem;
   line-height: 1.6;
   margin-bottom: 1.5rem;
@@ -113,8 +113,8 @@ function reload() {
 .error-details {
   margin: 1.5rem 0;
   text-align: left;
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
+  background: var(--bg);
+  border: 1px solid var(--border);
   border-radius: 0.5rem;
   padding: 1rem;
 }
@@ -122,20 +122,20 @@ function reload() {
 .error-details summary {
   cursor: pointer;
   font-weight: 600;
-  color: #374151;
+  color: var(--text);
   margin-bottom: 0.5rem;
 }
 
 .error-details summary:hover {
-  color: #1f2937;
+  color: var(--text);
 }
 
 .error-stack,
 .error-info {
   margin-top: 0.5rem;
   padding: 0.75rem;
-  background: #1f2937;
-  color: #f3f4f6;
+  background: var(--accent-1);
+  color: var(--bg);
   border-radius: 0.375rem;
   font-size: 0.75rem;
   overflow-x: auto;
@@ -162,22 +162,22 @@ function reload() {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
-  color: white;
+  background: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 100%);
+  color: var(--header-text);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 4px 12px var(--shadow);
 }
 
 .btn-secondary {
-  background: #f3f4f6;
-  color: #374151;
+  background: var(--sand-light);
+  color: var(--text);
 }
 
 .btn-secondary:hover {
-  background: #e5e7eb;
+  background: var(--border);
 }
 
 @media (max-width: var(--bp-sm)) {

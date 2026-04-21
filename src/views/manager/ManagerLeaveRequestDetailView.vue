@@ -1,39 +1,97 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRoute } from 'vue-router'
-import { useManagerStore } from '@/stores/manager.store'
-import { useRoleGuard } from '@/composables/useRoleGuard'
-import { LeaveRequestStatus, LeaveRequestType } from '@/types/enums/enums.types'
-import { formatDate } from '@/core/utils/date'
-import { getAvatarUrl } from '@/core/utils/url'
+import { ref, computed, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useManagerStore } from '@/stores/manager.store.ts'
+import { useAuthStore } from '@/stores/auth.store.ts'
+import type { LeaveRequest } from '@/types/interfaces/leaveRequest.interface.ts'
+import { LeaveRequestStatus, LeaveRequestType } from '@/types/enums/enums.types.ts'
+import { formatDate } from '@/core/utils/date.ts'
+import { getAvatarUrl } from '@/core/utils/url.ts'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import Card from '@/components/ui/Card.vue'
+import Badge from '@/components/ui/Badge.vue'
 import Avatar from '@/components/ui/Avatar.vue'
 import ApproveModal from '@/components/leave-requests/ApproveModal.vue'
 import RejectModal from '@/components/leave-requests/RejectModal.vue'
-import type { LeaveRequest } from '@/types/interfaces/leaveRequest.interface'
+
+import CalendarIcon from '@/icons/CalendarIcon.vue'
+import DocumentTextIcon from '@/icons/DocumentTextIcon.vue'
+import UserIcon from '@/icons/UserIcon.vue'
+import CheckCircleIcon from '@/icons/CheckCircleIcon.vue'
+import XCircleIcon from '@/icons/XCircleIcon.vue'
 
 const route = useRoute()
+const router = useRouter()
 const managerStore = useManagerStore()
-const { isManager, isAdmin } = useRoleGuard()
+const authStore = useAuthStore()
 
-const currentLeaveRequest = ref<LeaveRequest | null>(null)
+const requestId = computed(() => Number(route.params.id))
+const request = ref<LeaveRequest | null>(null)
 const isLoading = ref(false)
 const error = ref<string | null>(null)
 
 const showApproveModal = ref(false)
-const showRejectModal = ref(false)
-const isProcessing = ref(false)
+const isApproving = ref(false)
 const approveModalRef = ref<InstanceType<typeof ApproveModal> | null>(null)
+
+const showRejectModal = ref(false)
+const isRejecting = ref(false)
 const rejectModalRef = ref<InstanceType<typeof RejectModal> | null>(null)
 
 const canManage = computed(() => {
+  if (!request.value || request.value.status !== LeaveRequestStatus.PENDING) return false
   return (
-    (isManager.value || isAdmin.value) &&
-    currentLeaveRequest.value?.status === LeaveRequestStatus.PENDING
+    authStore.currentUser?.role === 'admin' ||
+    authStore.currentUser?.id === request.value.company?.manager_id
   )
 })
+
+onMounted(loadRequestDetails)
+
+async function loadRequestDetails() {
+  isLoading.value = true
+  error.value = null
+  try {
+    const data = await managerStore.fetchLeaveRequestById(requestId.value)
+    if (data) {
+      request.value = data
+    } else {
+      error.value = 'Запит не знайдено'
+    }
+  } catch (err) {
+    console.error('Failed to load request details:', err)
+    error.value = managerStore.error || 'Не вдалося завантажити деталі запиту'
+  } finally {
+    isLoading.value = false
+  }
+}
+
+async function handleApprove(comment: string) {
+  isApproving.value = true
+  try {
+    await managerStore.approveLeaveRequest(requestId.value, comment)
+    showApproveModal.value = false
+    await loadRequestDetails()
+  } catch (err) {
+    approveModalRef.value?.setError(managerStore.error || 'Помилка при схваленні запиту')
+  } finally {
+    isApproving.value = false
+  }
+}
+
+async function handleReject(comment: string) {
+  isRejecting.value = true
+  try {
+    await managerStore.rejectLeaveRequest(requestId.value, comment)
+    showRejectModal.value = false
+    await loadRequestDetails()
+  } catch (err) {
+    rejectModalRef.value?.setError(managerStore.error || 'Помилка при відхиленні запиту')
+  } finally {
+    isRejecting.value = false
+  }
+}
 
 function getTypeLabel(type: LeaveRequestType): string {
   const labels: Record<LeaveRequestType, string> = {
@@ -55,282 +113,270 @@ function getStatusLabel(status: LeaveRequestStatus): string {
   return labels[status] || status
 }
 
-async function fetchLeaveRequest(id: string) {
-  isLoading.value = true
-  error.value = null
-  try {
-    currentLeaveRequest.value = await managerStore.fetchLeaveRequestById(id)
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Помилка завантаження запиту'
-  } finally {
-    isLoading.value = false
+function getStatusVariant(status: LeaveRequestStatus) {
+  switch (status) {
+    case LeaveRequestStatus.APPROVED:
+      return 'success'
+    case LeaveRequestStatus.REJECTED:
+      return 'danger'
+    default:
+      return 'active'
   }
 }
-
-async function handleApproveSubmit(comments: string) {
-  if (!currentLeaveRequest.value) return
-  isProcessing.value = true
-  try {
-    await managerStore.approveLeaveRequest(
-      currentLeaveRequest.value.id,
-      comments ? { manager_comment: comments } : undefined,
-    )
-    showApproveModal.value = false
-    await fetchLeaveRequest(route.params.id as string)
-  } catch (err) {
-    approveModalRef.value?.setError(err instanceof Error ? err.message : 'Помилка схвалення запиту')
-  } finally {
-    isProcessing.value = false
-  }
-}
-
-async function handleRejectSubmit(comments: string) {
-  if (!currentLeaveRequest.value) return
-  isProcessing.value = true
-  try {
-    await managerStore.rejectLeaveRequest(currentLeaveRequest.value.id, {
-      manager_comment: comments,
-    })
-    showRejectModal.value = false
-    await fetchLeaveRequest(route.params.id as string)
-  } catch (err) {
-    rejectModalRef.value?.setError(err instanceof Error ? err.message : 'Помилка відхилення запиту')
-  } finally {
-    isProcessing.value = false
-  }
-}
-
-onMounted(() => fetchLeaveRequest(route.params.id as string))
-onUnmounted(() => {
-  currentLeaveRequest.value = null
-})
 </script>
 
 <template>
-  <div class="detail-view">
-    <PageHeader title="Деталі запиту на відпустку" back-route="manager" />
+  <div class="request-detail-page">
+    <PageHeader title="Деталі запиту" back-route="manager" />
 
-    <LoadingSpinner v-if="isLoading" text="Завантаження..." />
-
-    <div v-else-if="error" class="state-center">
-      <p class="error-text">{{ error }}</p>
-      <button class="btn-primary" @click="fetchLeaveRequest(route.params.id as string)">
-        Спробувати ще раз
-      </button>
+    <div v-if="isLoading" class="loading-wrapper">
+      <LoadingSpinner text="Завантаження деталей запиту..." />
     </div>
 
-    <div v-else-if="currentLeaveRequest" class="cards-layout">
+    <div v-else-if="error" class="error-wrapper">
       <Card>
-        <template #header>
-          <div class="card-header-row">
-            <div>
-              <span class="request-type">{{ getTypeLabel(currentLeaveRequest.type) }}</span>
-              <span class="request-dates">
-                {{ formatDate(currentLeaveRequest.start_date) }} —
-                {{ formatDate(currentLeaveRequest.end_date) }}
-              </span>
-            </div>
-            <span class="status-pill" :class="`status-${currentLeaveRequest.status}`">
-              {{ getStatusLabel(currentLeaveRequest.status) }}
-            </span>
-          </div>
-        </template>
-
-        <div class="detail-grid">
-          <div class="detail-item">
-            <span class="detail-label">ID запиту</span>
-            <span class="detail-value">#{{ currentLeaveRequest.id }}</span>
-          </div>
-          <div class="detail-item">
-            <span class="detail-label">Тип</span>
-            <span class="detail-value">{{ getTypeLabel(currentLeaveRequest.type) }}</span>
-          </div>
-          <div class="detail-item">
-            <span class="detail-label">Дата початку</span>
-            <span class="detail-value">{{ formatDate(currentLeaveRequest.start_date) }}</span>
-          </div>
-          <div class="detail-item">
-            <span class="detail-label">Дата кінця</span>
-            <span class="detail-value">{{ formatDate(currentLeaveRequest.end_date) }}</span>
-          </div>
-          <div class="detail-item">
-            <span class="detail-label">Статус</span>
-            <span class="detail-value">{{ getStatusLabel(currentLeaveRequest.status) }}</span>
-          </div>
-          <div class="detail-item">
-            <span class="detail-label">Створено</span>
-            <span class="detail-value">{{ formatDate(currentLeaveRequest.created_at) }}</span>
-          </div>
-        </div>
-
-        <template v-if="currentLeaveRequest.reason" #footer>
-          <div class="request-reason">
-            <span class="detail-label">Причина</span>
-            <p class="reason-text">{{ currentLeaveRequest.reason }}</p>
-          </div>
-        </template>
-      </Card>
-
-      <Card v-if="currentLeaveRequest.user">
-        <template #header><h2>Заявник</h2></template>
-        <div class="user-row">
-          <Avatar
-            :src="getAvatarUrl(currentLeaveRequest.user.avatar) || undefined"
-            :fallback-text="currentLeaveRequest.user.name"
-            size="medium"
-            bordered
-          />
-          <div>
-            <div class="user-name">{{ currentLeaveRequest.user.name }}</div>
-            <div class="user-email">{{ currentLeaveRequest.user.email }}</div>
-          </div>
-        </div>
-      </Card>
-
-      <Card v-if="currentLeaveRequest.manager_comment">
-        <template #header>
-          <h2>Коментар менеджера</h2>
-          <div v-if="currentLeaveRequest.processor" class="processor-row">
-            <Avatar
-              :src="getAvatarUrl(currentLeaveRequest.processor.avatar) || undefined"
-              :fallback-text="currentLeaveRequest.processor.name"
-              size="small"
-            />
-            <span class="processor-name">{{ currentLeaveRequest.processor.name }}</span>
-          </div>
-        </template>
-        <p class="comment-text">{{ currentLeaveRequest.manager_comment }}</p>
-      </Card>
-
-      <Card v-if="canManage" :no-padding="true">
-        <div class="action-buttons">
-          <button class="btn-approve" @click="showApproveModal = true" :disabled="isProcessing">
-            ✓ Схвалити
-          </button>
-          <button class="btn-reject" @click="showRejectModal = true" :disabled="isProcessing">
-            ✗ Відхилити
-          </button>
+        <div class="error-content">
+          <div class="error-icon">⚠️</div>
+          <p>{{ error }}</p>
+          <button class="btn-primary" @click="loadRequestDetails">Спробувати знову</button>
         </div>
       </Card>
     </div>
 
+    <div v-else-if="request" class="content-layout">
+      <div class="cards-layout">
+        <!-- Main Info Card -->
+        <Card>
+          <template #header>
+            <div class="card-header-row">
+              <div class="title-group">
+                <span class="request-type">{{ getTypeLabel(request.type) }}</span>
+                <span class="request-id">ID: #{{ request.id }}</span>
+              </div>
+              <Badge :variant="getStatusVariant(request.status)">
+                {{ getStatusLabel(request.status) }}
+              </Badge>
+            </div>
+          </template>
+
+          <div class="details-grid">
+            <div class="detail-item">
+              <div class="detail-label-row">
+                <CalendarIcon class="detail-icon" />
+                <span class="detail-label">ПЕРІОД</span>
+              </div>
+              <div class="detail-value">
+                {{ formatDate(request.start_date) }} — {{ formatDate(request.end_date) }}
+              </div>
+            </div>
+
+            <div class="detail-item">
+              <div class="detail-label-row">
+                <UserIcon class="detail-icon" />
+                <span class="detail-label">СПІВРОБІТНИК</span>
+              </div>
+              <div class="user-row">
+                <Avatar :src="getAvatarUrl(request.user?.avatar)" :name="request.user?.name" size="sm" />
+                <div class="user-info">
+                  <div class="user-name">{{ request.user?.name }}</div>
+                  <div class="user-email">{{ request.user?.email }}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="detail-item full-width">
+              <div class="detail-label-row">
+                <DocumentTextIcon class="detail-icon" />
+                <span class="detail-label">ПРИЧИНА ТА ОБҐРУНТУВАННЯ</span>
+              </div>
+              <p class="reason-text">{{ request.reason || 'Причина не вказана' }}</p>
+            </div>
+          </div>
+
+          <template v-if="canManage" #footer>
+            <div class="action-buttons">
+              <button class="btn-reject" @click="showRejectModal = true">Відхилити</button>
+              <button class="btn-approve" @click="showApproveModal = true">Схвалити запит</button>
+            </div>
+          </template>
+        </Card>
+
+        <!-- Status History / Management Card -->
+        <Card v-if="request.status !== LeaveRequestStatus.PENDING">
+          <template #header>
+            <div class="card-header-row">
+              <div class="title-group">
+                <span class="request-type">Рішення менеджера</span>
+              </div>
+              <div class="status-icon">
+                <CheckCircleIcon v-if="request.status === LeaveRequestStatus.APPROVED" class="icon-success" />
+                <XCircleIcon v-else class="icon-danger" />
+              </div>
+            </div>
+          </template>
+
+          <div class="details-grid">
+            <div class="detail-item">
+              <div class="detail-label-row">
+                <span class="detail-label">ОПРАЦЬОВАНО</span>
+              </div>
+              <div class="processor-row">
+                <Avatar :name="request.processor?.name" size="xs" />
+                <span class="processor-name">
+                  {{ request.processor?.name }} ({{ formatDate(request.updated_at) }})
+                </span>
+              </div>
+            </div>
+
+            <div class="detail-item full-width">
+              <div class="detail-label-row">
+                <span class="detail-label">КОМЕНТАР МЕНЕДЖЕРА</span>
+              </div>
+              <p class="comment-text">{{ request.manager_comment || 'Без коментарів' }}</p>
+            </div>
+          </div>
+        </Card>
+      </div>
+    </div>
+
+    <!-- Modals -->
     <ApproveModal
-      ref="approveModalRef"
       :show-modal="showApproveModal"
-      :is-submitting="isProcessing"
+      :is-submitting="isApproving"
+      ref="approveModalRef"
       @close="showApproveModal = false"
-      @submit="handleApproveSubmit"
+      @submit="handleApprove"
     />
+
     <RejectModal
-      ref="rejectModalRef"
       :show-modal="showRejectModal"
-      :is-submitting="isProcessing"
+      :is-submitting="isRejecting"
+      ref="rejectModalRef"
       @close="showRejectModal = false"
-      @submit="handleRejectSubmit"
+      @submit="handleReject"
     />
   </div>
 </template>
 
 <style scoped>
-.detail-view {
-  max-width: var(--container-max);
+.request-detail-page {
+  max-width: 800px;
   margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.loading-wrapper,
+.error-wrapper {
+  padding: 4rem 0;
+}
+
+.error-content {
+  text-align: center;
   padding: 2rem;
 }
-.state-center {
+
+.error-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.error-content p {
+  color: var(--error-text);
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  padding: 0.5rem 0;
+}
+
+.detail-item {
   display: flex;
   flex-direction: column;
+  gap: 0.75rem;
+}
+
+.detail-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.detail-label-row {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  min-height: 40vh;
-  gap: 1rem;
+  gap: 0.5rem;
 }
-.error-text {
-  color: var(--error-text);
+
+.detail-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+  color: var(--accent-2);
 }
-.btn-primary {
-  padding: 0.6rem 1.25rem;
-  background: var(--accent-2);
-  color: var(--btn-on-accent);
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-.status-pill {
-  display: inline-block;
-  padding: 0.3rem 0.875rem;
-  border-radius: 9999px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  white-space: nowrap;
-}
-.status-pending {
-  background: #fef3c7;
-  color: #92400e;
-}
-.status-approved {
-  background: #d1fae5;
-  color: #065f46;
-}
-.status-rejected {
-  background: #fee2e2;
-  color: #991b1b;
-}
+
 .detail-label {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text-muted);
 }
+
 .detail-value {
   font-size: 0.95rem;
   font-weight: 500;
   color: var(--text);
 }
+
 .user-row {
   display: flex;
   align-items: center;
   gap: 0.875rem;
 }
+
 .user-name {
   font-weight: 600;
   font-size: 0.95rem;
   color: var(--text);
 }
+
 .user-email {
   font-size: 0.8rem;
   color: var(--text-muted);
 }
+
 .processor-row {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
+
 .processor-name {
   font-size: 0.8rem;
   color: var(--text-muted);
   font-weight: 500;
 }
+
 .reason-text {
   margin: 0.5rem 0 0;
   font-size: 0.9rem;
   color: var(--text);
   line-height: 1.6;
 }
+
 .comment-text {
   margin: 0;
   font-size: 0.9rem;
   color: var(--text);
   line-height: 1.6;
 }
+
 .action-buttons {
   display: flex;
   gap: 1rem;
   padding: 1.25rem 1.75rem;
 }
+
 .btn-approve,
 .btn-reject {
   flex: 1;
@@ -342,23 +388,28 @@ onUnmounted(() => {
   transition: all 0.2s;
   border: none;
 }
+
 .btn-approve {
   background: var(--accent-2);
   color: var(--btn-on-accent);
 }
+
 .btn-approve:hover:not(:disabled) {
   filter: brightness(1.1);
   transform: translateY(-1px);
 }
+
 .btn-reject {
   background: var(--sand-light);
-  color: #991b1b;
-  border: 1.5px solid #fecaca;
+  color: var(--error-text);
+  border: 1.5px solid var(--error-border);
 }
+
 .btn-reject:hover:not(:disabled) {
-  background: #fee2e2;
+  background: var(--error-bg);
   transform: translateY(-1px);
 }
+
 .btn-approve:disabled,
 .btn-reject:disabled {
   opacity: 0.5;
@@ -370,6 +421,7 @@ onUnmounted(() => {
   flex-direction: column;
   gap: 1.25rem;
 }
+
 .card-header-row {
   display: flex;
   justify-content: space-between;
@@ -377,6 +429,7 @@ onUnmounted(() => {
   width: 100%;
   gap: 1rem;
 }
+
 .request-type {
   font-size: 1rem;
   font-weight: 700;
@@ -384,43 +437,24 @@ onUnmounted(() => {
   display: block;
   margin-bottom: 0.25rem;
 }
-.request-dates {
-  font-size: 0.85rem;
+
+.request-id {
+  font-size: 0.75rem;
   color: var(--text-muted);
-}
-.detail-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0;
-}
-.detail-grid .detail-item {
-  padding: 1rem 0;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-.detail-grid .detail-item:nth-last-child(-n + 2) {
-  border-bottom: none;
-}
-.v1-reason {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  font-weight: 500;
 }
 
-@media (max-width: 768px) {
-  .detail-view {
-    padding: 1rem;
-  }
-  .detail-grid {
+.icon-success { color: var(--pin-ok-color); width: 2rem; height: 2rem; }
+.icon-danger { color: var(--error-text); width: 2rem; height: 2rem; }
+
+@media (max-width: var(--bp-md)) {
+  .details-grid {
     grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
-  .detail-grid .detail-item:nth-last-child(-n + 2) {
-    border-bottom: 1px solid var(--border);
-  }
-  .detail-grid .detail-item:last-child {
-    border-bottom: none;
+  
+  .action-buttons {
+    flex-direction: column;
   }
 }
 </style>

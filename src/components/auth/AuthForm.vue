@@ -115,8 +115,8 @@ watch(unverifiedEmail, (email) => {
 .success-alert {
   padding: 0.75rem 1rem;
   margin-bottom: 1rem;
-  background-color: rgba(74, 222, 128, 0.1);
-  border: 1px solid rgba(74, 222, 128, 0.3);
+  background-color: var(--success-bg);
+  border: 1px solid var(--success-border);
   border-radius: 0.5rem;
   color: var(--pin-ok-color);
   font-family: var(--font-body);

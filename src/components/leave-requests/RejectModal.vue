@@ -116,7 +116,7 @@ defineExpose({
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -125,13 +125,14 @@ defineExpose({
 }
 
 .modal-container {
-  background: white;
+  background: var(--surface);
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 20px var(--shadow);
   width: 100%;
   max-width: 500px;
   max-height: 90vh;
   overflow-y: auto;
+  border-top: 4px solid var(--error-text);
 }
 
 .modal-header {
@@ -139,13 +140,13 @@ defineExpose({
   justify-content: space-between;
   align-items: center;
   padding: 24px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--border);
 }
 
 .modal-header h2 {
   margin: 0;
   font-size: 1.25rem;
-  color: #1f2937;
+  color: var(--text);
   font-weight: 600;
 }
 
@@ -153,7 +154,7 @@ defineExpose({
   background: none;
   border: none;
   font-size: 32px;
-  color: #6b7280;
+  color: var(--text-muted);
   cursor: pointer;
   padding: 0;
   width: 32px;
@@ -166,7 +167,7 @@ defineExpose({
 }
 
 .close-button:hover {
-  background: #f0f0f0;
+  background: var(--bg);
 }
 
 .modal-form {
@@ -174,12 +175,12 @@ defineExpose({
 }
 
 .error-alert {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--error-bg);
+  color: var(--error-text);
   padding: 12px 16px;
   border-radius: 6px;
   margin-bottom: 20px;
-  border: 1px solid #fecaca;
+  border: 1px solid var(--error-border);
 }
 
 .form-group {
@@ -190,19 +191,21 @@ defineExpose({
   display: block;
   margin-bottom: 8px;
   font-weight: 600;
-  color: #374151;
+  color: var(--text);
   font-size: 0.875rem;
 }
 
 .required {
-  color: #dc3545;
+  color: var(--error-text);
   margin-left: 4px;
 }
 
 .form-textarea {
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
   border-radius: 6px;
   font-size: 0.875rem;
   font-family: inherit;
@@ -213,16 +216,16 @@ defineExpose({
 
 .form-textarea:focus {
   outline: none;
-  border-color: #9333ea;
+  border-color: var(--error-text);
 }
 
 .input-error {
-  border-color: #dc3545;
+  border-color: var(--error-text);
 }
 
 .field-error {
   display: block;
-  color: #dc3545;
+  color: var(--error-text);
   font-size: 0.75rem;
   margin-top: 4px;
 }
@@ -233,7 +236,7 @@ defineExpose({
   gap: 12px;
   margin-top: 24px;
   padding-top: 20px;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--border);
 }
 
 .btn-secondary,
@@ -248,26 +251,27 @@ defineExpose({
 }
 
 .btn-secondary {
-  background: #f3f4f6;
-  color: #374151;
+  background: var(--sand);
+  color: var(--text);
 }
 
 .btn-secondary:hover {
-  background: #e5e7eb;
+  background: var(--sand-light);
 }
 
 .btn-danger {
-  background: #dc2626;
+  background: var(--error-text);
   color: white;
 }
 
 .btn-danger:hover:not(:disabled) {
-  background: #b91c1c;
+  filter: brightness(0.9);
 }
 
 .btn-danger:disabled {
-  background: #fca5a5;
+  background: var(--sand);
   cursor: not-allowed;
+  opacity: 0.6;
 }
 
 @media (max-width: var(--bp-md)) {

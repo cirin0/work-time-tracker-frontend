@@ -77,8 +77,8 @@ function getStatusLabel(status: LeaveRequestStatus): string {
   display: block;
   text-decoration: none;
   color: inherit;
-  background: white;
-  border: 1px solid #e0e0e0;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 20px;
   margin-bottom: 16px;
@@ -89,8 +89,8 @@ function getStatusLabel(status: LeaveRequestStatus): string {
 }
 
 .leave-request-item:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-color: #2563eb;
+  box-shadow: 0 2px 8px var(--shadow);
+  border-color: var(--accent-2);
 }
 
 .leave-request-header {
@@ -123,18 +123,33 @@ function getStatusLabel(status: LeaveRequestStatus): string {
 }
 
 .type-vacation {
-  background: #e3f2fd;
-  color: #1565c0;
+  background: var(--info-bg);
+  color: var(--info-text);
+  border: 1px solid var(--info-border);
 }
 
 .type-sick {
-  background: #fce4ec;
-  color: #c2185b;
+  background: var(--pink-bg);
+  color: var(--pink-text);
+  border: 1px solid var(--pink-border);
 }
 
 .type-personal {
-  background: #f3e5f5;
-  color: #7b1fa2;
+  background: var(--purple-bg);
+  color: var(--purple-text);
+  border: 1px solid var(--purple-border);
+}
+
+.type-unpaid {
+  background: var(--sand-light);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+.type-business_trip {
+  background: var(--role-admin-bg);
+  color: var(--role-admin-color);
+  border: 1px solid var(--role-admin-border);
 }
 
 .leave-request-dates {
@@ -145,7 +160,7 @@ function getStatusLabel(status: LeaveRequestStatus): string {
 
 .date-label {
   font-size: 12px;
-  color: #666;
+  color: var(--text-muted);
   text-transform: uppercase;
   font-weight: 600;
 }
@@ -153,7 +168,7 @@ function getStatusLabel(status: LeaveRequestStatus): string {
 .date-value {
   font-size: 16px;
   font-weight: 600;
-  color: #333;
+  color: var(--text);
 }
 
 .leave-request-status {
@@ -165,18 +180,21 @@ function getStatusLabel(status: LeaveRequestStatus): string {
 }
 
 .status-pending {
-  background: #fff3cd;
-  color: #856404;
+  background: var(--warning-bg);
+  color: var(--warning-text);
+  border: 1px solid var(--warning-border);
 }
 
 .status-approved {
-  background: #d4edda;
-  color: #155724;
+  background: var(--success-bg);
+  color: var(--success-text);
+  border: 1px solid var(--success-border);
 }
 
 .status-rejected {
-  background: #f8d7da;
-  color: #721c24;
+  background: var(--error-bg);
+  color: var(--error-text);
+  border: 1px solid var(--error-border);
 }
 
 .leave-request-body {
@@ -193,7 +211,7 @@ function getStatusLabel(status: LeaveRequestStatus): string {
   display: block;
   font-size: 14px;
   font-weight: 600;
-  color: #555;
+  color: var(--text);
   margin-bottom: 6px;
 }
 
@@ -201,24 +219,24 @@ function getStatusLabel(status: LeaveRequestStatus): string {
 .comment-text {
   margin: 0;
   font-size: 14px;
-  color: #333;
+  color: var(--text);
   line-height: 1.6;
 }
 
 .leave-request-comment {
-  background: #f8f9fa;
+  background: var(--bg);
   padding: 12px;
   border-radius: 6px;
-  border-left: 3px solid #007bff;
+  border-left: 3px solid var(--accent-2);
 }
 
 .leave-request-footer {
   display: flex;
   justify-content: space-between;
   font-size: 12px;
-  color: #999;
+  color: var(--text-muted);
   padding-top: 12px;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid var(--border);
 }
 
 @media (max-width: var(--bp-md)) {

@@ -35,6 +35,10 @@
   --accent-1: #25343f;
   --accent-2: #ff9b51;
   --accent-2-hover: #ffab6a;
+  --accent-2-shadow: rgba(255, 155, 81, 0.3);
+  --accent-2-alpha-10: rgba(255, 155, 81, 0.1);
+  --accent-2-alpha-15: rgba(255, 155, 81, 0.15);
+  --accent-2-alpha-20: rgba(255, 155, 81, 0.2);
   --sand: #bfc9d1;
   --sand-light: #d8e6e6;
   --text: #25343f;
@@ -67,12 +71,41 @@
   --error-border: rgba(239, 68, 68, 0.3);
   --error-text: #ef4444;
 
+  --success-bg: rgba(34, 197, 94, 0.1);
+  --success-border: rgba(34, 197, 94, 0.2);
+  --success-text: #16a34a;
+
+  --warning-bg: rgba(245, 158, 11, 0.1);
+  --warning-border: rgba(245, 158, 11, 0.2);
+  --warning-text: #d97706;
+
+  --info-bg: rgba(59, 130, 246, 0.1);
+  --info-border: rgba(59, 130, 246, 0.2);
+  --info-text: #2563eb;
+
+  --status-pending: #94a3b8;
+  --status-on-track: #3b82f6;
+  --status-completed: #22c55e;
+  --status-overtime: #f59e0b;
+
+  --purple-bg: rgba(168, 85, 247, 0.1);
+  --purple-border: rgba(168, 85, 247, 0.2);
+  --purple-text: #7e22ce;
+
+  --pink-bg: rgba(236, 72, 153, 0.1);
+  --pink-border: rgba(236, 72, 153, 0.2);
+  --pink-text: #be185d;
+
   /* Always dark text on accent-2 (orange) buttons — constant in both modes */
   --btn-on-accent: #25343f;
 
   /* Company link button (light mode) */
   --company-link-bg: rgba(37, 52, 63, 0.07);
   --company-link-border: rgba(37, 52, 63, 0.2);
+
+  /* Header nav hover/active */
+  --nav-hover-bg: rgba(255, 155, 81, 0.1);
+  --nav-active-bg: rgba(255, 155, 81, 0.15);
 
   /* Manager avatar background */
   --manager-avatar-bg: #25343f;
@@ -89,6 +122,10 @@
   --accent-1: #ff9b51;
   --accent-2: #ffb37a;
   --accent-2-hover: #ffc090;
+  --accent-2-shadow: rgba(0, 0, 0, 0.4);
+  --accent-2-alpha-10: rgba(255, 155, 81, 0.15);
+  --accent-2-alpha-15: rgba(255, 155, 81, 0.2);
+  --accent-2-alpha-20: rgba(255, 155, 81, 0.25);
   --sand: #4a6070;
   --sand-light: #1e2d3a;
   --text: #eaefef;
@@ -120,9 +157,38 @@
   --error-border: rgba(254, 202, 202, 0.2);
   --error-text: #fca5a5;
 
+  --success-bg: rgba(74, 222, 128, 0.1);
+  --success-border: rgba(74, 222, 128, 0.2);
+  --success-text: #4ade80;
+
+  --warning-bg: rgba(251, 191, 36, 0.1);
+  --warning-border: rgba(251, 191, 36, 0.2);
+  --warning-text: #fbbf24;
+
+  --info-bg: rgba(96, 165, 250, 0.1);
+  --info-border: rgba(96, 165, 250, 0.2);
+  --info-text: #60a5fa;
+
+  --status-pending: #4a6070;
+  --status-on-track: #3b82f6;
+  --status-completed: #4ade80;
+  --status-overtime: #fbbf24;
+
+  --purple-bg: rgba(192, 132, 252, 0.1);
+  --purple-border: rgba(192, 132, 252, 0.2);
+  --purple-text: #ba68c8;
+
+  --pink-bg: rgba(244, 114, 182, 0.1);
+  --pink-border: rgba(244, 114, 182, 0.2);
+  --pink-text: #f06292;
+
   /* Company link button (dark mode) */
   --company-link-bg: rgba(255, 155, 81, 0.1);
   --company-link-border: rgba(255, 155, 81, 0.25);
+
+  /* Header nav hover/active */
+  --nav-hover-bg: rgba(255, 155, 81, 0.1);
+  --nav-active-bg: rgba(255, 155, 81, 0.15);
 
   /* Manager avatar background */
   --manager-avatar-bg: rgba(255, 155, 81, 0.12);

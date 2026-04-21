@@ -46,19 +46,19 @@ function goBack() {
 h1 {
   font-size: 2rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--text);
   margin: 0 0 0.25rem;
 }
 
 .subtitle {
-  color: #6b7280;
+  color: var(--text-muted);
   margin: 0;
 }
 
 .btn-back {
   padding: 0.5rem 1rem;
-  background: #f3f4f6;
-  color: #374151;
+  background: var(--sand);
+  color: var(--text);
   border: none;
   border-radius: 0.5rem;
   font-size: 0.875rem;
@@ -71,6 +71,6 @@ h1 {
 }
 
 .btn-back:hover {
-  background: #e5e7eb;
+  background: var(--sand-light);
 }
 </style>

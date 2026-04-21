@@ -207,7 +207,7 @@ defineExpose({
 }
 
 .form-container {
-  background: white;
+  background: var(--surface);
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   width: 100%;
@@ -221,20 +221,20 @@ defineExpose({
   justify-content: space-between;
   align-items: center;
   padding: 24px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--border);
 }
 
 .form-header h2 {
   margin: 0;
   font-size: 24px;
-  color: #333;
+  color: var(--text);
 }
 
 .close-button {
   background: none;
   border: none;
   font-size: 32px;
-  color: #666;
+  color: var(--text-muted);
   cursor: pointer;
   padding: 0;
   width: 32px;
@@ -247,7 +247,7 @@ defineExpose({
 }
 
 .close-button:hover {
-  background: #f0f0f0;
+  background: var(--bg);
 }
 
 .leave-request-form {
@@ -255,12 +255,12 @@ defineExpose({
 }
 
 .error-alert {
-  background: #f8d7da;
-  color: #721c24;
+  background: var(--error-bg);
+  color: var(--error-text);
   padding: 12px 16px;
   border-radius: 6px;
   margin-bottom: 20px;
-  border: 1px solid #f5c6cb;
+  border: 1px solid var(--error-border);
 }
 
 .form-group {
@@ -271,12 +271,12 @@ defineExpose({
   display: block;
   margin-bottom: 8px;
   font-weight: 600;
-  color: #333;
+  color: var(--text);
   font-size: 14px;
 }
 
 .required {
-  color: #dc3545;
+  color: var(--error-text);
   margin-left: 4px;
 }
 
@@ -284,7 +284,9 @@ defineExpose({
 .form-textarea {
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
   border-radius: 6px;
   font-size: 14px;
   font-family: inherit;
@@ -294,16 +296,16 @@ defineExpose({
 .form-input:focus,
 .form-textarea:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: var(--accent-2);
 }
 
 .input-error {
-  border-color: #dc3545;
+  border-color: var(--error-text);
 }
 
 .field-error {
   display: block;
-  color: #dc3545;
+  color: var(--error-text);
   font-size: 12px;
   margin-top: 4px;
 }
@@ -319,7 +321,7 @@ defineExpose({
   gap: 12px;
   margin-top: 24px;
   padding-top: 20px;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--border);
 }
 
 .button {
@@ -333,12 +335,12 @@ defineExpose({
 }
 
 .button-secondary {
-  background: #6c757d;
-  color: white;
+  background: var(--sand);
+  color: var(--text);
 }
 
 .button-secondary:hover {
-  background: #5a6268;
+  background: var(--sand-light);
 }
 
 .button-primary {
@@ -351,7 +353,7 @@ defineExpose({
 }
 
 .button-primary:disabled {
-  background: #ccc;
+  background: var(--sand);
   cursor: not-allowed;
 }
 

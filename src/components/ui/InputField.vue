@@ -125,7 +125,7 @@ function handleFocus(event: FocusEvent) {
 .input-field:focus {
   outline: none;
   border-color: var(--accent-2);
-  box-shadow: 0 0 0 3px rgba(255, 155, 81, 0.1);
+  box-shadow: 0 0 0 3px var(--accent-2-alpha-10);
 }
 
 .input-field::placeholder {

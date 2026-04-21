@@ -193,15 +193,15 @@ async function handleAssign(userId: number, scheduleId: number) {
 }
 
 .notification.success {
-  background: #f0fdf4;
-  border: 1px solid #86efac;
-  color: #15803d;
+  background: var(--success-bg);
+  border: 1px solid var(--success-border);
+  color: var(--success-text);
 }
 
 .notification.error {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #dc2626;
+  background: var(--error-bg);
+  border: 1px solid var(--error-border);
+  color: var(--error-text);
 }
 
 .slide-down-enter-active,
@@ -217,11 +217,11 @@ async function handleAssign(userId: number, scheduleId: number) {
 
 /* Error banner */
 .error-banner {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: var(--error-bg);
+  border: 1px solid var(--error-border);
   border-radius: 10px;
   padding: 0.75rem 1rem;
-  color: #dc2626;
+  color: var(--error-text);
   font-size: 0.88rem;
   display: flex;
   align-items: center;
@@ -232,7 +232,7 @@ async function handleAssign(userId: number, scheduleId: number) {
 .error-banner button {
   background: none;
   border: none;
-  color: #dc2626;
+  color: var(--error-text);
   cursor: pointer;
   font-size: 0.85rem;
 }

@@ -139,7 +139,7 @@ function handleStop() {
 <style scoped>
 /* Active Session */
 .session-active {
-  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(22, 163, 74, 0.05) 100%);
+  background: linear-gradient(135deg, var(--success-bg) 0%, var(--surface) 100%);
   padding: 2rem;
 }
 

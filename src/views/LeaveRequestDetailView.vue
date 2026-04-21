@@ -275,16 +275,21 @@ onUnmounted(() => {
   white-space: nowrap;
 }
 .status-pending {
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--warning-bg);
+  color: var(--warning-text);
+  border: 1px solid var(--warning-border);
 }
+
 .status-approved {
-  background: #d1fae5;
-  color: #065f46;
+  background: var(--success-bg);
+  color: var(--success-text);
+  border: 1px solid var(--success-border);
 }
+
 .status-rejected {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--error-bg);
+  color: var(--error-text);
+  border: 1px solid var(--error-border);
 }
 
 .detail-label {
@@ -361,12 +366,12 @@ onUnmounted(() => {
   transform: translateY(-1px);
 }
 .btn-reject {
-  background: var(--sand-light);
-  color: #991b1b;
-  border: 1.5px solid #fecaca;
+  background: var(--error-bg);
+  color: var(--error-text);
+  border: 1.5px solid var(--error-border);
 }
 .btn-reject:hover:not(:disabled) {
-  background: #fee2e2;
+  filter: brightness(0.95);
   transform: translateY(-1px);
 }
 .btn-approve:disabled,
