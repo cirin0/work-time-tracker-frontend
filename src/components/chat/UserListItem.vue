@@ -48,7 +48,7 @@ const avatarUrl = computed(() => {
 }
 
 .user-item.has-unread {
-  background-color: rgba(255, 155, 81, 0.1);
+  background-color: var(--accent-2-alpha-10);
   border-left: 3px solid var(--accent-2);
 }
 
@@ -61,7 +61,7 @@ const avatarUrl = computed(() => {
 }
 
 .user-item.has-unread:hover {
-  background-color: rgba(255, 155, 81, 0.15);
+  background-color: var(--accent-2-alpha-15);
 }
 
 .user-item.active {

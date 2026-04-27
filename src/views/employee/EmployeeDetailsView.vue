@@ -510,8 +510,9 @@ const daysOfWeekLabels: Record<string, string> = {
 }
 
 .badge-mode {
-  background: #d1fae5;
-  color: #065f46;
+  background: var(--role-employee-bg);
+  color: var(--role-employee-color);
+  border: 1px solid var(--role-employee-border);
 }
 
 .employee-details-grid {
@@ -738,7 +739,8 @@ const daysOfWeekLabels: Record<string, string> = {
 }
 
 .schedule-item.non-working {
-  background: #fef2f2;
+  background: var(--error-bg);
+  border: 1px solid var(--error-border);
 }
 
 .day-name {
@@ -756,7 +758,7 @@ const daysOfWeekLabels: Record<string, string> = {
 }
 
 .day-off {
-  color: #dc2626;
+  color: var(--error-text);
   font-weight: 500;
 }
 
@@ -787,7 +789,7 @@ const daysOfWeekLabels: Record<string, string> = {
 }
 
 .error-state p {
-  color: #dc2626;
+  color: var(--error-text);
   margin-bottom: 1.5rem;
   font-size: 1rem;
 }
@@ -847,15 +849,15 @@ const daysOfWeekLabels: Record<string, string> = {
 .assign-schedule-form {
   margin-top: 1.5rem;
   padding: 1.25rem;
-  background: #f8faff;
-  border: 1px solid #bfdbfe;
+  background: var(--sand-light);
+  border: 1px solid var(--border);
   border-radius: 10px;
 }
 
 .assign-schedule-form h5 {
   font-size: 0.92rem;
   font-weight: 600;
-  color: #1d4ed8;
+  color: var(--accent-1);
   margin: 0 0 0.85rem 0;
 }
 
@@ -880,7 +882,7 @@ const daysOfWeekLabels: Record<string, string> = {
 
 .schedule-select:focus {
   border-color: var(--accent-2);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 0 0 3px var(--shadow);
 }
 
 .btn-assign {
@@ -922,7 +924,7 @@ const daysOfWeekLabels: Record<string, string> = {
 .assign-error {
   margin-top: 0.5rem;
   font-size: 0.8rem;
-  color: #dc2626;
+  color: var(--error-text);
 }
 
 .assign-prompt {
@@ -948,15 +950,15 @@ const daysOfWeekLabels: Record<string, string> = {
 }
 
 .schedule-notify.success {
-  background: #f0fdf4;
-  border: 1px solid #86efac;
-  color: #15803d;
+  background: var(--success-bg);
+  border: 1px solid var(--success-border);
+  color: var(--success-text);
 }
 
 .schedule-notify.error {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #dc2626;
+  background: var(--error-bg);
+  border: 1px solid var(--error-border);
+  color: var(--error-text);
 }
 
 .fade-enter-active,

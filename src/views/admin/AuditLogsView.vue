@@ -293,7 +293,7 @@ function resetFilters() {
   padding: 0.625rem 0.75rem;
   border: 1px solid var(--border);
   border-radius: 6px;
-  background: white;
+  background: var(--surface);
   color: var(--text);
   font-family: var(--font-body);
   font-size: 0.9rem;
@@ -522,7 +522,7 @@ function resetFilters() {
 .change-block pre {
   margin: 0;
   padding: 0.75rem;
-  background: white;
+  background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 4px;
   overflow-x: auto;
@@ -535,7 +535,7 @@ function resetFilters() {
 .user-agent {
   display: block;
   padding: 0.75rem;
-  background: white;
+  background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 4px;
   font-family: 'Monaco', 'Courier New', monospace;

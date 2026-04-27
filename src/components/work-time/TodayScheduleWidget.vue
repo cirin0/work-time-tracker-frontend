@@ -87,10 +87,10 @@ const progressStatus = computed<'pending' | 'on-track' | 'completed' | 'overtime
 
 const statusColor = computed(() => {
   const colors = {
-    pending: '#94a3b8',
-    'on-track': '#3b82f6',
-    completed: '#22c55e',
-    overtime: '#f59e0b',
+    pending: 'var(--status-pending)',
+    'on-track': 'var(--status-on-track)',
+    completed: 'var(--status-completed)',
+    overtime: 'var(--status-overtime)',
   }
   return colors[progressStatus.value]
 })
@@ -228,17 +228,12 @@ const statusColor = computed(() => {
   justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem;
-  background: rgba(251, 191, 36, 0.15);
-  border: 1px solid rgba(251, 191, 36, 0.3);
+  background: var(--warning-bg);
+  border: 1px solid var(--warning-border);
   border-radius: 0.5rem;
   font-family: var(--font-body);
   font-size: 0.875rem;
-  color: #d97706;
-}
-
-[data-theme='dark'] .break-info {
-  background: rgba(251, 191, 36, 0.2);
-  color: #fbbf24;
+  color: var(--warning-text);
 }
 
 .break-icon {
@@ -336,25 +331,15 @@ const statusColor = computed(() => {
 }
 
 .status-message.success {
-  background: rgba(34, 197, 94, 0.15);
-  color: #16a34a;
-  border: 1px solid rgba(34, 197, 94, 0.3);
-}
-
-[data-theme='dark'] .status-message.success {
-  background: rgba(34, 197, 94, 0.2);
-  color: #4ade80;
+  background: var(--success-bg);
+  color: var(--success-text);
+  border: 1px solid var(--success-border);
 }
 
 .status-message.warning {
-  background: rgba(251, 191, 36, 0.15);
-  color: #d97706;
-  border: 1px solid rgba(251, 191, 36, 0.3);
-}
-
-[data-theme='dark'] .status-message.warning {
-  background: rgba(251, 191, 36, 0.2);
-  color: #fbbf24;
+  background: var(--warning-bg);
+  color: var(--warning-text);
+  border: 1px solid var(--warning-border);
 }
 
 /* Empty State */

@@ -51,7 +51,7 @@ defineProps<{
 
 <style scoped>
 .section {
-  background: white;
+  background: var(--surface);
   border-radius: 0.75rem;
   padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
@@ -61,7 +61,7 @@ defineProps<{
 .section h2 {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
   margin: 0 0 1.25rem;
 }
 
@@ -74,7 +74,7 @@ defineProps<{
 .cards-row :deep(.stat-card) {
   flex: 1;
   min-width: 140px;
-  background: #f9fafb;
+  background: var(--bg);
   border-radius: 0.5rem;
   padding: 1rem 1.25rem;
   box-shadow: none;

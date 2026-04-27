@@ -72,40 +72,41 @@ defineEmits<{
 
 .loading-state p {
   font-size: 16px;
-  color: #666;
+  color: var(--text-muted);
 }
 
 .error-state {
-  background: #fff3cd;
-  border: 1px solid #ffc107;
+  background: var(--warning-bg);
+  border: 1px solid var(--warning-border);
   border-radius: 8px;
 }
 
 .error-message {
-  color: #856404;
+  color: var(--warning-text);
   margin-bottom: 16px;
   font-size: 16px;
 }
 
 .retry-button {
-  background: #ffc107;
-  color: #333;
-  border: none;
+  background: var(--warning-bg);
+  color: var(--warning-text);
+  border: 1px solid var(--warning-border);
   padding: 10px 20px;
   border-radius: 6px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
 
 .retry-button:hover {
-  background: #e0a800;
+  background: var(--warning-text);
+  color: white;
 }
 
 .empty-state p {
   font-size: 16px;
-  color: #666;
+  color: var(--text-muted);
   margin-bottom: 20px;
 }
 

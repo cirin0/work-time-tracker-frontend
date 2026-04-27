@@ -62,23 +62,23 @@ table {
 }
 
 thead tr {
-  background: #f3f4f6;
+  background: var(--sand-light);
 }
 
 th,
 td {
   padding: 0.6rem 1rem;
   text-align: left;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border);
 }
 
 th {
   font-weight: 600;
-  color: #374151;
+  color: var(--text);
 }
 
 td {
-  color: #4b5563;
+  color: var(--text-muted);
 }
 
 tr:last-child td {

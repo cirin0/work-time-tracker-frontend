@@ -242,47 +242,27 @@ const isActive = computed(() => !props.entry.stop_time)
 }
 
 .badge-early {
-  background: rgba(59, 130, 246, 0.15);
-  color: #1e40af;
-  border: 1px solid rgba(59, 130, 246, 0.3);
-}
-
-[data-theme='dark'] .badge-early {
-  background: rgba(59, 130, 246, 0.2);
-  color: #60a5fa;
+  background: var(--info-bg);
+  color: var(--info-text);
+  border: 1px solid var(--info-border);
 }
 
 .badge-early-leave {
-  background: rgba(251, 191, 36, 0.15);
-  color: #d97706;
-  border: 1px solid rgba(251, 191, 36, 0.3);
-}
-
-[data-theme='dark'] .badge-early-leave {
-  background: rgba(251, 191, 36, 0.2);
-  color: #fbbf24;
+  background: var(--warning-bg);
+  color: var(--warning-text);
+  border: 1px solid var(--warning-border);
 }
 
 .badge-overtime {
-  background: rgba(251, 191, 36, 0.15);
-  color: #d97706;
-  border: 1px solid rgba(251, 191, 36, 0.3);
-}
-
-[data-theme='dark'] .badge-overtime {
-  background: rgba(251, 191, 36, 0.2);
-  color: #fbbf24;
+  background: var(--warning-bg);
+  color: var(--warning-text);
+  border: 1px solid var(--warning-border);
 }
 
 .badge-on-time {
-  background: rgba(34, 197, 94, 0.15);
-  color: #16a34a;
-  border: 1px solid rgba(34, 197, 94, 0.3);
-}
-
-[data-theme='dark'] .badge-on-time {
-  background: rgba(34, 197, 94, 0.2);
-  color: #4ade80;
+  background: var(--success-bg);
+  color: var(--success-text);
+  border: 1px solid var(--success-border);
 }
 
 .entry-comments {

@@ -6,6 +6,7 @@ import { useRoleGuard } from '@/composables/useRoleGuard'
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import LogoProfile from '../profile/LogoProfile.vue'
+import ThemeToggle from '../ui/ThemeToggle.vue'
 
 const authStore = useAuthStore()
 const profileStore = useProfileStore()
@@ -66,6 +67,7 @@ watch(
       </nav>
 
       <div class="header-actions">
+        <ThemeToggle />
         <router-link v-if="profileRoute && currentProfile" :to="profileRoute" class="profile-link">
           <LogoProfile :user="currentProfile" />
         </router-link>
@@ -161,12 +163,12 @@ watch(
 
 .nav-link:hover {
   color: var(--accent-2);
-  background: rgba(255, 155, 81, 0.1);
+  background: var(--nav-hover-bg);
 }
 
 .nav-link.router-link-active {
   color: var(--accent-2);
-  background: rgba(255, 155, 81, 0.15);
+  background: var(--nav-active-bg);
 }
 
 .chat-link {
@@ -179,8 +181,8 @@ watch(
   min-width: 20px;
   height: 20px;
   padding: 0 6px;
-  background: #ef4444;
-  color: white;
+  background: var(--error-text);
+  color: var(--header-text);
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -210,7 +212,7 @@ watch(
 }
 
 .profile-link:hover {
-  background: rgba(255, 155, 81, 0.1);
+  background: var(--nav-hover-bg);
 }
 
 .profile-loading {
@@ -223,7 +225,7 @@ watch(
   padding: 0.5rem 1.25rem;
   background: transparent;
   color: var(--accent-2);
-  border: 1px solid rgba(255, 155, 81, 0.3);
+  border: 1px solid var(--company-link-border);
   border-radius: 0.5rem;
   cursor: pointer;
   font-weight: 500;
@@ -232,7 +234,7 @@ watch(
 }
 
 .logout-button:hover {
-  background: rgba(255, 155, 81, 0.1);
+  background: var(--nav-hover-bg);
   border-color: var(--accent-2);
   transform: translateY(-1px);
 }

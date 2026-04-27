@@ -54,33 +54,20 @@ defineProps<Props>()
 
 /* Status variants */
 .status-active {
-  background: rgba(34, 197, 94, 0.15);
-  color: #16a34a;
-  border: 1px solid rgba(34, 197, 94, 0.3);
+  background: var(--success-bg);
+  color: var(--success-text);
+  border: 1px solid var(--success-border);
 }
 
 .status-pending {
-  background: rgba(251, 191, 36, 0.15);
-  color: #d97706;
-  border: 1px solid rgba(251, 191, 36, 0.3);
+  background: var(--warning-bg);
+  color: var(--warning-text);
+  border: 1px solid var(--warning-border);
 }
 
 .status-rejected {
   background: var(--error-bg);
   color: var(--error-text);
   border: 1px solid var(--error-border);
-}
-
-/* Dark mode adjustments for status variants */
-[data-theme='dark'] .status-active {
-  background: rgba(34, 197, 94, 0.2);
-  color: #4ade80;
-  border: 1px solid rgba(34, 197, 94, 0.3);
-}
-
-[data-theme='dark'] .status-pending {
-  background: rgba(251, 191, 36, 0.2);
-  color: #fbbf24;
-  border: 1px solid rgba(251, 191, 36, 0.3);
 }
 </style>

@@ -237,15 +237,15 @@ function goToEmployee(id?: number) {
   background: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 100%);
   padding: 1.5rem 2rem;
   border-radius: 12px;
-  color: white;
+  color: var(--header-text);
   margin-bottom: 2rem;
-  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.2);
+  box-shadow: 0 10px 25px var(--shadow);
 }
 
 .header-banner h1 {
   font-size: 1.8rem;
   margin: 0 0 0.5rem 0;
-  color: white;
+  color: var(--header-text);
 }
 
 .subtitle {
@@ -307,8 +307,9 @@ function goToEmployee(id?: number) {
 .value.active {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #10b981;
+  color: var(--success-text);
 }
+
 .value.total {
   font-size: 1.2rem;
   color: var(--text-muted);
@@ -328,7 +329,7 @@ function goToEmployee(id?: number) {
 
 .progress-fill {
   height: 100%;
-  background: #10b981;
+  background: var(--success-text);
   transform-origin: left;
   will-change: transform;
   transition: transform 0.5s ease;
@@ -410,7 +411,7 @@ h2 {
 }
 
 .text-warning {
-  color: #f59e0b;
+  color: var(--warning-text);
 }
 
 .activity-section,
@@ -418,7 +419,7 @@ h2 {
   background: var(--surface);
   border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 4px 15px var(--shadow);
   border: 1px solid var(--border);
 }
 
@@ -436,8 +437,8 @@ h2 {
 }
 
 .badge.red {
-  background: #ef4444;
-  color: white;
+  background: var(--error-text);
+  color: var(--header-text);
   padding: 0.2rem 0.6rem;
   border-radius: 20px;
   font-size: 0.85rem;
@@ -451,7 +452,7 @@ h2 {
 }
 
 .qr-box {
-  background: linear-gradient(to bottom right, var(--surface) 0%, rgba(240, 244, 255, 0.5) 100%);
+  background: linear-gradient(to bottom right, var(--surface) 0%, var(--sand-light) 100%);
 }
 
 .qr-compact-container {
@@ -472,7 +473,7 @@ h2 {
   display: flex;
   align-items: center;
   padding: 0.75rem 1rem;
-  background: var(--background);
+  background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 12px;
   cursor: pointer;
@@ -488,7 +489,7 @@ h2 {
   border-color: var(--accent-1);
   border-radius: 12px;
   background: var(--surface);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.05);
+  box-shadow: 0 4px 12px var(--shadow);
   transform: translateY(-2px);
 }
 
@@ -503,13 +504,15 @@ h2 {
   margin-right: 1rem;
 }
 .status-dot.green {
-  background: #10b981;
+  background: var(--success-text);
 }
+
 .status-dot.orange {
-  background: #f59e0b;
+  background: var(--warning-text);
 }
+
 .status-dot.gray {
-  background: #9ca3af;
+  background: var(--text-muted);
 }
 
 .user-info-wrapper {
@@ -525,12 +528,12 @@ h2 {
 
 .lateness-badge {
   font-size: 0.8rem;
-  color: #ef4444; /* red color for warning */
+  color: var(--error-text); /* red color for warning */
   margin-top: 0.15rem;
 }
 
 .user-time {
-  font-family: monospace;
+  font-family: var(--font-mono);
   font-size: 1rem;
   color: var(--text-muted);
 }
