@@ -1,6 +1,8 @@
 import { API_ROUTES, apiClient } from '@/core/api'
 import type {
   UpdateProfileRequest,
+  RequestEmailChangeRequest,
+  VerifyEmailChangeRequest,
   ChangePasswordRequest,
   SetupPinCodeRequest,
   ChangePinCodeRequest,
@@ -60,6 +62,48 @@ export const useProfileStore = defineStore('profile', () => {
       return profile.value
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to update profile'
+      throw err
+    } finally {
+      isSaving.value = false
+    }
+  }
+
+  async function requestEmailChange(payload: RequestEmailChangeRequest) {
+    isSaving.value = true
+    error.value = null
+
+    try {
+      const { data } = await apiClient.post<{ message: string }>(API_ROUTES.me.requestEmailChange, {
+        new_email: payload.new_email,
+      })
+      return data
+    } catch (err) {
+      throw err
+    } finally {
+      isSaving.value = false
+    }
+  }
+
+  async function verifyEmailChange(payload: VerifyEmailChangeRequest) {
+    isSaving.value = true
+    error.value = null
+
+    try {
+      const { data } = await apiClient.post<{ message: string }>(API_ROUTES.me.verifyEmailChange, {
+        new_email: payload.new_email,
+        code: payload.code,
+      })
+
+      if (profile.value) {
+        profile.value.email = payload.new_email
+      }
+
+      if (authStore.currentUser) {
+        authStore.currentUser.email = payload.new_email
+      }
+
+      return data
+    } catch (err) {
       throw err
     } finally {
       isSaving.value = false
@@ -166,6 +210,8 @@ export const useProfileStore = defineStore('profile', () => {
     clearProfile,
     updateProfileLocally,
     updateProfile,
+    requestEmailChange,
+    verifyEmailChange,
     updateAvatar,
     requestPasswordChangeCode,
     changePassword,

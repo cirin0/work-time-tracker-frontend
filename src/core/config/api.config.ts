@@ -15,6 +15,8 @@ export const API_ROUTES = {
     updateAvatar: '/me/avatar',
     requestPasswordChangeCode: '/me/request-password-change-code',
     changePassword: '/me/change-password',
+    requestEmailChange: '/me/request-email-change',
+    verifyEmailChange: '/me/verify-email-change',
     setupPinCode: '/me/pin-code',
     changePinCode: '/me/pin-code',
     getWorkSchedule: '/me/work-schedule',

@@ -1,6 +1,14 @@
 export interface UpdateProfileRequest {
   name?: string
-  email?: string
+}
+
+export interface RequestEmailChangeRequest {
+  new_email: string
+}
+
+export interface VerifyEmailChangeRequest {
+  new_email: string
+  code: string
 }
 
 export interface ChangePasswordRequest {
