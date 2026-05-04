@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import axios from 'axios'
 import { useRouter } from 'vue-router'
 import { useProfileStore } from '@/stores/profile.store'
 import { getAvatarUrl } from '@/core/utils/url'
@@ -19,7 +20,6 @@ import Avatar from '@/components/ui/Avatar.vue'
 import { apiClient, API_ROUTES } from '@/core/api'
 import { API_BASE_URL } from '@/core/api/client'
 import type {
-  UpdateProfileRequest,
   ChangePasswordRequest,
   SetupPinCodeRequest,
   ChangePinCodeRequest,
@@ -47,8 +47,16 @@ onMounted(() => {
 })
 
 const isEditMode = ref(false)
-const editForm = ref<UpdateProfileRequest>({ name: '', email: '' })
+const editForm = ref({ name: '', email: '' })
 const formError = ref<string | null>(null)
+const emailChangeError = ref<string | null>(null)
+const emailChangeSuccess = ref<string | null>(null)
+const isRequestingEmailCode = ref(false)
+const isVerifyingEmailChange = ref(false)
+const emailChangePhase = ref<'edit' | 'verify'>('edit')
+const pendingEmail = ref('')
+const emailChangeCode = ref('')
+const emailCodeCooldown = ref(0)
 
 const isPasswordModalOpen = ref(false)
 const passwordForm = ref<ChangePasswordRequest>({
@@ -63,6 +71,7 @@ const isRequestingPasswordCode = ref(false)
 const passwordCodeCooldown = ref(0)
 
 let passwordCodeTimer: ReturnType<typeof setInterval> | null = null
+let emailCodeTimer: ReturnType<typeof setInterval> | null = null
 
 const isPasswordCodeButtonDisabled = computed(
   () => isRequestingPasswordCode.value || passwordCodeCooldown.value > 0 || store.isSaving,
@@ -84,29 +93,195 @@ function openEditMode() {
     editForm.value = { name: store.displayProfile.name, email: store.displayProfile.email }
   }
   formError.value = null
+  emailChangeError.value = null
+  emailChangeSuccess.value = null
+  emailChangePhase.value = 'edit'
+  pendingEmail.value = ''
+  emailChangeCode.value = ''
+  emailCodeCooldown.value = 0
+  clearEmailCodeTimer()
   isEditMode.value = true
 }
 function cancelEdit() {
   isEditMode.value = false
   formError.value = null
+  emailChangeError.value = null
+  emailChangeSuccess.value = null
+  emailChangePhase.value = 'edit'
+  pendingEmail.value = ''
+  emailChangeCode.value = ''
+  emailCodeCooldown.value = 0
+  clearEmailCodeTimer()
+}
+
+function normalizeEmail(email: string) {
+  return email.trim().toLowerCase()
+}
+
+function isValidEmail(email: string) {
+  return /^\S+@\S+\.\S+$/.test(email)
+}
+
+function getEmailChangeErrorMessage(error: unknown, fallbackMessage: string) {
+  const serverMessages: Record<string, string> = {
+    'Please wait before requesting a new code': 'Занадто часті запити. Спробуйте трохи пізніше.',
+    'The given data was invalid.': 'Введені дані невірні.',
+    'Too Many Attempts.': 'Забагато спроб. Спробуйте пізніше.',
+  }
+
+  if (axios.isAxiosError(error)) {
+    const serverMessage = error.response?.data?.message
+    if (serverMessage && serverMessages[serverMessage]) {
+      return serverMessages[serverMessage]
+    }
+
+    if (error.response?.status === 400) {
+      return 'Занадто часті запити. Спробуйте трохи пізніше.'
+    }
+
+    return serverMessage || fallbackMessage
+  }
+
+  if (error instanceof Error && error.message) {
+    return error.message
+  }
+
+  return fallbackMessage
 }
 
 async function saveProfile() {
-  if (!editForm.value.name?.trim()) {
+  if (emailChangePhase.value === 'verify') {
+    await verifyEmailChange()
+    return
+  }
+
+  const trimmedName = editForm.value.name.trim()
+  const trimmedEmail = normalizeEmail(editForm.value.email)
+  const currentName = store.displayProfile?.name?.trim() ?? ''
+  const currentEmail = normalizeEmail(store.displayProfile?.email ?? '')
+
+  formError.value = null
+  emailChangeError.value = null
+  emailChangeSuccess.value = null
+
+  if (!trimmedName) {
     formError.value = "Ім'я не може бути порожнім"
     return
   }
-  if (!editForm.value.email?.trim()) {
+
+  if (!trimmedEmail) {
     formError.value = 'Email не може бути порожнім'
     return
   }
+
+  if (!isValidEmail(trimmedEmail)) {
+    formError.value = 'Введіть коректну email адресу'
+    return
+  }
+
   try {
-    await store.updateProfile(editForm.value)
+    if (trimmedName !== currentName) {
+      await store.updateProfile({ name: trimmedName })
+    }
+
+    if (trimmedEmail !== currentEmail) {
+      await requestEmailChange(trimmedEmail)
+      return
+    }
+
     isEditMode.value = false
-    formError.value = null
   } catch (e) {
     formError.value = e instanceof Error ? e.message : 'Помилка оновлення профілю'
   }
+}
+
+function clearEmailCodeTimer() {
+  if (!emailCodeTimer) return
+
+  clearInterval(emailCodeTimer)
+  emailCodeTimer = null
+}
+
+function startEmailCodeCooldown(seconds = 60) {
+  clearEmailCodeTimer()
+  emailCodeCooldown.value = seconds
+
+  emailCodeTimer = setInterval(() => {
+    if (emailCodeCooldown.value <= 1) {
+      emailCodeCooldown.value = 0
+      clearEmailCodeTimer()
+      return
+    }
+
+    emailCodeCooldown.value -= 1
+  }, 1000)
+}
+
+async function requestEmailChange(newEmail: string) {
+  emailChangeError.value = null
+  emailChangeSuccess.value = null
+  isRequestingEmailCode.value = true
+
+  try {
+    await store.requestEmailChange({ new_email: newEmail })
+    pendingEmail.value = newEmail
+    emailChangeCode.value = ''
+    emailChangePhase.value = 'verify'
+    emailChangeSuccess.value = 'Код підтвердження надіслано на нову електронну пошту.'
+    startEmailCodeCooldown()
+  } catch (e) {
+    emailChangeError.value = getEmailChangeErrorMessage(e, 'Не вдалося надіслати код зміни email')
+  } finally {
+    isRequestingEmailCode.value = false
+  }
+}
+
+async function verifyEmailChange() {
+  emailChangeError.value = null
+  emailChangeSuccess.value = null
+
+  if (!pendingEmail.value) {
+    emailChangeError.value = 'Спочатку вкажіть нову електронну пошту'
+    return
+  }
+
+  if (!emailChangeCode.value) {
+    emailChangeError.value = 'Введіть код підтвердження'
+    return
+  }
+
+  if (emailChangeCode.value.length !== 6) {
+    emailChangeError.value = 'Код підтвердження повинен містити 6 символів'
+    return
+  }
+
+  isVerifyingEmailChange.value = true
+
+  try {
+    await store.verifyEmailChange({ new_email: pendingEmail.value, code: emailChangeCode.value })
+
+    emailChangeSuccess.value = 'Email успішно змінено.'
+    clearEmailCodeTimer()
+    emailCodeCooldown.value = 0
+
+    setTimeout(() => {
+      isEditMode.value = false
+      emailChangePhase.value = 'edit'
+      pendingEmail.value = ''
+      emailChangeCode.value = ''
+      emailChangeSuccess.value = null
+    }, 1200)
+  } catch (e) {
+    emailChangeError.value = getEmailChangeErrorMessage(e, 'Не вдалося підтвердити email')
+  } finally {
+    isVerifyingEmailChange.value = false
+  }
+}
+
+function resendEmailChangeCode() {
+  if (!pendingEmail.value || emailCodeCooldown.value > 0 || isRequestingEmailCode.value) return
+
+  void requestEmailChange(pendingEmail.value)
 }
 
 async function handleAvatarChange(event: Event) {
@@ -246,6 +421,7 @@ async function changePassword() {
 
 onUnmounted(() => {
   clearPasswordCodeTimer()
+  clearEmailCodeTimer()
 })
 
 function openPinSetupModal() {
@@ -358,6 +534,8 @@ function downloadApp() {
     <div v-else class="profile-page">
       <Modal v-model="isEditMode" title="Редагувати профіль">
         <div v-if="formError" class="modal-error">{{ formError }}</div>
+        <div v-if="emailChangeError" class="modal-error">{{ emailChangeError }}</div>
+        <div v-if="emailChangeSuccess" class="modal-success">{{ emailChangeSuccess }}</div>
         <div class="form-field">
           <label class="edit-label">Ім'я</label>
           <div class="edit-input-wrapper">
@@ -367,6 +545,7 @@ function downloadApp() {
               type="text"
               class="edit-input with-icon"
               placeholder="Введіть ім'я"
+              :disabled="emailChangePhase === 'verify'"
             />
           </div>
         </div>
@@ -379,15 +558,57 @@ function downloadApp() {
               type="email"
               class="edit-input with-icon"
               placeholder="Введіть email"
+              :disabled="emailChangePhase === 'verify'"
             />
           </div>
+        </div>
+        <div v-if="emailChangePhase === 'verify'" class="email-verification-box">
+          <p class="email-verification-text">
+            Код надіслано на {{ pendingEmail }}. Введіть його для завершення зміни email.
+          </p>
+          <div class="form-field">
+            <label class="edit-label">Код підтвердження</label>
+            <div class="edit-input-wrapper">
+              <LockIcon class="edit-icon" />
+              <input
+                v-model="emailChangeCode"
+                type="text"
+                class="edit-input with-icon"
+                placeholder="6-значний код"
+                maxlength="6"
+              />
+            </div>
+          </div>
+          <button
+            class="btn-secondary email-resend-btn"
+            :disabled="isRequestingEmailCode || emailCodeCooldown > 0 || store.isSaving"
+            @click="resendEmailChangeCode"
+          >
+            {{
+              isRequestingEmailCode
+                ? 'Надсилання...'
+                : emailCodeCooldown > 0
+                  ? `Повторно через ${emailCodeCooldown}с`
+                  : 'Надіслати код повторно'
+            }}
+          </button>
         </div>
         <template #footer>
           <button class="btn-secondary" @click="cancelEdit" :disabled="store.isSaving">
             Скасувати
           </button>
-          <button class="btn-primary" @click="saveProfile" :disabled="store.isSaving">
-            {{ store.isSaving ? 'Збереження...' : 'Зберегти' }}
+          <button
+            class="btn-primary"
+            @click="saveProfile"
+            :disabled="store.isSaving || isRequestingEmailCode || isVerifyingEmailChange"
+          >
+            {{
+              store.isSaving || isRequestingEmailCode || isVerifyingEmailChange
+                ? 'Збереження...'
+                : emailChangePhase === 'verify'
+                  ? 'Підтвердити email'
+                  : 'Зберегти'
+            }}
           </button>
         </template>
       </Modal>
@@ -847,6 +1068,25 @@ function downloadApp() {
 .sidebar-download-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.email-verification-box {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--sand-light);
+}
+
+.email-verification-text {
+  margin: 0 0 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.email-resend-btn {
+  width: 100%;
 }
 
 .profile-main {
