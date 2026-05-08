@@ -21,7 +21,7 @@
   "dependencies": {
     "@vee-validate/yup": "^4.15.1",
     "@vueuse/core": "^14.0.0",
-    "axios": "^1.13.5",
+    "axios": "^1.15.2",
     "chart.js": "^4.5.1",
     "pinia": "^3.0.3",
     "qrcode": "^1.5.4",
