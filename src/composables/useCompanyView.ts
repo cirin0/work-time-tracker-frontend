@@ -6,6 +6,7 @@ import { useAdminStore } from '@/stores/admin.store'
 import { useRoleGuard } from '@/composables/useRoleGuard'
 import { getAvatarUrl } from '@/core/utils/url'
 import type AdminCompanyEditModal from '@/components/admin/AdminCompanyEditModal.vue'
+import type AdminAssignManagerModal from '@/components/admin/AdminAssignManagerModal.vue'
 import type { UpdateCompanyRequest } from '@/types/requests/companyRequest.interface'
 
 export function useCompanyView() {
@@ -18,6 +19,10 @@ export function useCompanyView() {
   const showEditModal = ref(false)
   const isSubmittingEdit = ref(false)
   const editModalRef = ref<InstanceType<typeof AdminCompanyEditModal> | null>(null)
+
+  const showAssignManagerModal = ref(false)
+  const isSubmittingManager = ref(false)
+  const assignManagerModalRef = ref<InstanceType<typeof AdminAssignManagerModal> | null>(null)
 
   const isUploadingLogo = ref(false)
   const logoInputRef = ref<HTMLInputElement | null>(null)
@@ -166,6 +171,18 @@ export function useCompanyView() {
     }
   }
 
+  async function handleAssignManager(managerId: number) {
+    isSubmittingManager.value = true
+    try {
+      await companyStore.assignManager(managerId)
+      showAssignManagerModal.value = false
+    } catch {
+      assignManagerModalRef.value?.setError(companyStore.error ?? 'Помилка призначення менеджера')
+    } finally {
+      isSubmittingManager.value = false
+    }
+  }
+
   function goToUser(id: number) {
     router.push({ name: 'user-details', params: { id } })
   }
@@ -180,6 +197,9 @@ export function useCompanyView() {
     showEditModal,
     isSubmittingEdit,
     editModalRef,
+    showAssignManagerModal,
+    isSubmittingManager,
+    assignManagerModalRef,
     isUploadingLogo,
     logoInputRef,
     newEmployeeId,
@@ -198,6 +218,7 @@ export function useCompanyView() {
     selectEmployee,
     handleAddEmployee,
     handleRemoveEmployee,
+    handleAssignManager,
     goToUser,
   }
 }

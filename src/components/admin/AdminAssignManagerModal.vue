@@ -44,7 +44,7 @@ watch(
       const currentUserId = authStore.currentUser?.id
       availableManagers.value = adminStore.users.filter((user) => {
         if (user.id === currentUserId) return false
-        return user.role === UserRole.MANAGER || user.role === UserRole.EMPLOYEE
+        return user.role === UserRole.MANAGER
       })
     }
   },
