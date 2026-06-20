@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { getAvatarUrl } from '@/core/utils/url'
 import { formatDate } from '@/core/utils/date'
 import AdminCompanyEditModal from '@/components/admin/AdminCompanyEditModal.vue'
+import AdminAssignManagerModal from '@/components/admin/AdminAssignManagerModal.vue'
 import { useCompanyView } from '@/composables/useCompanyView'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
@@ -26,6 +27,10 @@ const {
   addEmployeeSuccess,
   removeEmployeeError,
   logoUploadError,
+  showAssignManagerModal,
+  isSubmittingManager,
+  assignManagerModalRef,
+  handleAssignManager,
   handleEditSubmit,
   triggerLogoUpload,
   handleLogoChange,
@@ -139,9 +144,18 @@ const managerId = computed(() => company.value?.manager?.id ?? null)
 
         <!-- Info Grid -->
         <div class="info-grid">
-          <div v-if="company.manager" class="info-item">
-            <span class="info-label">Менеджер</span>
-            <div class="manager-chip">
+          <div class="info-item">
+            <div class="info-label-row">
+              <span class="info-label">Менеджер</span>
+              <button
+                v-if="isAdmin"
+                class="btn-change-manager"
+                @click="showAssignManagerModal = true"
+              >
+                {{ company.manager ? '🔄 Змінити' : '+ Призначити' }}
+              </button>
+            </div>
+            <div v-if="company.manager" class="manager-chip">
               <div class="manager-avatar-sm">
                 <img
                   v-if="getAvatarUrl(company.manager.avatar)"
@@ -156,10 +170,7 @@ const managerId = computed(() => company.value?.manager?.id ?? null)
                 <span class="manager-chip-email">{{ company.manager.email }}</span>
               </div>
             </div>
-          </div>
-          <div v-else class="info-item">
-            <span class="info-label">Менеджер</span>
-            <span class="info-value muted">Не призначено</span>
+            <span v-else class="info-value muted">Не призначено</span>
           </div>
 
           <div v-if="company.email" class="info-item">
@@ -351,6 +362,15 @@ const managerId = computed(() => company.value?.manager?.id ?? null)
       :is-submitting="isSubmittingEdit"
       @close="showEditModal = false"
       @submit="handleEditSubmit"
+    />
+
+    <!-- Assign / Change Manager Modal -->
+    <AdminAssignManagerModal
+      ref="assignManagerModalRef"
+      :show="showAssignManagerModal"
+      :is-submitting="isSubmittingManager"
+      @close="showAssignManagerModal = false"
+      @submit="handleAssignManager"
     />
   </div>
 </template>
@@ -597,10 +617,46 @@ const managerId = computed(() => company.value?.manager?.id ?? null)
 }
 
 /* ── Manager chip ── */
+.info-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.btn-change-manager {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--accent-2);
+  border-radius: 0.375rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+  line-height: 1.4;
+}
+
+.btn-change-manager:hover {
+  border-color: var(--accent-2);
+  background: var(--sand-light);
+  transform: translateY(-1px);
+}
+
+.btn-change-manager:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 3px;
+}
+
 .manager-chip {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  margin-top: 0.25rem;
 }
 .manager-avatar-sm {
   width: 36px;
